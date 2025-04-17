@@ -5,7 +5,7 @@ from .controllers.update_thies_data import UpdateThiesDataController
 
 
 class EpiiAPI:
-    def update_thies_data(
+    async def update_thies_data(
         self,
         ftp_port: int,
         ftp_host: str,
@@ -20,5 +20,5 @@ class EpiiAPI:
                 ftp_user=ftp_user,
             )
         )
-        response = controller.execute()
+        response = await controller.execute()
         return response.__dict__
