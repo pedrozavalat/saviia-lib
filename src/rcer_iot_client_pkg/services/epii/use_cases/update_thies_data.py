@@ -122,11 +122,11 @@ class UpdateThiesDataUseCase:
 
     async def execute(self) -> dict:
         """Synchronize data from the THIES Center to the cloud."""
-        try: 
+        try:
             thies_files = await self.fetch_thies_file_names()
         except RuntimeError as error:
             raise FtpClientError(error)
-        
+
         cloud_files = await self.fetch_cloud_file_names(folder_name="thies")
         self.uploading = thies_files - cloud_files
         if not self.uploading:

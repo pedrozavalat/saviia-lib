@@ -1,7 +1,8 @@
 from typing import Dict
 
-from .controllers.update_thies_data import UpdateThiesDataController
 from .controllers.types.update_thies_data_types import UpdateThiesDataControllerInput
+from .controllers.update_thies_data import UpdateThiesDataController
+
 
 class EpiiAPI:
     def update_thies_data(
