@@ -1,18 +1,18 @@
 import unittest
 from unittest.mock import AsyncMock, patch
 
-from src.rcer_iot_client_pkg.general_types.error_types.api.update_thies_data_error_types import (
+from rcer_iot_client_pkg.general_types.error_types.api.update_thies_data_error_types import (
     FetchCloudFileNamesError,
     ThiesUploadEmptyError,
 )
-from src.rcer_iot_client_pkg.general_types.error_types.common import (
+from rcer_iot_client_pkg.general_types.error_types.common import (
     FtpClientError,
     HttpClientError,
 )
-from src.rcer_iot_client_pkg.services.epii.controllers.types import (
+from rcer_iot_client_pkg.services.epii.controllers.types import (
     UpdateThiesDataControllerInput,
 )
-from src.rcer_iot_client_pkg.services.epii.controllers.update_thies_data import (
+from rcer_iot_client_pkg.services.epii.controllers.update_thies_data import (
     UpdateThiesDataController,
 )
 
@@ -25,7 +25,7 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         self.password = "password"
 
     @patch(
-        "src.rcer_iot_client_pkg.services.epii.controllers.update_thies_data.UpdateThiesDataUseCase"
+        "rcer_iot_client_pkg.services.epii.controllers.update_thies_data.UpdateThiesDataUseCase"
     )
     async def test_should_execute_successfully(self, mock_use_case_class):
         mock_use_case_inst = mock_use_case_class.return_value
@@ -47,7 +47,7 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.metadata["data"], {"key": "value"})
 
     @patch(
-        "src.rcer_iot_client_pkg.services.epii.controllers.update_thies_data.UpdateThiesDataUseCase"
+        "rcer_iot_client_pkg.services.epii.controllers.update_thies_data.UpdateThiesDataUseCase"
     )
     async def test_should_handle_ftp_client_error(self, mock_use_case):
         mock_use_case_inst = mock_use_case.return_value
@@ -65,11 +65,11 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         result = await controller.execute()
 
         self.assertEqual(result.message, "Ftp Client initialization fails.")
-        self.assertEqual(result.status, 500)
+        self.assertEqual(result.status, 400)
         self.assertIn("Ftp Client", result.metadata["error"])
 
     @patch(
-        "src.rcer_iot_client_pkg.services.epii.controllers.update_thies_data.UpdateThiesDataUseCase"
+        "rcer_iot_client_pkg.services.epii.controllers.update_thies_data.UpdateThiesDataUseCase"
     )
     async def test_should_handle_http_client_error(self, mock_use_case):
         mock_use_case_inst = mock_use_case.return_value
@@ -87,11 +87,11 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         result = await controller.execute()
 
         self.assertEqual(result.message, "Http Client initialization fails.")
-        self.assertEqual(result.status, 500)
+        self.assertEqual(result.status, 400)
         self.assertIn("Http Client", result.metadata["error"])
 
     @patch(
-        "src.rcer_iot_client_pkg.services.epii.controllers.update_thies_data.UpdateThiesDataUseCase"
+        "rcer_iot_client_pkg.services.epii.controllers.update_thies_data.UpdateThiesDataUseCase"
     )
     async def test_should_handle_fetch_cloud_file_names_error(self, mock_use_case):
         mock_use_case_inst = mock_use_case.return_value
@@ -116,7 +116,7 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         self.assertIn("RCER cloud", result.metadata["error"])
 
     @patch(
-        "src.rcer_iot_client_pkg.services.epii.controllers.update_thies_data.UpdateThiesDataUseCase"
+        "rcer_iot_client_pkg.services.epii.controllers.update_thies_data.UpdateThiesDataUseCase"
     )
     async def test_should_handle_thies_upload_empty_error(self, mock_use_case):
         mock_use_case_inst = mock_use_case.return_value
@@ -138,7 +138,7 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         self.assertIn("No files", result.metadata["error"])
 
     @patch(
-        "src.rcer_iot_client_pkg.services.epii.controllers.update_thies_data.UpdateThiesDataUseCase"
+        "rcer_iot_client_pkg.services.epii.controllers.update_thies_data.UpdateThiesDataUseCase"
     )
     async def test_should_handle_unexpected_error(self, mock_use_case):
         mock_use_case_inst = mock_use_case.return_value

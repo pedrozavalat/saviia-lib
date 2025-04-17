@@ -2,10 +2,10 @@ from typing import Any
 
 from aiohttp import ClientError, ClientSession
 
-from src.rcer_iot_client_pkg.libs.async_http_client.async_http_client_contract import (
+from rcer_iot_client_pkg.libs.async_http_client.async_http_client_contract import (
     AsyncHTTPClientContract,
 )
-from src.rcer_iot_client_pkg.libs.async_http_client.types.async_http_client_types import (
+from rcer_iot_client_pkg.libs.async_http_client.types.async_http_client_types import (
     AsyncHttpClientInitArgs,
     GetArgs,
     UploadFileArgs,

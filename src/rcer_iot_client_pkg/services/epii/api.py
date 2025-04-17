@@ -1,7 +1,8 @@
 from typing import Dict
 
-from src.rcer_iot_client_pkg.services.epii.controllers import UpdateThiesDataController
-from src.rcer_iot_client_pkg.services.epii.controllers.types import UpdateThiesDataControllerInput
+from .controllers.types.update_thies_data_types import UpdateThiesDataControllerInput
+from .controllers.update_thies_data import UpdateThiesDataController
+
 
 class EpiiAPI:
     def update_thies_data(
