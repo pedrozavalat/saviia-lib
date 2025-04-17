@@ -50,7 +50,7 @@ class UpdateThiesDataUseCase:
             return AsyncHTTPClient(
                 AsyncHttpClientInitArgs(
                     client_name="aiohttp_client",
-                    access_token=os.getenv("MICROSOFT_GRAPH_ACCESS_TOKEN"),
+                    access_token="temporal-token",
                     base_url="https://graph.microsoft.com/v1.0/",
                 )
             )
