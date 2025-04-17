@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.2.0 (2025-04-17)
+
+### Features
+
+- Update pyproject
+  ([`d00225b`](https://github.com/pedrozavalat/rcer_iot_client_pkg/commit/d00225be0ba67dd2f2d607ab36a5f47cf57d9927))
+
+
 ## v0.1.0 (2025-04-17)
 
 ### Bug Fixes
