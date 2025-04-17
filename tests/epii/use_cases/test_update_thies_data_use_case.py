@@ -3,20 +3,20 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.rcer_iot_client_pkg.general_types.error_types.api.update_thies_data_error_types import (
+from rcer_iot_client_pkg.general_types.error_types.api.update_thies_data_error_types import (
     FetchThiesFileContentError,
     ThiesUploadEmptyError,
 )
-from src.rcer_iot_client_pkg.services.epii.use_cases.types import (
+from rcer_iot_client_pkg.services.epii.use_cases.types import (
     UpdateThiesDataUseCaseInput,
 )
-from src.rcer_iot_client_pkg.services.epii.use_cases.update_thies_data import (
+from rcer_iot_client_pkg.services.epii.use_cases.update_thies_data import (
     UpdateThiesDataUseCase,
 )
 
 
 @pytest.mark.asyncio
-@patch("src.rcer_iot_client_pkg.services.epii.use_cases.update_thies_data.FTPClient")
+@patch("rcer_iot_client_pkg.services.epii.use_cases.update_thies_data.FTPClient")
 class TestUpdateThiesDataUseCaseFetchThiesFilenames(unittest.IsolatedAsyncioTestCase):
     async def test_should_fetch_thies_file_names_successfully(
         self, mock_ftp_client: MagicMock
@@ -67,7 +67,7 @@ class TestUpdateThiesDataUseCaseFetchThiesFilenames(unittest.IsolatedAsyncioTest
 
 
 @pytest.mark.asyncio
-@patch("src.rcer_iot_client_pkg.services.epii.use_cases.update_thies_data.FTPClient")
+@patch("rcer_iot_client_pkg.services.epii.use_cases.update_thies_data.FTPClient")
 class TestUpdateThiesDataUseCaseFetchThiesFileContent(unittest.IsolatedAsyncioTestCase):
     async def test_should_fetch_thies_file_content_successfully(
         self, mock_ftp_client: MagicMock

@@ -1,14 +1,14 @@
 import unittest
 from unittest.mock import Mock, patch
 
-from src.rcer_iot_client_pkg.services.epii.api import EpiiAPI
-from src.rcer_iot_client_pkg.services.epii.controllers.types import (
+from rcer_iot_client_pkg.services.epii.api import EpiiAPI
+from rcer_iot_client_pkg.services.epii.controllers.types import (
     UpdateThiesDataControllerOutput,
 )
 
 
 class TestEpiiAPIUpdateThiesData(unittest.TestCase):
-    @patch("src.rcer_iot_client_pkg.services.epii.api.UpdateThiesDataController")
+    @patch("rcer_iot_client_pkg.services.epii.api.UpdateThiesDataController")
     def test_should_update_thies_data_successfully(
         self, mock_update_thies_data_controller: Mock
     ):
