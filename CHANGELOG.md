@@ -1,6 +1,17 @@
 # CHANGELOG
 
 
+## v0.3.1 (2025-04-17)
+
+### Bug Fixes
+
+- Add asynchronous api method
+  ([`250d954`](https://github.com/pedrozavalat/rcer_iot_client_pkg/commit/250d954dc9bc374701dc8f1dc15519b7cff1a558))
+
+- **tests**: Api test
+  ([`54ff287`](https://github.com/pedrozavalat/rcer_iot_client_pkg/commit/54ff287620195f822cf2b37e5b109c8ab001a978))
+
+
 ## v0.3.0 (2025-04-17)
 
 
