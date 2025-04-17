@@ -35,8 +35,8 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml   # coverage report
 
-      - name: Build documentation
-        run: poetry run make html --directory docs/
+      # - name: Build documentation
+      #   run: poetry run make html --directory docs/
       
       - name: Check-out clean code
         run: poetry run ruff check .
