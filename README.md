@@ -1,10 +1,9 @@
-# rcer_iot_client_pkg
+# RCER IoT Client Library | `rcer_iot_client_pkg`
 
-RCER IoT Client Library
 
 ## Installation
-
-To install the package, run:
+You can find the package on [PyPI](https://pypi.org/project/rcer-iot-client-pkg/). 
+This library provides a robust and efficient client for interacting with IoT devices.
 
 ```bash
 pip install rcer_iot_client_pkg
@@ -57,4 +56,4 @@ Interested in contributing? Check out the contributing guidelines. Please note t
 
 ## License
 
-`rcer_iot_client_pkg` was created by @pedrozavalat. It is licensed under the terms of the MIT license.
+`rcer_iot_client_pkg` was created by Pedro Pablo Zavala Tejos. It is licensed under the terms of the MIT license.
