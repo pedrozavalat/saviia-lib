@@ -37,7 +37,9 @@ jobs:
 
       # - name: Build documentation
       #   run: poetry run make html --directory docs/
-      
+      - name: Install Ruff
+        run: poetry add --dev ruff    
+        
       - name: Check-out clean code
         run: poetry run ruff check .
 
