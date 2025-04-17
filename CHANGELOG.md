@@ -1,6 +1,5 @@
 # CHANGELOG
 
-
 ## v0.2.0 (2025-04-17)
 
 ### Features
@@ -35,3 +34,4 @@
 
 - Upload initial files
   ([`df27dfc`](https://github.com/pedrozavalat/rcer_iot_client_pkg/commit/df27dfc826a031602585b3c5017907b13c64a48a))
+

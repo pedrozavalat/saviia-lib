@@ -1,33 +1,31 @@
-import os
-
 from dotenv import load_dotenv
 
-import src.rcer_iot_client_pkg.services.epii.use_cases.constants as c
-from src.rcer_iot_client_pkg.general_types.error_types.api.update_thies_data_error_types import (
+import rcer_iot_client_pkg.services.epii.use_cases.constants as c
+from rcer_iot_client_pkg.general_types.error_types.api.update_thies_data_error_types import (
     FetchCloudFileNamesError,
     FetchThiesFileContentError,
     ThiesUploadEmptyError,
 )
-from src.rcer_iot_client_pkg.general_types.error_types.common import (
+from rcer_iot_client_pkg.general_types.error_types.common import (
     EmptyDataError,
     FtpClientError,
     HttpClientError,
 )
-from src.rcer_iot_client_pkg.libs.async_http_client import (
+from rcer_iot_client_pkg.libs.async_http_client import (
     AsyncHTTPClient,
     AsyncHttpClientInitArgs,
     GetArgs,
 )
-from src.rcer_iot_client_pkg.libs.ftp_client import (
+from rcer_iot_client_pkg.libs.ftp_client import (
     FTPClient,
     FtpClientInitArgs,
     ListFilesArgs,
     ReadFileArgs,
 )
-from src.rcer_iot_client_pkg.services.epii.use_cases.types import (
+from rcer_iot_client_pkg.services.epii.use_cases.types import (
     UpdateThiesDataUseCaseInput,
 )
-from src.rcer_iot_client_pkg.services.epii.utils import (
+from rcer_iot_client_pkg.services.epii.utils import (
     generate_file_content,
 )
 
@@ -54,7 +52,7 @@ class UpdateThiesDataUseCase:
                     base_url="https://graph.microsoft.com/v1.0/",
                 )
             )
-        except Exception as error:
+        except ConnectionError as error:
             raise HttpClientError(error)
 
     def _initialize_thies_ftp_client(self) -> FTPClient:
@@ -69,7 +67,7 @@ class UpdateThiesDataUseCase:
                     port=self.ftp_port,
                 )
             )
-        except Exception as error:
+        except RuntimeError as error:
             raise FtpClientError(error)
 
     async def fetch_cloud_file_names(self, folder_name: str) -> set[str]:
@@ -124,7 +122,11 @@ class UpdateThiesDataUseCase:
 
     async def execute(self) -> dict:
         """Synchronize data from the THIES Center to the cloud."""
-        thies_files = await self.fetch_thies_file_names()
+        try:
+            thies_files = await self.fetch_thies_file_names()
+        except RuntimeError as error:
+            raise FtpClientError(error)
+
         cloud_files = await self.fetch_cloud_file_names(folder_name="thies")
         self.uploading = thies_files - cloud_files
         if not self.uploading:
