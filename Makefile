@@ -53,9 +53,6 @@ release:
 uninstall:
 	pip uninstall $(PACKAGE_NAME) -y || true
 
-# Install the package locally
-install:
-	pip install .
 
 # Test if the package can be imported
 check:
