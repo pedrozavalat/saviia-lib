@@ -1,0 +1,42 @@
+[tool.poetry]
+name = "rcer_iot_client_pkg"
+version = "0.1.0"
+description = "A client library for IoT projects in the RCER initiative"
+authors = ["pedropablozavalat"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+aioftp = "0.25.1"
+aiohttp = "3.11.16"
+pydantic = "2.11.3"
+dotenv = "0.9.9"
+[tool.poetry.group.dev.dependencies]
+pytest = "8.3.5"
+pytest-asyncio = "0.26.0"
+black = "*"
+coverage = "*"
+flake8 = "*"
+pyflakes = "*"
+pylint = "*"
+build = "*"
+
+[tool.semantic_release]
+version_toml = [
+    "pyproject.toml:tool.poetry.version",
+]                                                    # version location
+branch = "main"                                      # branch to make releases of
+changelog_file = "CHANGELOG.md"                      # changelog file
+build_command = "pip install poetry && poetry build" # build dists 
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+exclude = ["venv", ".venv", "build", "dist", "__pycache__"]
+fix = true
+lint.ignore = ["E501"]  
