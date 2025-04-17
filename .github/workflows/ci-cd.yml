@@ -23,8 +23,11 @@ jobs:
       - name: Install package
         run: poetry install
 
+      - name: Install pytest-cov
+        run: poetry add --dev pytest-cov
+
       - name: Test with pytest
-        run: poetry run pytest tests/ --cov=rcer_iot_client_pkg --cov-report=xml
+        run: poetry run pytest tests --cov=rcer_iot_client_pkg --cov-report=xml
 
       - name: Use Codecov to track coverage
         uses: codecov/codecov-action@v5
@@ -32,8 +35,13 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml   # coverage report
 
-      - name: Build documentation
-        run: poetry run make html --directory docs/
+      # - name: Build documentation
+      #   run: poetry run make html --directory docs/
+      - name: Install Ruff
+        run: poetry add --dev ruff    
+        
+      - name: Check-out clean code
+        run: poetry run ruff check .
 
   cd:
     permissions:
