@@ -1,9 +1,7 @@
-import os
-
 from dotenv import load_dotenv
 
 import rcer_iot_client_pkg.services.epii.use_cases.constants as c
-from src.rcer_iot_client_pkg.general_types.error_types.api.update_thies_data_error_types import (
+from rcer_iot_client_pkg.general_types.error_types.api.update_thies_data_error_types import (
     FetchCloudFileNamesError,
     FetchThiesFileContentError,
     ThiesUploadEmptyError,

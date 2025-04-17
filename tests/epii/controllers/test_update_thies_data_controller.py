@@ -65,7 +65,7 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         result = await controller.execute()
 
         self.assertEqual(result.message, "Ftp Client initialization fails.")
-        self.assertEqual(result.status, 500)
+        self.assertEqual(result.status, 400)
         self.assertIn("Ftp Client", result.metadata["error"])
 
     @patch(
@@ -87,7 +87,7 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         result = await controller.execute()
 
         self.assertEqual(result.message, "Http Client initialization fails.")
-        self.assertEqual(result.status, 500)
+        self.assertEqual(result.status, 400)
         self.assertIn("Http Client", result.metadata["error"])
 
     @patch(
