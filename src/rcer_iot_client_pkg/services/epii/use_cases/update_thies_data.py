@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+import asyncio
 
 import rcer_iot_client_pkg.services.epii.constants.update_thies_data_constants as c
 from rcer_iot_client_pkg.general_types.error_types.api.update_thies_data_error_types import (
@@ -26,7 +27,7 @@ from rcer_iot_client_pkg.services.epii.use_cases.types import (
     UpdateThiesDataUseCaseInput,
 )
 from rcer_iot_client_pkg.services.epii.utils import (
-    generate_file_content,
+    parse_execute_response,
 )
 
 load_dotenv()
@@ -45,9 +46,12 @@ class UpdateThiesDataUseCase:
     def _initialize_sharepoint_client(self) -> SharepointClient:
         """Initialize the HTTP client."""
         try:
-            return SharepointClient(
-                SharepointClientInitArgs(client_name="aiohttp_client")
-            )
+            try:
+                return SharepointClient(
+                    SharepointClientInitArgs(client_name="sharepoint_rest_api")
+                )
+            except Exception as e:
+                raise SharepointClientError(f"Failed to initialize SharepointClient: {e}")
         except ConnectionError as error:
             raise SharepointClientError(error)
 
@@ -76,9 +80,9 @@ class UpdateThiesDataUseCase:
                     args = SpListFilesArgs(
                         folder_relative_url=f"{c.SHAREPOINT_BASE_URL}/{folder}"
                     )
-                    files = await self.sharepoint_client.list_files(args)
+                    response = await self.sharepoint_client.list_files(args)
                     cloud_files.update(
-                        {f"{folder}_{item['Name']}" for item in files["value"]}
+                        {f"{folder}_{item['Name']}" for item in response["value"]}
                     )
             return cloud_files
         except ConnectionError as error:
@@ -106,9 +110,9 @@ class UpdateThiesDataUseCase:
             try:
                 origin, filename = file.split("_", 1)
                 file_path = (
-                    f"{c.PATH_AVG_FILES}/{filename}"
+                    f"{c.FTP_SERVER_PATH_AVG_FILES}/{filename}"
                     if origin == "AVG"
-                    else f"{c.PATH_EXT_FILES}/{filename}"
+                    else f"{c.FTP_SERVER_PATH_EXT_FILES}/{filename}"
                 )
                 content = await self.thies_ftp_client.read_file(
                     FtpReadFileArgs(file_path)
@@ -124,12 +128,34 @@ class UpdateThiesDataUseCase:
             thies_files = await self.fetch_thies_file_names()
         except RuntimeError as error:
             raise FtpClientError(error)
-
-        cloud_files = await self.fetch_cloud_file_names()
+        try:
+            cloud_files = await self.fetch_cloud_file_names()
+        except RuntimeError as error:
+            raise SharepointClient(error)
         self.uploading = thies_files - cloud_files
         if not self.uploading:
             raise EmptyDataError
 
         thies_file_contents = await self.fetch_thies_file_content()
-        data = generate_file_content(thies_file_contents)
+        data = parse_execute_response(thies_file_contents)
         return data
+"""
+Just for debugging...
+if __name__ == "__main__":
+    usecase = UpdateThiesDataUseCase(UpdateThiesDataUseCaseInput(
+        ftp_host="localhost",
+        ftp_port=21,
+        ftp_user="anonymous",
+        ftp_password="12345678"
+    ))
+    
+    async def main():
+        try:
+            result = await usecase.execute()
+            print("Execution result:", result)
+        except Exception as e:
+            print("An error occurred:", e)
+
+    asyncio.run(main())
+    
+"""

@@ -4,10 +4,10 @@ from typing import Any
 from aiohttp import ClientError, ClientSession
 from dotenv import load_dotenv
 
-from src.rcer_iot_client_pkg.libs.sharepoint_client.sharepoint_client_contract import (
+from rcer_iot_client_pkg.libs.sharepoint_client.sharepoint_client_contract import (
     SharepointClientContract,
 )
-from src.rcer_iot_client_pkg.libs.sharepoint_client.types.sharepoint_client_types import (
+from rcer_iot_client_pkg.libs.sharepoint_client.types.sharepoint_client_types import (
     SpListFilesArgs,
     SpListFoldersArgs,
     SpUploadFileArgs,
@@ -90,7 +90,8 @@ class SharepointRestAPI(SharepointClientContract):
             endpoint = f"web/{folder_relative_url}/Files"
             response = await self.session.get(endpoint.lstrip("/"))
             response.raise_for_status()
-            return await response.json()
+            response_json = await response.json()
+            return response_json
         except ClientError as error:
             raise ConnectionError(error) from error
 

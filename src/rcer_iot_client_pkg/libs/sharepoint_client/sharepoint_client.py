@@ -18,8 +18,14 @@ class SharepointClient(SharepointClientContract):
         elif args.client_name == "sharepoint_rest_api":
             self.client_obj = SharepointRestAPI()
 
+    async def __aenter__(self):
+        return await self.client_obj.__aenter__()
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.client_obj.__aexit__(exc_type, exc_val, exc_tb)
+    
     async def list_files(self, args: SpListFilesArgs) -> list:
-        return self.client_obj.list_files(args)
+        return await self.client_obj.list_files(args)
 
     async def list_folders(self, args: SpListFoldersArgs) -> list:
         return self.client_obj.list_files(args)

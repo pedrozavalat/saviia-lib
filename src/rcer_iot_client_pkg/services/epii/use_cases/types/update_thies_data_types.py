@@ -5,7 +5,7 @@ from typing import Dict
 @dataclass
 class UpdateThiesDataUseCaseInput:
     ftp_host: str
-    ftp_port: str
+    ftp_port: int
     ftp_user: str
     ftp_password: str
 
