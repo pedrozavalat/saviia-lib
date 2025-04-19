@@ -94,6 +94,7 @@ class SharepointRestAPI(SharepointClientContract):
         except ClientError as error:
             raise ConnectionError(error) from error
 
+
     async def list_folders(self, args: SpListFoldersArgs) -> list:
         try:
             folder_relative_url = (
