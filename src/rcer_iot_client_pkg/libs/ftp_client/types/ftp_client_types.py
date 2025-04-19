@@ -11,10 +11,10 @@ class FtpClientInitArgs:
 
 
 @dataclass
-class ListFilesArgs:
+class FtpListFilesArgs:
     path: str
 
 
 @dataclass
-class ReadFileArgs:
+class FtpReadFileArgs:
     file_path: str

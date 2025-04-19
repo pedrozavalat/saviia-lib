@@ -8,9 +8,9 @@ from src.rcer_iot_client_pkg.libs.sharepoint_client.sharepoint_client_contract i
     SharepointClientContract,
 )
 from src.rcer_iot_client_pkg.libs.sharepoint_client.types.sharepoint_client_types import (
-    ListFilesArgs,
-    ListFoldersArgs,
-    UploadFileArgs,
+    SpListFilesArgs,
+    SpListFoldersArgs,
+    SpUploadFileArgs,
 )
 
 load_dotenv()
@@ -82,7 +82,7 @@ class SharepointRestAPI(SharepointClientContract):
     ) -> None:
         await self.session.close()
 
-    async def list_files(self, args: ListFilesArgs) -> list:
+    async def list_files(self, args: SpListFilesArgs) -> list:
         try:
             folder_relative_url = (
                 f"GetFolderByServerRelativeUrl('{args.folder_relative_url}')"
@@ -94,7 +94,8 @@ class SharepointRestAPI(SharepointClientContract):
         except ClientError as error:
             raise ConnectionError(error) from error
 
-    async def list_folders(self, args: ListFoldersArgs) -> list:
+
+    async def list_folders(self, args: SpListFoldersArgs) -> list:
         try:
             folder_relative_url = (
                 f"GetFolderByServerRelativeUrl('{args.folder_relative_url}')"
@@ -106,7 +107,7 @@ class SharepointRestAPI(SharepointClientContract):
         except ClientError as error:
             raise ConnectionError(error) from error
 
-    async def upload_file(self, args: UploadFileArgs) -> dict:
+    async def upload_file(self, args: SpUploadFileArgs) -> dict:
         try:
             # Load form digest value
             form_digest_value = await self._load_form_digest_value()

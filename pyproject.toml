@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rcer_iot_client_pkg"
-version = "0.1.0"
+version = "0.3.0"
 description = "A client library for IoT projects in the RCER initiative"
 authors = ["pedropablozavalat"]
 license = "MIT"

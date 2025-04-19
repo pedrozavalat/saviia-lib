@@ -1,33 +1,31 @@
-import os
-
 from dotenv import load_dotenv
 
-import src.rcer_iot_client_pkg.services.epii.use_cases.constants as c
-from src.rcer_iot_client_pkg.general_types.error_types.api.update_thies_data_error_types import (
+import rcer_iot_client_pkg.services.epii.constants.update_thies_data_constants as c
+from rcer_iot_client_pkg.general_types.error_types.api.update_thies_data_error_types import (
     FetchCloudFileNamesError,
     FetchThiesFileContentError,
     ThiesUploadEmptyError,
 )
-from src.rcer_iot_client_pkg.general_types.error_types.common import (
+from rcer_iot_client_pkg.general_types.error_types.common import (
     EmptyDataError,
     FtpClientError,
-    HttpClientError,
+    SharepointClientError,
 )
-from src.rcer_iot_client_pkg.libs.async_http_client import (
-    AsyncHTTPClient,
-    AsyncHttpClientInitArgs,
-    GetArgs,
-)
-from src.rcer_iot_client_pkg.libs.ftp_client import (
+from rcer_iot_client_pkg.libs.ftp_client import (
     FTPClient,
     FtpClientInitArgs,
-    ListFilesArgs,
-    ReadFileArgs,
+    FtpListFilesArgs,
+    FtpReadFileArgs,
 )
-from src.rcer_iot_client_pkg.services.epii.use_cases.types import (
+from rcer_iot_client_pkg.libs.sharepoint_client import (
+    SharepointClient,
+    SharepointClientInitArgs,
+    SpListFilesArgs,
+)
+from rcer_iot_client_pkg.services.epii.use_cases.types import (
     UpdateThiesDataUseCaseInput,
 )
-from src.rcer_iot_client_pkg.services.epii.utils import (
+from rcer_iot_client_pkg.services.epii.utils import (
     generate_file_content,
 )
 
@@ -44,18 +42,14 @@ class UpdateThiesDataUseCase:
         self.thies_ftp_client = self._initialize_thies_ftp_client()
         self.uploading = set()
 
-    def _initialize_sharepoint_client(self) -> AsyncHTTPClient:
+    def _initialize_sharepoint_client(self) -> SharepointClient:
         """Initialize the HTTP client."""
         try:
-            return AsyncHTTPClient(
-                AsyncHttpClientInitArgs(
-                    client_name="aiohttp_client",
-                    access_token="temporal-token",
-                    base_url="https://graph.microsoft.com/v1.0/",
-                )
+            return SharepointClient(
+                SharepointClientInitArgs(client_name="aiohttp_client")
             )
-        except Exception as error:
-            raise HttpClientError(error)
+        except ConnectionError as error:
+            raise SharepointClientError(error)
 
     def _initialize_thies_ftp_client(self) -> FTPClient:
         """Initialize the FTP client."""
@@ -69,22 +63,22 @@ class UpdateThiesDataUseCase:
                     port=self.ftp_port,
                 )
             )
-        except Exception as error:
+        except RuntimeError as error:
             raise FtpClientError(error)
 
-    async def fetch_cloud_file_names(self, folder_name: str) -> set[str]:
+    async def fetch_cloud_file_names(self) -> set[str]:
         """Fetch file names from the RCER cloud."""
+
         try:
             cloud_files = set()
             async with self.sharepoint_client:
-                for file_type in c.FILE_TYPES:
-                    destination_path = f"Onedrive_UC/noveno-semestre/IPRE-RCER/{folder_name}/{file_type}"
-                    endpoint = f"drives/{c.DRIVE_ID}/root:/{destination_path}:/children"
-                    response = await self.sharepoint_client.get(
-                        GetArgs(endpoint=endpoint)
+                for folder in c.SHAREPOINT_THIES_FOLDERS:
+                    args = SpListFilesArgs(
+                        folder_relative_url=f"{c.SHAREPOINT_BASE_URL}/{folder}"
                     )
+                    files = await self.sharepoint_client.list_files(args)
                     cloud_files.update(
-                        {f"{file_type}_{item['name']}" for item in response["value"]}
+                        {f"{folder}_{item['Name']}" for item in files["value"]}
                     )
             return cloud_files
         except ConnectionError as error:
@@ -94,10 +88,10 @@ class UpdateThiesDataUseCase:
         """Fetch file names from the THIES FTP server."""
         try:
             avg_files = await self.thies_ftp_client.list_files(
-                ListFilesArgs(path=c.PATH_AVG_FILES)
+                FtpListFilesArgs(path=c.FTP_SERVER_PATH_AVG_FILES)
             )
             ext_files = await self.thies_ftp_client.list_files(
-                ListFilesArgs(path=c.PATH_EXT_FILES)
+                FtpListFilesArgs(path=c.FTP_SERVER_PATH_EXT_FILES)
             )
             return {f"AVG_{name}" for name in avg_files} | {
                 f"EXT_{name}" for name in ext_files
@@ -116,7 +110,9 @@ class UpdateThiesDataUseCase:
                     if origin == "AVG"
                     else f"{c.PATH_EXT_FILES}/{filename}"
                 )
-                content = await self.thies_ftp_client.read_file(ReadFileArgs(file_path))
+                content = await self.thies_ftp_client.read_file(
+                    FtpReadFileArgs(file_path)
+                )
                 content_files[filename] = content
             except ConnectionError as error:
                 raise FetchThiesFileContentError(error)
@@ -124,8 +120,12 @@ class UpdateThiesDataUseCase:
 
     async def execute(self) -> dict:
         """Synchronize data from the THIES Center to the cloud."""
-        thies_files = await self.fetch_thies_file_names()
-        cloud_files = await self.fetch_cloud_file_names(folder_name="thies")
+        try:
+            thies_files = await self.fetch_thies_file_names()
+        except RuntimeError as error:
+            raise FtpClientError(error)
+
+        cloud_files = await self.fetch_cloud_file_names()
         self.uploading = thies_files - cloud_files
         if not self.uploading:
             raise EmptyDataError

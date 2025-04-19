@@ -1,12 +1,12 @@
 from aioftp import Client
 
-from src.rcer_iot_client_pkg.libs.ftp_client.ftp_client_contract import (
+from rcer_iot_client_pkg.libs.ftp_client.ftp_client_contract import (
     FTPClientContract,
 )
-from src.rcer_iot_client_pkg.libs.ftp_client.types.ftp_client_types import (
+from rcer_iot_client_pkg.libs.ftp_client.types.ftp_client_types import (
     FtpClientInitArgs,
-    ListFilesArgs,
-    ReadFileArgs,
+    FtpListFilesArgs,
+    FtpReadFileArgs,
 )
 
 
@@ -19,16 +19,19 @@ class AioFTPClient(FTPClientContract):
         self.client = Client()
 
     async def _async_start(self) -> None:
-        await self.client.connect(host=self.host, port=self.port)
-        await self.client.login(user=self.user, password=self.password)
+        try: 
+            await self.client.connect(host=self.host, port=self.port)
+            await self.client.login(user=self.user, password=self.password)
+        except Exception:
+            raise RuntimeError("Unexpected error occurred while trying to connect to the FTP server")
 
-    async def list_files(self, args: ListFilesArgs) -> list[str]:
+    async def list_files(self, args: FtpListFilesArgs) -> list[str]:
         await self._async_start()
         return [
             path.name async for path, _ in self.client.list(args.path, recursive=False)
         ]
 
-    async def read_file(self, args: ReadFileArgs) -> bytes:
+    async def read_file(self, args: FtpReadFileArgs) -> bytes:
         await self._async_start()
         async with self.client.download_stream(args.file_path) as stream:
             return await stream.read()
