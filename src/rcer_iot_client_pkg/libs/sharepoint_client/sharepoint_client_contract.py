@@ -19,4 +19,3 @@ class SharepointClientContract(ABC):
     @abstractmethod
     async def upload_file(self, args: SpUploadFileArgs) -> dict:
         pass
-
