@@ -1,7 +1,7 @@
 from .common_types import (
     EmptyDataError,
     FtpClientError,
-    HttpClientError,
+    SharepointClientError,
 )
 
-__all__ = ["EmptyDataError", "HttpClientError", "FtpClientError"]
+__all__ = ["EmptyDataError", "SharepointClientError", "FtpClientError"]

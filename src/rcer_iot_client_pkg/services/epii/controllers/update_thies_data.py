@@ -6,7 +6,7 @@ from rcer_iot_client_pkg.general_types.error_types.api.update_thies_data_error_t
 )
 from rcer_iot_client_pkg.general_types.error_types.common.common_types import (
     FtpClientError,
-    HttpClientError,
+    SharepointClientError,
 )
 from rcer_iot_client_pkg.services.epii.controllers.types.update_thies_data_types import (
     UpdateThiesDataControllerInput,
@@ -47,7 +47,7 @@ class UpdateThiesDataController:
                 metadata={"error": error.__str__()},
             )
 
-        except HttpClientError as error:
+        except SharepointClientError as error:
             return UpdateThiesDataControllerOutput(
                 message="Http Client initialization fails.",
                 status=HTTPStatus.BAD_REQUEST.value,

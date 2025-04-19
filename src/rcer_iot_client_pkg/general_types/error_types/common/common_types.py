@@ -3,9 +3,9 @@ class EmptyDataError(Exception):
         return "The data provided is empty."
 
 
-class HttpClientError(Exception):
+class SharepointClientError(Exception):
     def __str__(self):
-        return "Http Client initialization fails."
+        return "SharePoint API REST Client initialization fails."
 
 
 class FtpClientError(Exception):
