@@ -1,6 +1,38 @@
 # CHANGELOG
 
 
+## v0.4.0 (2025-04-20)
+
+### Bug Fixes
+
+- Use case cloud files download
+  ([`33bd1c5`](https://github.com/pedrozavalat/rcer_iot_client_pkg/commit/33bd1c55390722a983e38fbd4b0596479122f75e))
+
+### Features
+
+- Add sharepoint client and refactor ftp code
+  ([`e7cef5b`](https://github.com/pedrozavalat/rcer_iot_client_pkg/commit/e7cef5bd9c3b630e4d72987c9f77bf6333dfd040))
+
+- Enhance SharePoint and FTP clients, improve error handling, and update docs
+  ([`579eacf`](https://github.com/pedrozavalat/rcer_iot_client_pkg/commit/579eacf851b083e2a000af2b33978778871dbc12))
+
+feat: Merge pull request #9 from pedrozavalat/development
+
+- Sharepoint api rest client
+  ([`0bdcf1b`](https://github.com/pedrozavalat/rcer_iot_client_pkg/commit/0bdcf1b7f5f86057e1cffc3cec4ca09fb3faf457))
+
+- Sharepoint api rest client
+  ([`9069e50`](https://github.com/pedrozavalat/rcer_iot_client_pkg/commit/9069e50f35dd5c3ea2aa85d0bfc5cc2fa29a9dbb))
+
+- Upload new error handling and apply lint
+  ([`88cc7e1`](https://github.com/pedrozavalat/rcer_iot_client_pkg/commit/88cc7e1bd184fde426961ce61383e0565b6fb65f))
+
+### Refactoring
+
+- Ruff
+  ([`e463dfb`](https://github.com/pedrozavalat/rcer_iot_client_pkg/commit/e463dfb175a0ad0549e4d4ad13409d592714975b))
+
+
 ## v0.3.1 (2025-04-17)
 
 ### Bug Fixes
