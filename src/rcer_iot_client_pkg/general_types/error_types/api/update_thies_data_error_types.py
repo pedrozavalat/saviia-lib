@@ -1,3 +1,6 @@
+import json
+
+
 class ThiesConnectionError(Exception):
     """Raised when unable to connect to the THIES FTP Server"""
 
@@ -26,5 +29,15 @@ class ThiesFetchingError(Exception):
 class SharePointFetchingError(Exception):
     """Raised when there is an error fetching file names from the RCER cloud."""
 
+    def __init__(self, *args, reason):
+        super().__init__(*args, reason)
+        self.reason = reason
+
     def __str__(self):
-        return "An error occurred while retrieving file names from the RCER cloud"
+        try:
+            _, internal_metadata = self.reason.__str__().split(",", 1)
+            internal_metadata_dict = json.loads(internal_metadata)
+            return internal_metadata_dict["error_description"]
+
+        except json.decoder.JSONDecodeError:
+            return self.reason.__str__()
