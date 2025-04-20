@@ -6,9 +6,9 @@
 
 # -- Project information -----------------------------------------------------
 
-project = u"rcer_iot_client_pkg"
-copyright = u"2025, pedropablozavalat"
-author = u"pedropablozavalat"
+project = "rcer_iot_client_pkg"
+copyright = "2025, pedropablozavalat"
+author = "pedropablozavalat"
 
 # -- General configuration ---------------------------------------------------
 

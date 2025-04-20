@@ -22,7 +22,9 @@ class TestEpiiAPIUpdateThiesData(unittest.IsolatedAsyncioTestCase):
             message="valid message", status=200, metadata={"data": "value"}
         )
 
-        mock_update_thies_data_controller_inst = mock_update_thies_data_controller.return_value
+        mock_update_thies_data_controller_inst = (
+            mock_update_thies_data_controller.return_value
+        )
         mock_update_thies_data_controller_inst.execute = AsyncMock(
             return_value=expected_response
         )
