@@ -73,14 +73,14 @@ class UpdateThiesDataController:
         except SharepointClientError as error:
             return UpdateThiesDataControllerOutput(
                 message="Sharepoint Client initialization fails.",
-                status=HTTPStatus.BAD_REQUEST.value,
+                status=HTTPStatus.INTERNAL_SERVER_ERROR.value,
                 metadata={"error": error.__str__()},
             )
 
         except SharePointFetchingError as error:
             return UpdateThiesDataControllerOutput(
-                message="An error occurred while retrieving file names from the RCER cloud",
-                status=HTTPStatus.INTERNAL_SERVER_ERROR.value,
+                message="An error occurred while retrieving file names from Microsoft SharePoint",
+                status=HTTPStatus.BAD_REQUEST.value,
                 metadata={"error": error.__str__()},
             )
 
