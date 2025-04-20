@@ -10,6 +10,8 @@ from rcer_iot_client_pkg.general_types.error_types.api.update_thies_data_error_t
 from rcer_iot_client_pkg.general_types.error_types.common import EmptyDataError
 from rcer_iot_client_pkg.services.epii.use_cases.types import (
     UpdateThiesDataUseCaseInput,
+    FtpClientConfig,
+    SharepointConfig,
 )
 from rcer_iot_client_pkg.services.epii.use_cases.update_thies_data import (
     UpdateThiesDataUseCase,
@@ -19,15 +21,27 @@ from rcer_iot_client_pkg.services.epii.use_cases.update_thies_data import (
 @pytest.mark.asyncio
 @patch("rcer_iot_client_pkg.services.epii.use_cases.update_thies_data.FTPClient")
 class TestUpdateThiesDataUseCaseFetchThiesFilenames(unittest.IsolatedAsyncioTestCase):
+    def setUp(self):
+        self.ftp_config = FtpClientConfig(
+            ftp_host="localhost",
+            ftp_password="12345678",
+            ftp_port=21,
+            ftp_user="anonymous",
+        )
+        self.sharepoint_config = SharepointConfig(
+            sharepoint_client_id="your_client_id",
+            sharepoint_client_secret="your_client_secret",
+            sharepoint_tenant_id="your_tenant_id",
+            sharepoint_tenant_name="your_tenant_name",
+            sharepoint_site_name="your_site_name",
+        )
+
     async def test_should_fetch_thies_file_names_successfully(
         self, mock_ftp_client: MagicMock
     ):
         # Arrange
         use_case_input = UpdateThiesDataUseCaseInput(
-            ftp_host="localhost",
-            ftp_password="12345678",
-            ftp_port=21,
-            ftp_user="anonymous",
+            ftp_config=self.ftp_config, sharepoint_config=self.sharepoint_config
         )
         use_case = UpdateThiesDataUseCase(use_case_input)
         expected_file_names = {
@@ -53,10 +67,7 @@ class TestUpdateThiesDataUseCaseFetchThiesFilenames(unittest.IsolatedAsyncioTest
     async def test_should_raise_connection_error(self, mock_ftp_client: MagicMock):
         # Arrange
         use_case_input = UpdateThiesDataUseCaseInput(
-            ftp_host="localhost",
-            ftp_password="12345678",
-            ftp_port=21,
-            ftp_user="anonymous",
+            ftp_config=self.ftp_config, sharepoint_config=self.sharepoint_config
         )
         use_case = UpdateThiesDataUseCase(use_case_input)
         mock_ftp_client_inst = mock_ftp_client.return_value
@@ -73,15 +84,27 @@ class TestUpdateThiesDataUseCaseFetchThiesFilenames(unittest.IsolatedAsyncioTest
 @pytest.mark.asyncio
 @patch("rcer_iot_client_pkg.services.epii.use_cases.update_thies_data.FTPClient")
 class TestUpdateThiesDataUseCaseFetchThiesFileContent(unittest.IsolatedAsyncioTestCase):
+    def setUp(self):
+        self.ftp_config = FtpClientConfig(
+            ftp_host="localhost",
+            ftp_password="12345678",
+            ftp_port=21,
+            ftp_user="anonymous",
+        )
+        self.sharepoint_config = SharepointConfig(
+            sharepoint_client_id="your_client_id",
+            sharepoint_client_secret="your_client_secret",
+            sharepoint_tenant_id="your_tenant_id",
+            sharepoint_tenant_name="your_tenant_name",
+            sharepoint_site_name="your_site_name",
+        )
+
     async def test_should_fetch_thies_file_content_successfully(
         self, mock_ftp_client: MagicMock
     ):
         # Arrange
         use_case_input = UpdateThiesDataUseCaseInput(
-            ftp_host="localhost",
-            ftp_password="12345678",
-            ftp_port=21,
-            ftp_user="anonymous",
+            ftp_config=self.ftp_config, sharepoint_config=self.sharepoint_config
         )
         use_case = UpdateThiesDataUseCase(use_case_input)
         use_case.uploading = {"AVG_file1.bin", "EXT_file2.bin"}
@@ -105,10 +128,7 @@ class TestUpdateThiesDataUseCaseFetchThiesFileContent(unittest.IsolatedAsyncioTe
     ):
         # Arrange
         use_case_input = UpdateThiesDataUseCaseInput(
-            ftp_host="localhost",
-            ftp_password="12345678",
-            ftp_port=21,
-            ftp_user="anonymous",
+            ftp_config=self.ftp_config, sharepoint_config=self.sharepoint_config
         )
         use_case = UpdateThiesDataUseCase(use_case_input)
         use_case.uploading = {"AVG_file1.bin"}
@@ -129,15 +149,27 @@ class TestUpdateThiesDataUseCaseFetchThiesFileContent(unittest.IsolatedAsyncioTe
 @patch("rcer_iot_client_pkg.services.epii.use_cases.update_thies_data.FTPClient")
 @patch("rcer_iot_client_pkg.services.epii.use_cases.update_thies_data.SharepointClient")
 class TestUpdateThiesDataUseCaseExecute(unittest.IsolatedAsyncioTestCase):
+    def setUp(self):
+        self.ftp_config = FtpClientConfig(
+            ftp_host="localhost",
+            ftp_password="12345678",
+            ftp_port=21,
+            ftp_user="anonymous",
+        )
+        self.sharepoint_config = SharepointConfig(
+            sharepoint_client_id="your_client_id",
+            sharepoint_client_secret="your_client_secret",
+            sharepoint_tenant_id="your_tenant_id",
+            sharepoint_tenant_name="your_tenant_name",
+            sharepoint_site_name="your_site_name",
+        )
+
     async def test_should_execute_successfully(
         self, mock_sharepoint_client: MagicMock, mock_ftp_client: MagicMock
     ):
         # Arrange
         use_case_input = UpdateThiesDataUseCaseInput(
-            ftp_host="localhost",
-            ftp_password="12345678",
-            ftp_port=21,
-            ftp_user="anonymous",
+            ftp_config=self.ftp_config, sharepoint_config=self.sharepoint_config
         )
         use_case = UpdateThiesDataUseCase(use_case_input)
         mock_ftp_client_inst = mock_ftp_client.return_value
@@ -168,10 +200,7 @@ class TestUpdateThiesDataUseCaseExecute(unittest.IsolatedAsyncioTestCase):
     ):
         # Arrange
         use_case_input = UpdateThiesDataUseCaseInput(
-            ftp_host="localhost",
-            ftp_password="12345678",
-            ftp_port=21,
-            ftp_user="anonymous",
+            ftp_config=self.ftp_config, sharepoint_config=self.sharepoint_config
         )
         use_case = UpdateThiesDataUseCase(use_case_input)
         mock_ftp_client_inst = mock_ftp_client.return_value

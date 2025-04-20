@@ -15,14 +15,22 @@ from rcer_iot_client_pkg.services.epii.controllers.types import (
 from rcer_iot_client_pkg.services.epii.controllers.update_thies_data import (
     UpdateThiesDataController,
 )
+from rcer_iot_client_pkg.general_types.api.update_thies_data_types import EpiiAPIConfig
 
 
 class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
-        self.host = "localhost"
-        self.port = 8080
-        self.user = "admin"
-        self.password = "password"
+        self.config = EpiiAPIConfig(
+            ftp_host="localhost",
+            ftp_port=21,
+            ftp_user="john_doe",
+            ftp_password="password",
+            sharepoint_client_id="valid_client_id",
+            sharepoint_client_secret="valid_client_secret",
+            sharepoint_site_name="valid_site_name",
+            sharepoint_tenant_id="valid_tenant_id",
+            sharepoint_tenant_name="valid_tenant_name",
+        )
 
     @patch(
         "rcer_iot_client_pkg.services.epii.controllers.update_thies_data.UpdateThiesDataUseCase"
@@ -32,12 +40,7 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         mock_use_case_inst.execute = AsyncMock(return_value={"key": "value"})
 
         controller = UpdateThiesDataController(
-            UpdateThiesDataControllerInput(
-                ftp_host=self.host,
-                ftp_port=self.port,
-                ftp_user=self.user,
-                ftp_password=self.password,
-            )
+            UpdateThiesDataControllerInput(self.config)
         )
 
         result = await controller.execute()
@@ -54,12 +57,7 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         mock_use_case_inst.execute.side_effect = FtpClientError("FTP")
 
         controller = UpdateThiesDataController(
-            UpdateThiesDataControllerInput(
-                ftp_host=self.host,
-                ftp_port=self.port,
-                ftp_user=self.user,
-                ftp_password=self.password,
-            )
+            UpdateThiesDataControllerInput(self.config)
         )
 
         result = await controller.execute()
@@ -76,12 +74,7 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         mock_use_case_inst.execute.side_effect = SharepointClientError("Sharepoint")
 
         controller = UpdateThiesDataController(
-            UpdateThiesDataControllerInput(
-                ftp_host=self.host,
-                ftp_port=self.port,
-                ftp_user=self.user,
-                ftp_password=self.password,
-            )
+            UpdateThiesDataControllerInput(self.config)
         )
 
         result = await controller.execute()
@@ -98,12 +91,7 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         mock_use_case_inst.execute.side_effect = SharePointFetchingError("Fetch error")
 
         controller = UpdateThiesDataController(
-            UpdateThiesDataControllerInput(
-                ftp_host=self.host,
-                ftp_port=self.port,
-                ftp_user=self.user,
-                ftp_password=self.password,
-            )
+            UpdateThiesDataControllerInput(self.config)
         )
 
         result = await controller.execute()
@@ -123,12 +111,7 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         mock_use_case_inst.execute.side_effect = EmptyDataError(reason="No files")
 
         controller = UpdateThiesDataController(
-            UpdateThiesDataControllerInput(
-                ftp_host=self.host,
-                ftp_port=self.port,
-                ftp_user=self.user,
-                ftp_password=self.password,
-            )
+            UpdateThiesDataControllerInput(self.config)
         )
 
         result = await controller.execute()
@@ -144,12 +127,7 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         mock_use_case_inst.execute.side_effect = ValueError("Unexpected error")
 
         controller = UpdateThiesDataController(
-            UpdateThiesDataControllerInput(
-                ftp_host=self.host,
-                ftp_port=self.port,
-                ftp_user=self.user,
-                ftp_password=self.password,
-            )
+            UpdateThiesDataControllerInput(self.config)
         )
 
         result = await controller.execute()

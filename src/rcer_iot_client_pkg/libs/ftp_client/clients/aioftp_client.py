@@ -12,10 +12,10 @@ from rcer_iot_client_pkg.libs.ftp_client.types.ftp_client_types import (
 
 class AioFTPClient(FTPClientContract):
     def __init__(self, args: FtpClientInitArgs) -> None:
-        self.host = args.host
-        self.port = args.port
-        self.password = args.password
-        self.user = args.user
+        self.host = args.config.ftp_host
+        self.port = args.config.ftp_port
+        self.password = args.config.ftp_password
+        self.user = args.config.ftp_user
         self.client = Client()
 
     async def _async_start(self) -> None:

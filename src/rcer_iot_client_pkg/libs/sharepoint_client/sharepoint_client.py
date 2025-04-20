@@ -16,7 +16,7 @@ class SharepointClient(SharepointClientContract):
             msg = f"Unsupported client {args.client_name}"
             raise KeyError(msg)
         elif args.client_name == "sharepoint_rest_api":
-            self.client_obj = SharepointRestAPI()
+            self.client_obj = SharepointRestAPI(args)
 
     async def __aenter__(self):
         return await self.client_obj.__aenter__()
