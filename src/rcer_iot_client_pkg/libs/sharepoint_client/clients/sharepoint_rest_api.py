@@ -11,17 +11,23 @@ from rcer_iot_client_pkg.libs.sharepoint_client.types.sharepoint_client_types im
     SpListFilesArgs,
     SpListFoldersArgs,
     SpUploadFileArgs,
+    SharepointClientInitArgs,
 )
 
 load_dotenv()
 
 
 class SharepointRestAPI(SharepointClientContract):
-    def __init__(self):
+    def __init__(self, args: SharepointClientInitArgs):
         self.session: ClientSession | None = None
         self.base_headers = {}
         self.credentials = {}
         self.base_url = ""
+        self.tenant_id = args.config.sharepoint_tenant_id
+        self.tenant_name = args.config.sharepoint_tenant_name
+        self.client_secret = args.config.sharepoint_client_secret
+        self.client_id = args.config.sharepoint_client_id
+        self.site_name = args.config.sharepoint_site_name
 
     async def _load_form_digest_value(self) -> str:
         try:
@@ -32,18 +38,13 @@ class SharepointRestAPI(SharepointClientContract):
             raise ConnectionError(error) from error
 
     async def _load_credentials(self) -> dict:
-        tenant_id = os.getenv("TENANT_ID")
-        client_id = os.getenv("CLIENT_ID")
-        client_secret = os.getenv("CLIENT_SECRET")
         resource_base = "00000003-0000-0ff1-ce00-000000000000"
-        resource = (
-            f"{resource_base}/{os.getenv('TENANT_NAME')}.sharepoint.com@{tenant_id}"
-        )
-        url = f"https://accounts.accesscontrol.windows.net/{tenant_id}/tokens/OAuth/2"
+        resource = f"{resource_base}/{self.tenant_name}.sharepoint.com@{self.tenant_id}"
+        url = f"https://accounts.accesscontrol.windows.net/{self.tenant_id}/tokens/OAuth/2"
         payload = {
             "grant_type": "client_credentials",
-            "client_id": f"{client_id}@{tenant_id}",
-            "client_secret": client_secret,
+            "client_id": f"{self.client_id}@{self.tenant_id}",
+            "client_secret": self.client_secret,
             "resource": resource,
         }
         headers = {
@@ -65,15 +66,14 @@ class SharepointRestAPI(SharepointClientContract):
 
     async def __aenter__(self) -> "SharepointRestAPI":
         self.credentials = await self._load_credentials()
-        site_url = f"https://{os.getenv('TENANT_NAME')}.sharepoint.com"
-        site_name = os.getenv("SITE_NAME")
+        site_url = f"https://{self.tenant_name}.sharepoint.com"
 
         self.base_headers = {
             "Authorization": f"Bearer {self.credentials['access_token']}",
             "Accept": "application/json",
             "Content-Type": "application/json",
         }
-        self.base_url = f"{site_url}/sites/{site_name}/_api/"
+        self.base_url = f"{site_url}/sites/{self.site_name}/_api/"
         self.session = ClientSession(headers=self.base_headers, base_url=self.base_url)
         return self
 
