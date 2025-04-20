@@ -1,8 +1,10 @@
 from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass
 class SharepointClientInitArgs:
+    config: Any
     client_name: str = "sharepoint_rest_api"
 
 

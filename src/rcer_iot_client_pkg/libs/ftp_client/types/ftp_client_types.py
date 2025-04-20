@@ -1,13 +1,11 @@
 from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass
 class FtpClientInitArgs:
-    host: str
-    user: str
-    password: str
+    config: Any
     client_name: str = "aioftp_client"
-    port: int = 21
 
 
 @dataclass

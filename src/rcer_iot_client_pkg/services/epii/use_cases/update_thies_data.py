@@ -24,6 +24,8 @@ from rcer_iot_client_pkg.libs.sharepoint_client import (
 )
 from rcer_iot_client_pkg.services.epii.use_cases.types import (
     UpdateThiesDataUseCaseInput,
+    FtpClientConfig,
+    SharepointConfig,
 )
 from rcer_iot_client_pkg.services.epii.utils import (
     parse_execute_response,
@@ -34,35 +36,27 @@ load_dotenv()
 
 class UpdateThiesDataUseCase:
     def __init__(self, input: UpdateThiesDataUseCaseInput):
-        self.ftp_port = input.ftp_port
-        self.ftp_host = input.ftp_host
-        self.ftp_password = input.ftp_password
-        self.ftp_user = input.ftp_user
-        self.sharepoint_client = self._initialize_sharepoint_client()
-        self.thies_ftp_client = self._initialize_thies_ftp_client()
+        self.sharepoint_client = self._initialize_sharepoint_client(
+            input.sharepoint_config
+        )
+        self.thies_ftp_client = self._initialize_thies_ftp_client(input.ftp_config)
         self.uploading = set()
 
-    def _initialize_sharepoint_client(self) -> SharepointClient:
+    def _initialize_sharepoint_client(
+        self, config: SharepointConfig
+    ) -> SharepointClient:
         """Initialize the HTTP client."""
         try:
             return SharepointClient(
-                SharepointClientInitArgs(client_name="sharepoint_rest_api")
+                SharepointClientInitArgs(config, client_name="sharepoint_rest_api")
             )
         except ConnectionError as error:
             raise SharepointClientError(error)
 
-    def _initialize_thies_ftp_client(self) -> FTPClient:
+    def _initialize_thies_ftp_client(self, config: FtpClientConfig) -> FTPClient:
         """Initialize the FTP client."""
         try:
-            return FTPClient(
-                FtpClientInitArgs(
-                    client_name="aioftp_client",
-                    host=self.ftp_host,
-                    user=self.ftp_user,
-                    password=self.ftp_password,
-                    port=self.ftp_port,
-                )
-            )
+            return FTPClient(FtpClientInitArgs(config, client_name="aioftp_client"))
         except RuntimeError as error:
             raise FtpClientError(error)
 

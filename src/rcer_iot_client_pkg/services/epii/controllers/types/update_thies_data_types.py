@@ -1,13 +1,11 @@
 from dataclasses import dataclass, field
 from typing import Dict
+from rcer_iot_client_pkg.general_types.api.update_thies_data_types import EpiiAPIConfig
 
 
 @dataclass
 class UpdateThiesDataControllerInput:
-    ftp_host: str
-    ftp_port: str
-    ftp_user: str
-    ftp_password: str
+    config: EpiiAPIConfig
 
 
 @dataclass

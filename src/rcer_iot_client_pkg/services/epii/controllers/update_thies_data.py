@@ -16,6 +16,8 @@ from rcer_iot_client_pkg.services.epii.controllers.types.update_thies_data_types
 )
 from rcer_iot_client_pkg.services.epii.use_cases.types import (
     UpdateThiesDataUseCaseInput,
+    SharepointConfig,
+    FtpClientConfig,
 )
 from rcer_iot_client_pkg.services.epii.use_cases.update_thies_data import (
     UpdateThiesDataUseCase,
@@ -25,7 +27,21 @@ from rcer_iot_client_pkg.services.epii.use_cases.update_thies_data import (
 class UpdateThiesDataController:
     def __init__(self, input: UpdateThiesDataControllerInput):
         self.use_case = UpdateThiesDataUseCase(
-            UpdateThiesDataUseCaseInput(**input.__dict__)
+            UpdateThiesDataUseCaseInput(
+                ftp_config=FtpClientConfig(
+                    ftp_host=input.config.ftp_host,
+                    ftp_password=input.config.ftp_password,
+                    ftp_port=input.config.ftp_port,
+                    ftp_user=input.config.ftp_user,
+                ),
+                sharepoint_config=SharepointConfig(
+                    sharepoint_client_id=input.config.sharepoint_client_id,
+                    sharepoint_client_secret=input.config.sharepoint_client_secret,
+                    sharepoint_site_name=input.config.sharepoint_site_name,
+                    sharepoint_tenant_name=input.config.sharepoint_tenant_name,
+                    sharepoint_tenant_id=input.config.sharepoint_tenant_id,
+                ),
+            )
         )
 
     async def execute(self) -> UpdateThiesDataControllerOutput:
