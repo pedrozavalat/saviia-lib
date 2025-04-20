@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.5.0 (2025-04-20)
+
+### Features
+
+- Add api config class
+  ([`6ee2f26`](https://github.com/pedrozavalat/rcer_iot_client_pkg/commit/6ee2f269b5ac7a6310c14d480945bcb06b13a55a))
+
+
 ## v0.4.0 (2025-04-20)
 
 ### Bug Fixes
