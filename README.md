@@ -46,7 +46,7 @@ asyncio.run(update_thies_data())
 ```
 
 **Notes:** 
-- Store sensitive data like `PASSWORD` and `USER` securely, e.g., in environment variables or a secrets file.
+- Store sensitive data like `FTP_PASSWORD`, `FTP_USER`, and SharePoint credentials securely. Use environment variables or a secrets management tool to avoid hardcoding sensitive information in your codebase.
 - Ensure `asyncio` is installed to run concurrent code with `EpiiAPI` methods.
 
 ## Development
