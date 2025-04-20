@@ -1,6 +1,22 @@
 # CHANGELOG
 
 
+## v0.5.1 (2025-04-20)
+
+### Bug Fixes
+
+- Last release
+  ([`82096b4`](https://github.com/pedrozavalat/rcer_iot_client_pkg/commit/82096b4ee288e052f3023c58269044d62617abc0))
+
+### Refactoring
+
+- Add Config to init files
+  ([`5810ecf`](https://github.com/pedrozavalat/rcer_iot_client_pkg/commit/5810ecf6922496a1533b15e008f9e6d5b6d401ad))
+
+- Remove async http client
+  ([`a0e7573`](https://github.com/pedrozavalat/rcer_iot_client_pkg/commit/a0e75732ea6bebb8bf68cb81ca3b211abf2d02f9))
+
+
 ## v0.5.0 (2025-04-20)
 
 ### Features
