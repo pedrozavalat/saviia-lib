@@ -8,6 +8,7 @@ class EpiiAPI:
     """
     EpiiAPI is a service class that provides methods to interact with Patagonia Center system.
     """
+
     async def update_thies_data(
         self,
         ftp_port: int,
@@ -24,7 +25,7 @@ class EpiiAPI:
             ftp_password (str): The password for the FTP server.
             ftp_user (str): The username for the FTP server.
         Returns:
-            response (dict): A dictionary representation of the API response.  
+            response (dict): A dictionary representation of the API response.
         """
         controller = UpdateThiesDataController(
             UpdateThiesDataControllerInput(

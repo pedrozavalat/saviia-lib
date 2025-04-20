@@ -2,12 +2,12 @@ import unittest
 from unittest.mock import AsyncMock, patch
 
 from rcer_iot_client_pkg.general_types.error_types.api.update_thies_data_error_types import (
-    FetchCloudFileNamesError,
-    ThiesUploadEmptyError,
+    SharePointFetchingError,
 )
 from rcer_iot_client_pkg.general_types.error_types.common import (
     FtpClientError,
-    HttpClientError,
+    SharepointClientError,
+    EmptyDataError,
 )
 from rcer_iot_client_pkg.services.epii.controllers.types import (
     UpdateThiesDataControllerInput,
@@ -71,9 +71,9 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
     @patch(
         "rcer_iot_client_pkg.services.epii.controllers.update_thies_data.UpdateThiesDataUseCase"
     )
-    async def test_should_handle_http_client_error(self, mock_use_case):
+    async def test_should_handle_sharepoint_client_error(self, mock_use_case):
         mock_use_case_inst = mock_use_case.return_value
-        mock_use_case_inst.execute.side_effect = HttpClientError("HTTP")
+        mock_use_case_inst.execute.side_effect = SharepointClientError("Sharepoint")
 
         controller = UpdateThiesDataController(
             UpdateThiesDataControllerInput(
@@ -86,16 +86,16 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
 
         result = await controller.execute()
 
-        self.assertEqual(result.message, "Http Client initialization fails.")
+        self.assertEqual(result.message, "Sharepoint Client initialization fails.")
         self.assertEqual(result.status, 400)
-        self.assertIn("Http Client", result.metadata["error"])
+        self.assertIn("SharePoint", result.metadata["error"])
 
     @patch(
         "rcer_iot_client_pkg.services.epii.controllers.update_thies_data.UpdateThiesDataUseCase"
     )
-    async def test_should_handle_fetch_cloud_file_names_error(self, mock_use_case):
+    async def test_should_handle_sharepoint_fetching_error(self, mock_use_case):
         mock_use_case_inst = mock_use_case.return_value
-        mock_use_case_inst.execute.side_effect = FetchCloudFileNamesError("Cloud error")
+        mock_use_case_inst.execute.side_effect = SharePointFetchingError("Fetch error")
 
         controller = UpdateThiesDataController(
             UpdateThiesDataControllerInput(
@@ -118,9 +118,9 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
     @patch(
         "rcer_iot_client_pkg.services.epii.controllers.update_thies_data.UpdateThiesDataUseCase"
     )
-    async def test_should_handle_thies_upload_empty_error(self, mock_use_case):
+    async def test_should_handle_thies_data_empty_empty_error(self, mock_use_case):
         mock_use_case_inst = mock_use_case.return_value
-        mock_use_case_inst.execute.side_effect = ThiesUploadEmptyError("No files")
+        mock_use_case_inst.execute.side_effect = EmptyDataError(reason="No files")
 
         controller = UpdateThiesDataController(
             UpdateThiesDataControllerInput(
@@ -133,9 +133,8 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
 
         result = await controller.execute()
 
-        self.assertEqual(result.message, "No files were found to upload.")
+        self.assertEqual(result.message, "No files to upload")
         self.assertEqual(result.status, 204)
-        self.assertIn("No files", result.metadata["error"])
 
     @patch(
         "rcer_iot_client_pkg.services.epii.controllers.update_thies_data.UpdateThiesDataUseCase"

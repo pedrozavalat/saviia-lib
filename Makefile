@@ -35,6 +35,7 @@ test:
 # Review the lint integration
 lint:
 	ruff check . --fix
+	ruff format .
 
 # Build compiled package
 build:

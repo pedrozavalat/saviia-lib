@@ -1,19 +1,30 @@
-class ThiesUploadEmptyError(Exception):
-    """Raised when no files are found to upload to the server."""
+class ThiesConnectionError(Exception):
+    """Raised when unable to connect to the THIES FTP Server"""
+
+    def __init__(self, *args, reason):
+        super().__init__(*args, reason)
+        self.reason = reason
 
     def __str__(self):
-        return "No files were found to upload."
+        return "Unable to connect to THIES FTP Server. " + self.reason.__str__()
 
 
-class FetchCloudFileNamesError(Exception):
+class ThiesFetchingError(Exception):
+    """Raised when no files are found to upload to the server."""
+
+    def __init__(self, *args, reason):
+        super().__init__(*args, reason)
+        self.reason = reason
+
+    def __str__(self):
+        return (
+            "An error ocurred while retrieving files from THIES FTP Server. "
+            + self.reason.__str__()
+        )
+
+
+class SharePointFetchingError(Exception):
     """Raised when there is an error fetching file names from the RCER cloud."""
 
     def __str__(self):
         return "An error occurred while retrieving file names from the RCER cloud"
-
-
-class FetchThiesFileContentError(Exception):
-    """Raised when there is an error fetching the content of a Thies file."""
-
-    def __str__(self):
-        return "An error occurred while retrieving the content of a Thies file"

@@ -23,7 +23,7 @@ class SharepointClient(SharepointClientContract):
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.client_obj.__aexit__(exc_type, exc_val, exc_tb)
-    
+
     async def list_files(self, args: SpListFilesArgs) -> list:
         return await self.client_obj.list_files(args)
 

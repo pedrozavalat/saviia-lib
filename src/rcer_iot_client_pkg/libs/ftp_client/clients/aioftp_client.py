@@ -1,5 +1,5 @@
 from aioftp import Client
-
+from aioftp.errors import StatusCodeError
 from rcer_iot_client_pkg.libs.ftp_client.ftp_client_contract import (
     FTPClientContract,
 )
@@ -19,11 +19,19 @@ class AioFTPClient(FTPClientContract):
         self.client = Client()
 
     async def _async_start(self) -> None:
-        try: 
+        try:
             await self.client.connect(host=self.host, port=self.port)
+        except OSError:
+            raise ConnectionRefusedError(
+                f"{self.host}:{self.port} isn't active. "
+                "Please ensure the server is running and accessible."
+            )
+        try:
             await self.client.login(user=self.user, password=self.password)
-        except Exception:
-            raise RuntimeError("Unexpected error occurred while trying to connect to the FTP server")
+        except StatusCodeError:
+            raise ConnectionAbortedError(
+                "Authentication failed. Please verify your credentials and try again."
+            )
 
     async def list_files(self, args: FtpListFilesArgs) -> list[str]:
         await self._async_start()

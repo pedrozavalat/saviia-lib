@@ -1,11 +1,10 @@
 from dotenv import load_dotenv
-import asyncio
 
 import rcer_iot_client_pkg.services.epii.constants.update_thies_data_constants as c
 from rcer_iot_client_pkg.general_types.error_types.api.update_thies_data_error_types import (
-    FetchCloudFileNamesError,
-    FetchThiesFileContentError,
-    ThiesUploadEmptyError,
+    SharePointFetchingError,
+    ThiesConnectionError,
+    ThiesFetchingError,
 )
 from rcer_iot_client_pkg.general_types.error_types.common import (
     EmptyDataError,
@@ -46,12 +45,9 @@ class UpdateThiesDataUseCase:
     def _initialize_sharepoint_client(self) -> SharepointClient:
         """Initialize the HTTP client."""
         try:
-            try:
-                return SharepointClient(
-                    SharepointClientInitArgs(client_name="sharepoint_rest_api")
-                )
-            except Exception as e:
-                raise SharepointClientError(f"Failed to initialize SharepointClient: {e}")
+            return SharepointClient(
+                SharepointClientInitArgs(client_name="sharepoint_rest_api")
+            )
         except ConnectionError as error:
             raise SharepointClientError(error)
 
@@ -86,7 +82,7 @@ class UpdateThiesDataUseCase:
                     )
             return cloud_files
         except ConnectionError as error:
-            raise FetchCloudFileNamesError(error)
+            raise SharePointFetchingError(reason=error)
 
     async def fetch_thies_file_names(self) -> set[str]:
         """Fetch file names from the THIES FTP server."""
@@ -100,14 +96,16 @@ class UpdateThiesDataUseCase:
             return {f"AVG_{name}" for name in avg_files} | {
                 f"EXT_{name}" for name in ext_files
             }
-        except ConnectionError:
-            raise ThiesUploadEmptyError
+        except ConnectionRefusedError as error:
+            raise ThiesConnectionError(reason=error)
+        except ConnectionAbortedError as error:
+            raise ThiesFetchingError(reason=error)
 
     async def fetch_thies_file_content(self) -> dict[str, bytes]:
         """Fetch the content of files from the THIES FTP server."""
-        content_files = {}
-        for file in self.uploading:
-            try:
+        try:
+            content_files = {}
+            for file in self.uploading:
                 origin, filename = file.split("_", 1)
                 file_path = (
                     f"{c.FTP_SERVER_PATH_AVG_FILES}/{filename}"
@@ -118,9 +116,11 @@ class UpdateThiesDataUseCase:
                     FtpReadFileArgs(file_path)
                 )
                 content_files[filename] = content
-            except ConnectionError as error:
-                raise FetchThiesFileContentError(error)
-        return content_files
+            return content_files
+        except ConnectionRefusedError as error:
+            raise ThiesConnectionError(reason=error)
+        except ConnectionAbortedError as error:
+            raise ThiesFetchingError(reason=error)
 
     async def execute(self) -> dict:
         """Synchronize data from the THIES Center to the cloud."""
@@ -134,28 +134,8 @@ class UpdateThiesDataUseCase:
             raise SharepointClient(error)
         self.uploading = thies_files - cloud_files
         if not self.uploading:
-            raise EmptyDataError
+            raise EmptyDataError(reason="No files to upload.")
 
         thies_file_contents = await self.fetch_thies_file_content()
         data = parse_execute_response(thies_file_contents)
         return data
-"""
-Just for debugging...
-if __name__ == "__main__":
-    usecase = UpdateThiesDataUseCase(UpdateThiesDataUseCaseInput(
-        ftp_host="localhost",
-        ftp_port=21,
-        ftp_user="anonymous",
-        ftp_password="12345678"
-    ))
-    
-    async def main():
-        try:
-            result = await usecase.execute()
-            print("Execution result:", result)
-        except Exception as e:
-            print("An error occurred:", e)
-
-    asyncio.run(main())
-    
-"""
