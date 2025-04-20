@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.5.2 (2025-04-20)
+
+### Bug Fixes
+
+- Handle sharepoint connection client
+  ([`318ca67`](https://github.com/pedrozavalat/rcer_iot_client_pkg/commit/318ca67d04d433e4390d1efbb1e102809792be0d))
+
+
 ## v0.5.1 (2025-04-20)
 
 ### Bug Fixes
