@@ -4,9 +4,10 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from rcer_iot_client_pkg.general_types.error_types.api.update_thies_data_error_types import (
-    FetchThiesFileContentError,
-    ThiesUploadEmptyError,
+    ThiesConnectionError,
+    ThiesFetchingError,
 )
+from rcer_iot_client_pkg.general_types.error_types.common import EmptyDataError
 from rcer_iot_client_pkg.services.epii.use_cases.types import (
     UpdateThiesDataUseCaseInput,
 )
@@ -37,7 +38,10 @@ class TestUpdateThiesDataUseCaseFetchThiesFilenames(unittest.IsolatedAsyncioTest
         }
         mock_ftp_client_inst = mock_ftp_client.return_value
         mock_ftp_client_inst.list_files = AsyncMock(
-            return_value=["file1.bin", "file2.bin"]
+            side_effect=[
+                ["file1.bin", "file2.bin"],  # AVG files
+                ["file1.bin", "file2.bin"],  # EXT files
+            ]
         )
 
         # Act
@@ -57,13 +61,13 @@ class TestUpdateThiesDataUseCaseFetchThiesFilenames(unittest.IsolatedAsyncioTest
         use_case = UpdateThiesDataUseCase(use_case_input)
         mock_ftp_client_inst = mock_ftp_client.return_value
         mock_ftp_client_inst.list_files = AsyncMock(
-            side_effect=ConnectionError("No files were found to upload.")
+            side_effect=ConnectionRefusedError("Connection refused")
         )
 
         # Act & Assert
-        with self.assertRaises(ThiesUploadEmptyError) as context:
+        with self.assertRaises(ThiesConnectionError) as context:
             await use_case.fetch_thies_file_names()
-        self.assertEqual(str(context.exception), "No files were found to upload.")
+        self.assertEqual(str(context.exception.reason), "Connection refused")
 
 
 @pytest.mark.asyncio
@@ -80,7 +84,7 @@ class TestUpdateThiesDataUseCaseFetchThiesFileContent(unittest.IsolatedAsyncioTe
             ftp_user="anonymous",
         )
         use_case = UpdateThiesDataUseCase(use_case_input)
-        use_case.uploading = ["AVG_file1.bin", "EXT_file2.bin"]
+        use_case.uploading = {"AVG_file1.bin", "EXT_file2.bin"}
         mock_ftp_client_inst = mock_ftp_client.return_value
         mock_ftp_client_inst.read_file = AsyncMock(
             side_effect=lambda args: b"content_of_" + args.file_path.encode()
@@ -107,15 +111,83 @@ class TestUpdateThiesDataUseCaseFetchThiesFileContent(unittest.IsolatedAsyncioTe
             ftp_user="anonymous",
         )
         use_case = UpdateThiesDataUseCase(use_case_input)
-        use_case.uploading = ["AVG_file1.bin"]
+        use_case.uploading = {"AVG_file1.bin"}
         mock_ftp_client_inst = mock_ftp_client.return_value
         mock_ftp_client_inst.read_file = AsyncMock(
-            side_effect=ConnectionError("Failed to read file from FTP server")
+            side_effect=ConnectionAbortedError("Failed to read file from FTP server")
         )
 
         # Act & Assert
-        with self.assertRaises(FetchThiesFileContentError) as context:
+        with self.assertRaises(ThiesFetchingError) as context:
             await use_case.fetch_thies_file_content()
         self.assertEqual(
-            str(context.exception.args[0]), "Failed to read file from FTP server"
+            str(context.exception.reason), "Failed to read file from FTP server"
         )
+
+
+@pytest.mark.asyncio
+@patch("rcer_iot_client_pkg.services.epii.use_cases.update_thies_data.FTPClient")
+@patch("rcer_iot_client_pkg.services.epii.use_cases.update_thies_data.SharepointClient")
+class TestUpdateThiesDataUseCaseExecute(unittest.IsolatedAsyncioTestCase):
+    async def test_should_execute_successfully(
+        self, mock_sharepoint_client: MagicMock, mock_ftp_client: MagicMock
+    ):
+        # Arrange
+        use_case_input = UpdateThiesDataUseCaseInput(
+            ftp_host="localhost",
+            ftp_password="12345678",
+            ftp_port=21,
+            ftp_user="anonymous",
+        )
+        use_case = UpdateThiesDataUseCase(use_case_input)
+        mock_ftp_client_inst = mock_ftp_client.return_value
+        mock_sharepoint_client_inst = mock_sharepoint_client.return_value
+
+        mock_ftp_client_inst.list_files = AsyncMock(
+            side_effect=[
+                ["file1.bin", "file2.bin"],  # AVG files
+                ["file1.bin", "file2.bin"],  # EXT files
+            ]
+        )
+        mock_sharepoint_client_inst.list_files = AsyncMock(
+            return_value={"value": [{"Name": "file1.bin"}]}
+        )
+        mock_ftp_client_inst.read_file = AsyncMock(
+            side_effect=lambda args: b"content_of_" + args.file_path.encode()
+        )
+
+        # Act
+        result = await use_case.execute()
+
+        # Assert
+        self.assertIsInstance(result, dict)
+        self.assertIn("file2.bin", result)
+
+    async def test_should_raise_empty_data_error(
+        self, mock_sharepoint_client: MagicMock, mock_ftp_client: MagicMock
+    ):
+        # Arrange
+        use_case_input = UpdateThiesDataUseCaseInput(
+            ftp_host="localhost",
+            ftp_password="12345678",
+            ftp_port=21,
+            ftp_user="anonymous",
+        )
+        use_case = UpdateThiesDataUseCase(use_case_input)
+        mock_ftp_client_inst = mock_ftp_client.return_value
+        mock_sharepoint_client_inst = mock_sharepoint_client.return_value
+
+        mock_ftp_client_inst.list_files = AsyncMock(
+            side_effect=[
+                ["file1.bin"],  # AVG files
+                ["file1.bin"],  # EXT files
+            ]
+        )
+        mock_sharepoint_client_inst.list_files = AsyncMock(
+            return_value={"value": [{"Name": "file1.bin"}]}
+        )
+
+        # Act & Assert
+        with self.assertRaises(EmptyDataError) as context:
+            await use_case.execute()
+        self.assertEqual(str(context.exception.reason), "No files to upload.")

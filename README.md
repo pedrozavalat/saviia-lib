@@ -9,6 +9,39 @@ This library provides a robust and efficient client for interacting with IoT dev
 pip install rcer_iot_client_pkg
 ```
 
+## Usage
+
+### Initialize the EPii API Client
+To start using the library, you need to create an `EpiiAPI` client instance:
+
+```python
+from rcer_iot_client_pkg import EpiiAPI
+
+api_client = EpiiAPI()
+```
+
+### Update THIES Data Logger Files
+The library provides a method to synchronize THIES Data Logger files with the RCER SharePoint client. This method updates the folder containing binary files with meteorological data:
+
+```python
+import asyncio
+
+async def update_thies_data():
+    response = await api_client.update_thies_data(
+        ftp_port=PORT,
+        ftp_host=LOCAL_HOST,
+        ftp_password=PASSWORD,
+        ftp_user=USER
+    )
+    return response
+
+asyncio.run(update_thies_data())
+```
+
+**Notes:** 
+- Store sensitive data like `PASSWORD` and `USER` securely, e.g., in environment variables or a secrets file.
+- Ensure `asyncio` is installed to run concurrent code with `EpiiAPI` methods.
+
 ## Development
 
 This project includes a `Makefile` to simplify common tasks. Below are the available commands:

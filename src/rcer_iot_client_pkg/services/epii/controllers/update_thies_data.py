@@ -1,12 +1,14 @@
 from http import HTTPStatus
 
 from rcer_iot_client_pkg.general_types.error_types.api.update_thies_data_error_types import (
-    FetchCloudFileNamesError,
-    ThiesUploadEmptyError,
+    SharePointFetchingError,
+    ThiesConnectionError,
+    ThiesFetchingError,
 )
 from rcer_iot_client_pkg.general_types.error_types.common.common_types import (
+    EmptyDataError,
     FtpClientError,
-    HttpClientError,
+    SharepointClientError,
 )
 from rcer_iot_client_pkg.services.epii.controllers.types.update_thies_data_types import (
     UpdateThiesDataControllerInput,
@@ -34,6 +36,11 @@ class UpdateThiesDataController:
                 status=HTTPStatus.OK.value,
                 metadata={"data": data},
             )
+        except EmptyDataError:
+            return UpdateThiesDataControllerOutput(
+                message="No files to upload", status=HTTPStatus.NO_CONTENT
+            )
+
         except (AttributeError, NameError, ValueError) as error:
             return UpdateThiesDataControllerOutput(
                 message="An unexpected error occurred during use case initialization.",
@@ -47,22 +54,30 @@ class UpdateThiesDataController:
                 metadata={"error": error.__str__()},
             )
 
-        except HttpClientError as error:
+        except SharepointClientError as error:
             return UpdateThiesDataControllerOutput(
-                message="Http Client initialization fails.",
+                message="Sharepoint Client initialization fails.",
                 status=HTTPStatus.BAD_REQUEST.value,
                 metadata={"error": error.__str__()},
             )
 
-        except FetchCloudFileNamesError as error:
+        except SharePointFetchingError as error:
             return UpdateThiesDataControllerOutput(
                 message="An error occurred while retrieving file names from the RCER cloud",
                 status=HTTPStatus.INTERNAL_SERVER_ERROR.value,
                 metadata={"error": error.__str__()},
             )
-        except ThiesUploadEmptyError as error:
+
+        except ThiesFetchingError as error:
             return UpdateThiesDataControllerOutput(
-                message="No files were found to upload.",
+                message="An error ocurred while retrieving file names from THIES FTP Server.",
                 status=HTTPStatus.NO_CONTENT.value,
+                metadata={"error": error.__str__()},
+            )
+
+        except ThiesConnectionError as error:
+            return UpdateThiesDataControllerOutput(
+                message="Unable to connect to THIES Data Logger FTP Server.",
+                status=HTTPStatus.INTERNAL_SERVER_ERROR.value,
                 metadata={"error": error.__str__()},
             )

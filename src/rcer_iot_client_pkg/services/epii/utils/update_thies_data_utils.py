@@ -6,7 +6,7 @@ from rcer_iot_client_pkg.libs.zero_dependency.utils.datetime_utils import (
 )
 
 
-def generate_file_content(
+def parse_execute_response(
     file_contents: dict[str, Any],
 ) -> dict[str, dict[str, int | str]]:
     return {
