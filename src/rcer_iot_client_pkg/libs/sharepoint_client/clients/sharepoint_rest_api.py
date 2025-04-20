@@ -65,17 +65,22 @@ class SharepointRestAPI(SharepointClientContract):
             }
 
     async def __aenter__(self) -> "SharepointRestAPI":
-        self.credentials = await self._load_credentials()
-        site_url = f"https://{self.tenant_name}.sharepoint.com"
+        try:
+            self.credentials = await self._load_credentials()
+            site_url = f"https://{self.tenant_name}.sharepoint.com"
 
-        self.base_headers = {
-            "Authorization": f"Bearer {self.credentials['access_token']}",
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-        }
-        self.base_url = f"{site_url}/sites/{self.site_name}/_api/"
-        self.session = ClientSession(headers=self.base_headers, base_url=self.base_url)
-        return self
+            self.base_headers = {
+                "Authorization": f"Bearer {self.credentials['access_token']}",
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+            }
+            self.base_url = f"{site_url}/sites/{self.site_name}/_api/"
+            self.session = ClientSession(
+                headers=self.base_headers, base_url=self.base_url
+            )
+            return self
+        except ClientError as error:
+            raise ConnectionError(error)
 
     async def __aexit__(
         self, _exc_type: type[BaseException], _exc_val: BaseException, _exc_tb: Any

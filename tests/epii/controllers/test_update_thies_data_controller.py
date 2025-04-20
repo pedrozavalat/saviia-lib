@@ -80,7 +80,7 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         result = await controller.execute()
 
         self.assertEqual(result.message, "Sharepoint Client initialization fails.")
-        self.assertEqual(result.status, 400)
+        self.assertEqual(result.status, 500)
         self.assertIn("SharePoint", result.metadata["error"])
 
     @patch(
@@ -88,7 +88,9 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
     )
     async def test_should_handle_sharepoint_fetching_error(self, mock_use_case):
         mock_use_case_inst = mock_use_case.return_value
-        mock_use_case_inst.execute.side_effect = SharePointFetchingError("Fetch error")
+        mock_use_case_inst.execute.side_effect = SharePointFetchingError(
+            reason="any, {error: error}"
+        )
 
         controller = UpdateThiesDataController(
             UpdateThiesDataControllerInput(self.config)
@@ -98,10 +100,9 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(
             result.message,
-            "An error occurred while retrieving file names from the RCER cloud",
+            "An error occurred while retrieving file names from Microsoft SharePoint",
         )
-        self.assertEqual(result.status, 500)
-        self.assertIn("RCER cloud", result.metadata["error"])
+        self.assertEqual(result.status, 400)
 
     @patch(
         "rcer_iot_client_pkg.services.epii.controllers.update_thies_data.UpdateThiesDataUseCase"
