@@ -1,5 +1,4 @@
-# RCER IoT Client Library | `rcer_iot_client_pkg`
-
+# RCER IoT Client Package 
 
 ## Installation
 You can find the package on [PyPI](https://pypi.org/project/rcer-iot-client-pkg/). 
