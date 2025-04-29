@@ -7,12 +7,15 @@ from rcer_iot_client_pkg.libs.zero_dependency.utils.datetime_utils import (
 
 
 def parse_execute_response(
-    file_contents: dict[str, Any],
+    thies_fetched_files: dict[str, Any], upload_statistics: dict[str, Any]
 ) -> dict[str, dict[str, int | str]]:
     return {
-        filename: {
-            "size": len(data),
-            "date": datetime_to_str(today()),
-        }
-        for filename, data in file_contents.items()
+        **upload_statistics,
+        "processed_files": {
+            filename: {
+                "file_size": len(data),
+                "processed_date": datetime_to_str(today()),
+            }
+            for filename, data in thies_fetched_files.items()
+        },
     }

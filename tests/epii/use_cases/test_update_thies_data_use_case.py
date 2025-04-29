@@ -113,8 +113,8 @@ class TestUpdateThiesDataUseCaseFetchThiesFileContent(unittest.IsolatedAsyncioTe
             side_effect=lambda args: b"content_of_" + args.file_path.encode()
         )
         expected_content_files = {
-            "file1.bin": b"content_of_ftp/thies/BINFILES/ARCH_AV1/file1.bin",
-            "file2.bin": b"content_of_ftp/thies/BINFILES/ARCH_EX1/file2.bin",
+            "AVG_file1.bin": b"content_of_ftp/thies/BINFILES/ARCH_AV1/file1.bin",
+            "EXT_file2.bin": b"content_of_ftp/thies/BINFILES/ARCH_EX1/file2.bin",
         }
 
         # Act
@@ -172,20 +172,21 @@ class TestUpdateThiesDataUseCaseExecute(unittest.IsolatedAsyncioTestCase):
             ftp_config=self.ftp_config, sharepoint_config=self.sharepoint_config
         )
         use_case = UpdateThiesDataUseCase(use_case_input)
-        mock_ftp_client_inst = mock_ftp_client.return_value
-        mock_sharepoint_client_inst = mock_sharepoint_client.return_value
 
-        mock_ftp_client_inst.list_files = AsyncMock(
-            side_effect=[
-                ["file1.bin", "file2.bin"],  # AVG files
-                ["file1.bin", "file2.bin"],  # EXT files
-            ]
+        # Mocking methods used in execute
+        use_case.fetch_thies_file_names = AsyncMock(
+            return_value={"AVG_file1.bin", "EXT_file2.bin"}
         )
-        mock_sharepoint_client_inst.list_files = AsyncMock(
-            return_value={"value": [{"Name": "file1.bin"}]}
+        use_case.fetch_cloud_file_names = AsyncMock(
+            return_value={"AVG_file1.bin"}
         )
-        mock_ftp_client_inst.read_file = AsyncMock(
-            side_effect=lambda args: b"content_of_" + args.file_path.encode()
+        use_case.fetch_thies_file_content = AsyncMock(
+            return_value={
+                "EXT_file2.bin": b"content_of_ftp/thies/BINFILES/ARCH_EX1/file2.bin"
+            }
+        )
+        use_case.upload_thies_files_to_sharepoint = AsyncMock(
+            return_value={"EXT_file2.bin": "uploaded"}
         )
 
         # Act
@@ -193,7 +194,8 @@ class TestUpdateThiesDataUseCaseExecute(unittest.IsolatedAsyncioTestCase):
 
         # Assert
         self.assertIsInstance(result, dict)
-        self.assertIn("file2.bin", result)
+        self.assertIn("EXT_file2.bin", result)
+        self.assertEqual(result["EXT_file2.bin"], "uploaded")
 
     async def test_should_raise_empty_data_error(
         self, mock_sharepoint_client: MagicMock, mock_ftp_client: MagicMock

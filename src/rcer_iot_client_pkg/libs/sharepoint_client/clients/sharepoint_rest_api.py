@@ -1,4 +1,3 @@
-import os
 from typing import Any
 
 from aiohttp import ClientError, ClientSession
@@ -125,12 +124,9 @@ class SharepointRestAPI(SharepointClientContract):
             folder_relative_url = (
                 f"GetFolderByServerRelativeUrl('{args.folder_relative_url}')"
             )
-            # Read the file
-            source_file_path = os.path.basename(args.file_path)
-            with open(source_file_path, "rb") as file:
-                data = file.read()
+            data = args.file_content
 
-            endpoint = f"web/{folder_relative_url}/Files/add(url='{source_file_path}',overwrite=false)"
+            endpoint = f"web/{folder_relative_url}/Files/add(url='{args.file_name}',overwrite=true)"
             response = await self.session.post(endpoint, data=data, headers=headers)
 
             response.raise_for_status()

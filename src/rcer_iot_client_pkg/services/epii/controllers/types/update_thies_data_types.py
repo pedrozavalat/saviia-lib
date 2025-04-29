@@ -1,11 +1,13 @@
 from dataclasses import dataclass, field
 from typing import Dict
-from rcer_iot_client_pkg.general_types.api.update_thies_data_types import EpiiAPIConfig
+from rcer_iot_client_pkg.general_types.api.update_thies_data_types import (
+    EpiiUpdateThiesConfig,
+)
 
 
 @dataclass
 class UpdateThiesDataControllerInput:
-    config: EpiiAPIConfig
+    config: EpiiUpdateThiesConfig
 
 
 @dataclass

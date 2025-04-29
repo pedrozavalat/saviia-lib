@@ -3,7 +3,9 @@ from unittest.mock import AsyncMock, patch
 
 from dotenv import load_dotenv
 
-from rcer_iot_client_pkg.general_types.api.update_thies_data_types import EpiiAPIConfig
+from rcer_iot_client_pkg.general_types.api.update_thies_data_types import (
+    EpiiUpdateThiesConfig,
+)
 from rcer_iot_client_pkg.services.epii.api import EpiiAPI
 from rcer_iot_client_pkg.services.epii.controllers.types import (
     UpdateThiesDataControllerOutput,
@@ -14,7 +16,7 @@ load_dotenv()
 
 class TestEpiiAPIUpdateThiesData(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
-        self.config = EpiiAPIConfig(
+        self.config = EpiiUpdateThiesConfig(
             ftp_host="ftp.example.com",
             ftp_port=21,
             ftp_password="password123",
