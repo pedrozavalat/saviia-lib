@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.6.0 (2025-04-29)
+
+### Bug Fixes
+
+- Execute usecase method's test
+  ([`2db2b69`](https://github.com/pedrozavalat/rcer_iot_client_pkg/commit/2db2b69455a33fe9792915d09bc6c6d4e854f70a))
+
+### Features
+
+- Upload_thies_files_to_sharepoint method
+  ([`94d09fe`](https://github.com/pedrozavalat/rcer_iot_client_pkg/commit/94d09fee50fa05ef104ef3100bdd5b6e29be827a))
+
+
 ## v0.5.2 (2025-04-20)
 
 ### Bug Fixes
