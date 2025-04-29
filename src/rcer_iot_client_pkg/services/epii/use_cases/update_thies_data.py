@@ -128,7 +128,6 @@ class UpdateThiesDataUseCase:
             for file, file_content in files.items():
                 try:
                     folder, file_name = file.split("_", 1)
-                    print(folder, file_name)
                     args = SpUploadFileArgs(
                         folder_relative_url=f"{c.SHAREPOINT_BASE_URL}/{folder}",
                         file_content=file_content,
