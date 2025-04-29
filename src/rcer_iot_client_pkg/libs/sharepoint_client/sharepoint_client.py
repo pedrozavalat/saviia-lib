@@ -28,7 +28,7 @@ class SharepointClient(SharepointClientContract):
         return await self.client_obj.list_files(args)
 
     async def list_folders(self, args: SpListFoldersArgs) -> list:
-        return self.client_obj.list_files(args)
+        return await self.client_obj.list_files(args)
 
     async def upload_file(self, args: SpUploadFileArgs) -> dict:
-        return self.client_obj.upload_file(args)
+        return await self.client_obj.upload_file(args)

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class EpiiAPIConfig:
+class EpiiUpdateThiesConfig:
     """
     Configuration for Epii API.
 
@@ -16,6 +16,7 @@ class EpiiAPIConfig:
         sharepoint_tenant_id (str): Tenant ID for SharePoint authentication.
         sharepoint_tenant_name (str): Tenant name for SharePoint.
         sharepoint_site_name (str): Site name in SharePoint.
+        logger (Logger): Logger object for logging during synchronisation of files from THIES Data Logger
     """
 
     ftp_port: int

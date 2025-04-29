@@ -41,3 +41,17 @@ class SharePointFetchingError(Exception):
 
         except json.decoder.JSONDecodeError:
             return self.reason.__str__()
+
+
+class SharePointUploadError(Exception):
+    """Raised when there is an error uploading files to the Microsoft SharePoint folder."""
+
+    def __init__(self, *args, reason):
+        super().__init__(*args, reason)
+        self.reason = reason
+
+    def __str__(self):
+        return (
+            "An error occurred while uploading files to the Microsoft SharePoint folder. "
+            + self.reason.__str__()
+        )

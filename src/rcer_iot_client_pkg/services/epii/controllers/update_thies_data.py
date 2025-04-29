@@ -4,6 +4,7 @@ from rcer_iot_client_pkg.general_types.error_types.api.update_thies_data_error_t
     SharePointFetchingError,
     ThiesConnectionError,
     ThiesFetchingError,
+    SharePointUploadError,
 )
 from rcer_iot_client_pkg.general_types.error_types.common.common_types import (
     EmptyDataError,
@@ -54,7 +55,7 @@ class UpdateThiesDataController:
             )
         except EmptyDataError:
             return UpdateThiesDataControllerOutput(
-                message="No files to upload", status=HTTPStatus.NO_CONTENT
+                message="No files to upload", status=HTTPStatus.NO_CONTENT.value
             )
 
         except (AttributeError, NameError, ValueError) as error:
@@ -80,6 +81,13 @@ class UpdateThiesDataController:
         except SharePointFetchingError as error:
             return UpdateThiesDataControllerOutput(
                 message="An error occurred while retrieving file names from Microsoft SharePoint",
+                status=HTTPStatus.BAD_REQUEST.value,
+                metadata={"error": error.__str__()},
+            )
+
+        except SharePointUploadError as error:
+            return UpdateThiesDataControllerOutput(
+                message="An error oucrred while uploading files to RCER Cloud",
                 status=HTTPStatus.BAD_REQUEST.value,
                 metadata={"error": error.__str__()},
             )

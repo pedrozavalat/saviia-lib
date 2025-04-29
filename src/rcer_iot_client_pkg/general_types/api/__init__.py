@@ -1,3 +1,3 @@
-from .update_thies_data_types import EpiiAPIConfig
+from .update_thies_data_types import EpiiUpdateThiesConfig
 
-__all__ = ["EpiiAPIConfig"]
+__all__ = ["EpiiUpdateThiesConfig"]

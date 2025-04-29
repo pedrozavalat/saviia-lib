@@ -15,12 +15,14 @@ from rcer_iot_client_pkg.services.epii.controllers.types import (
 from rcer_iot_client_pkg.services.epii.controllers.update_thies_data import (
     UpdateThiesDataController,
 )
-from rcer_iot_client_pkg.general_types.api.update_thies_data_types import EpiiAPIConfig
+from rcer_iot_client_pkg.general_types.api.update_thies_data_types import (
+    EpiiUpdateThiesConfig,
+)
 
 
 class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
-        self.config = EpiiAPIConfig(
+        self.config = EpiiUpdateThiesConfig(
             ftp_host="localhost",
             ftp_port=21,
             ftp_user="john_doe",
