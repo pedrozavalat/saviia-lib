@@ -24,11 +24,11 @@ api_client = EpiiAPI()
 The library provides a method to synchronize THIES Data Logger files with the RCER SharePoint client. This method updates the folder containing binary files with meteorological data:
 
 ```python
-from rcer_iot_client_pkg import EpiiAPIConfig
+from rcer_iot_client_pkg import EpiiUpdateThiesConfig
 import asyncio
 
 async def update_thies_data():
-    config = EpiiAPIConfig(
+    config = EpiiUpdateThiesConfig(
         ftp_port=FTP_PORT,
         ftp_host=FTP_HOST,
         ftp_user=FTP_USER,

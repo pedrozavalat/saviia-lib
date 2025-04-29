@@ -20,6 +20,6 @@ class SpListFoldersArgs:
 
 @dataclass
 class SpUploadFileArgs:
-    file_path: str
     folder_relative_url: str
+    file_name: str
     file_content: bytes = bytes()
