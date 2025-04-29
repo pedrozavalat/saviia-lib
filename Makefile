@@ -44,7 +44,7 @@ build:
 
 # Upload to PyPi
 upload:
-	twine upload dist/*
+	twine upload dist/* --verbose
 
 # Make a new release
 release: 

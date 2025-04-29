@@ -1,4 +1,6 @@
 # RCER IoT Client Package 
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/pedrozavalat/rcer_iot_client_pkg?style=for-the-badge)](https://github.com/pedrozavalat/rcer_iot_client_pkg/releases)
+
 
 ## Installation
 You can find the package on [PyPI](https://pypi.org/project/rcer-iot-client-pkg/). 
