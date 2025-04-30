@@ -177,9 +177,7 @@ class TestUpdateThiesDataUseCaseExecute(unittest.IsolatedAsyncioTestCase):
         use_case.fetch_thies_file_names = AsyncMock(
             return_value={"AVG_file1.bin", "EXT_file2.bin"}
         )
-        use_case.fetch_cloud_file_names = AsyncMock(
-            return_value={"AVG_file1.bin"}
-        )
+        use_case.fetch_cloud_file_names = AsyncMock(return_value={"AVG_file1.bin"})
         use_case.fetch_thies_file_content = AsyncMock(
             return_value={
                 "EXT_file2.bin": b"content_of_ftp/thies/BINFILES/ARCH_EX1/file2.bin"
