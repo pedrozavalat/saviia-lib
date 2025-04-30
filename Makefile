@@ -3,11 +3,11 @@
 # You can set these variables from the command line.
 SPHINXOPTS    =
 SPHINXBUILD   = python -msphinx
-SPHINXPROJ    = rcer_iot_client_pkg
+SPHINXPROJ    = saviialib
 SOURCEDIR     = .
 BUILDDIR      = _build
 
-PACKAGE_NAME  = rcer-iot-client
+PACKAGE_NAME  = saviia-lib
 
 # Put it first so that "make" without argument is like "make help".
 help:
@@ -57,7 +57,7 @@ uninstall:
 
 # Test if the package can be imported
 check:
-	python -c "import rcer_iot_client_pkg; print('✅ Import OK:', rcer_iot_client_pkg.__file__)"
+	python -c "import saviialib; print('✅ Import OK:', saviialib.__file__)"
 
 # All together: uninstall, install, and verify
 test-install: uninstall install check

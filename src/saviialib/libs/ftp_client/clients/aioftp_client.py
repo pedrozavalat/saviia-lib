@@ -1,9 +1,9 @@
 from aioftp import Client
 from aioftp.errors import StatusCodeError
-from rcer_iot_client_pkg.libs.ftp_client.ftp_client_contract import (
+from saviialib.libs.ftp_client.ftp_client_contract import (
     FTPClientContract,
 )
-from rcer_iot_client_pkg.libs.ftp_client.types.ftp_client_types import (
+from saviialib.libs.ftp_client.types.ftp_client_types import (
     FtpClientInitArgs,
     FtpListFilesArgs,
     FtpReadFileArgs,

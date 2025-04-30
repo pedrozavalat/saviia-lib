@@ -1,26 +1,26 @@
 from http import HTTPStatus
 
-from rcer_iot_client_pkg.general_types.error_types.api.update_thies_data_error_types import (
+from saviialib.general_types.error_types.api.update_thies_data_error_types import (
     SharePointFetchingError,
     ThiesConnectionError,
     ThiesFetchingError,
     SharePointUploadError,
 )
-from rcer_iot_client_pkg.general_types.error_types.common.common_types import (
+from saviialib.general_types.error_types.common.common_types import (
     EmptyDataError,
     FtpClientError,
     SharepointClientError,
 )
-from rcer_iot_client_pkg.services.epii.controllers.types.update_thies_data_types import (
+from saviialib.services.epii.controllers.types.update_thies_data_types import (
     UpdateThiesDataControllerInput,
     UpdateThiesDataControllerOutput,
 )
-from rcer_iot_client_pkg.services.epii.use_cases.types import (
+from saviialib.services.epii.use_cases.types import (
     UpdateThiesDataUseCaseInput,
     SharepointConfig,
     FtpClientConfig,
 )
-from rcer_iot_client_pkg.services.epii.use_cases.update_thies_data import (
+from saviialib.services.epii.use_cases.update_thies_data import (
     UpdateThiesDataUseCase,
 )
 

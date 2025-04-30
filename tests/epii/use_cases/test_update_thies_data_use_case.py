@@ -3,23 +3,23 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from rcer_iot_client_pkg.general_types.error_types.api.update_thies_data_error_types import (
+from saviialib.general_types.error_types.api.update_thies_data_error_types import (
     ThiesConnectionError,
     ThiesFetchingError,
 )
-from rcer_iot_client_pkg.general_types.error_types.common import EmptyDataError
-from rcer_iot_client_pkg.services.epii.use_cases.types import (
+from saviialib.general_types.error_types.common import EmptyDataError
+from saviialib.services.epii.use_cases.types import (
     UpdateThiesDataUseCaseInput,
     FtpClientConfig,
     SharepointConfig,
 )
-from rcer_iot_client_pkg.services.epii.use_cases.update_thies_data import (
+from saviialib.services.epii.use_cases.update_thies_data import (
     UpdateThiesDataUseCase,
 )
 
 
 @pytest.mark.asyncio
-@patch("rcer_iot_client_pkg.services.epii.use_cases.update_thies_data.FTPClient")
+@patch("saviialib.services.epii.use_cases.update_thies_data.FTPClient")
 class TestUpdateThiesDataUseCaseFetchThiesFilenames(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.ftp_config = FtpClientConfig(
@@ -82,7 +82,7 @@ class TestUpdateThiesDataUseCaseFetchThiesFilenames(unittest.IsolatedAsyncioTest
 
 
 @pytest.mark.asyncio
-@patch("rcer_iot_client_pkg.services.epii.use_cases.update_thies_data.FTPClient")
+@patch("saviialib.services.epii.use_cases.update_thies_data.FTPClient")
 class TestUpdateThiesDataUseCaseFetchThiesFileContent(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.ftp_config = FtpClientConfig(
@@ -146,8 +146,8 @@ class TestUpdateThiesDataUseCaseFetchThiesFileContent(unittest.IsolatedAsyncioTe
 
 
 @pytest.mark.asyncio
-@patch("rcer_iot_client_pkg.services.epii.use_cases.update_thies_data.FTPClient")
-@patch("rcer_iot_client_pkg.services.epii.use_cases.update_thies_data.SharepointClient")
+@patch("saviialib.services.epii.use_cases.update_thies_data.FTPClient")
+@patch("saviialib.services.epii.use_cases.update_thies_data.SharepointClient")
 class TestUpdateThiesDataUseCaseExecute(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.ftp_config = FtpClientConfig(

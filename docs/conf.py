@@ -6,7 +6,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = "rcer_iot_client_pkg"
+project = "saviialib"
 copyright = "2025, pedropablozavalat"
 author = "pedropablozavalat"
 

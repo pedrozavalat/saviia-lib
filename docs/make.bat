@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=.
 set BUILDDIR=_build
-set SPHINXPROJ=rcer_iot_client_pkg
+set SPHINXPROJ=saviialib
 
 if "%1" == "" goto help
 

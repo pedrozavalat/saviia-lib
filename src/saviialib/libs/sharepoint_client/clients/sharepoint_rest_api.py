@@ -3,10 +3,10 @@ from typing import Any
 from aiohttp import ClientError, ClientSession
 from dotenv import load_dotenv
 
-from rcer_iot_client_pkg.libs.sharepoint_client.sharepoint_client_contract import (
+from saviialib.libs.sharepoint_client.sharepoint_client_contract import (
     SharepointClientContract,
 )
-from rcer_iot_client_pkg.libs.sharepoint_client.types.sharepoint_client_types import (
+from saviialib.libs.sharepoint_client.types.sharepoint_client_types import (
     SpListFilesArgs,
     SpListFoldersArgs,
     SpUploadFileArgs,

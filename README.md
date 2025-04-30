@@ -1,13 +1,14 @@
-# RCER IoT Client Package 
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/pedrozavalat/rcer_iot_client_pkg?style=for-the-badge)](https://github.com/pedrozavalat/rcer_iot_client_pkg/releases)
+# SAVIIA Library 
+*Sistema de Administración y Visualización de Información para la Investigación y Análisis*
+
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/pedrozavalat/saviia-lib?style=for-the-badge)](https://github.com/pedrozavalat/saviia-lib/releases)
 
 
 ## Installation
-You can find the package on [PyPI](https://pypi.org/project/rcer-iot-client-pkg/). 
-This library provides a robust and efficient client for interacting with IoT devices.
+This library is designed for use with the SAVIIA Home Assistant Integration. It provides an API to retrieve files from a THIES Data Logger via an FTP server and upload them to a Microsoft SharePoint folder using the SharePoint REST API.
 
 ```bash
-pip install rcer_iot_client_pkg
+pip install saviialib
 ```
 
 ## Usage
@@ -16,7 +17,7 @@ pip install rcer_iot_client_pkg
 To start using the library, you need to create an `EpiiAPI` client instance:
 
 ```python
-from rcer_iot_client_pkg import EpiiAPI
+from saviialib import EpiiAPI
 
 api_client = EpiiAPI()
 ```
@@ -25,7 +26,7 @@ api_client = EpiiAPI()
 The library provides a method to synchronize THIES Data Logger files with the RCER SharePoint client. This method updates the folder containing binary files with meteorological data:
 
 ```python
-from rcer_iot_client_pkg import EpiiUpdateThiesConfig
+from saviialib import EpiiUpdateThiesConfig
 import asyncio
 
 async def update_thies_data():
@@ -96,4 +97,4 @@ Interested in contributing? Check out the contributing guidelines. Please note t
 
 ## License
 
-`rcer_iot_client_pkg` was created by Pedro Pablo Zavala Tejos. It is licensed under the terms of the MIT license.
+`saviialib` was created by Pedro Pablo Zavala Tejos. It is licensed under the terms of the MIT license.

@@ -1,35 +1,35 @@
 from dotenv import load_dotenv
 
-import rcer_iot_client_pkg.services.epii.constants.update_thies_data_constants as c
-from rcer_iot_client_pkg.general_types.error_types.api.update_thies_data_error_types import (
+import saviialib.services.epii.constants.update_thies_data_constants as c
+from saviialib.general_types.error_types.api.update_thies_data_error_types import (
     SharePointFetchingError,
     SharePointUploadError,
     ThiesConnectionError,
     ThiesFetchingError,
 )
-from rcer_iot_client_pkg.general_types.error_types.common import (
+from saviialib.general_types.error_types.common import (
     EmptyDataError,
     FtpClientError,
     SharepointClientError,
 )
-from rcer_iot_client_pkg.libs.ftp_client import (
+from saviialib.libs.ftp_client import (
     FTPClient,
     FtpClientInitArgs,
     FtpListFilesArgs,
     FtpReadFileArgs,
 )
-from rcer_iot_client_pkg.libs.sharepoint_client import (
+from saviialib.libs.sharepoint_client import (
     SharepointClient,
     SharepointClientInitArgs,
     SpListFilesArgs,
     SpUploadFileArgs,
 )
-from rcer_iot_client_pkg.services.epii.use_cases.types import (
+from saviialib.services.epii.use_cases.types import (
     FtpClientConfig,
     SharepointConfig,
     UpdateThiesDataUseCaseInput,
 )
-from rcer_iot_client_pkg.services.epii.utils import (
+from saviialib.services.epii.utils import (
     parse_execute_response,
 )
 

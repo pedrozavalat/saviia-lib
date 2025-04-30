@@ -3,11 +3,11 @@ from unittest.mock import AsyncMock, patch
 
 from dotenv import load_dotenv
 
-from rcer_iot_client_pkg.general_types.api.update_thies_data_types import (
+from saviialib.general_types.api.update_thies_data_types import (
     EpiiUpdateThiesConfig,
 )
-from rcer_iot_client_pkg.services.epii.api import EpiiAPI
-from rcer_iot_client_pkg.services.epii.controllers.types import (
+from saviialib.services.epii.api import EpiiAPI
+from saviialib.services.epii.controllers.types import (
     UpdateThiesDataControllerOutput,
 )
 
@@ -28,7 +28,7 @@ class TestEpiiAPIUpdateThiesData(unittest.IsolatedAsyncioTestCase):
             sharepoint_tenant_name="tenant_name_123",
         )
 
-    @patch("rcer_iot_client_pkg.services.epii.api.UpdateThiesDataController")
+    @patch("saviialib.services.epii.api.UpdateThiesDataController")
     async def test_should_update_thies_data_successfully(
         self, mock_update_thies_data_controller
     ):

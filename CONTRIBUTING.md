@@ -40,18 +40,18 @@ If you are proposing a feature:
 
 ## Get Started!
 
-Ready to contribute? Here's how to set up `rcer_iot_client_pkg` for local development.
+Ready to contribute? Here's how to set up `saviialib` for local development.
 
-1. Download a copy of `rcer_iot_client_pkg` locally.
+1. Download a copy of `saviialib` locally.
 
-2. Create and activate a conda environment for `rcer_iot_client_pkg`:
+2. Create and activate a conda environment for `saviialib`:
 
     ```console
-    $ conda create -n rcer_iot_client_pkg python=3.10
-    $ conda activate rcer_iot_client_pkg
+    $ conda create -n saviialib python=3.10
+    $ conda activate saviialib
     ```
 
-3. Install `rcer_iot_client_pkg` using `poetry`:
+3. Install `saviialib` using `poetry`:
 
     ```console
     $ poetry install
@@ -77,5 +77,5 @@ Before you submit a pull request, check that it meets these guidelines:
 
 ## Code of Conduct
 
-Please note that the `rcer_iot_client_pkg` project is released with a
+Please note that the `saviialib` project is released with a
 Code of Conduct. By contributing to this project you agree to abide by its terms.

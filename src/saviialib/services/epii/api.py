@@ -2,7 +2,7 @@ from typing import Any, Dict
 
 from .controllers.types.update_thies_data_types import UpdateThiesDataControllerInput
 from .controllers.update_thies_data import UpdateThiesDataController
-from rcer_iot_client_pkg.general_types.api.update_thies_data_types import (
+from saviialib.general_types.api.update_thies_data_types import (
     EpiiUpdateThiesConfig,
 )
 
