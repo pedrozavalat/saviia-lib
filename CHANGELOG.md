@@ -1,6 +1,22 @@
 # CHANGELOG
 
 
+## v0.6.1 (2025-04-30)
+
+### Bug Fixes
+
+- Force release
+  ([`def1de7`](https://github.com/pedrozavalat/saviia-lib/commit/def1de7489ff44cc482971fd79d0c828332c5b14))
+
+### Refactoring
+
+- Rename library to SAVIIA
+  ([`552f079`](https://github.com/pedrozavalat/saviia-lib/commit/552f0795c15b5cae32585735eb53c68db7b5e5fd))
+
+- Update README and yml files
+  ([`3c3cdfb`](https://github.com/pedrozavalat/saviia-lib/commit/3c3cdfbf03e0853073a6148d9dc882b7f55dd024))
+
+
 ## v0.6.0 (2025-04-29)
 
 ### Bug Fixes
