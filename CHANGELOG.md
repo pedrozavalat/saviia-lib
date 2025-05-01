@@ -1,6 +1,32 @@
 # CHANGELOG
 
 
+## v0.6.2 (2025-05-01)
+
+### Bug Fixes
+
+- Remove pydantic requirement
+  ([`d32bd68`](https://github.com/pedrozavalat/saviia-lib/commit/d32bd68e94204f9f9f0833d182dc1526a98c08bd))
+
+### Build System
+
+- **deps**: Bump pydantic from 2.11.3 to 2.11.4
+  ([`1f785d4`](https://github.com/pedrozavalat/saviia-lib/commit/1f785d43b89f9cf1b59330995f93c92ed52c4dd2))
+
+Bumps [pydantic](https://github.com/pydantic/pydantic) from 2.11.3 to 2.11.4. - [Release
+  notes](https://github.com/pydantic/pydantic/releases) -
+  [Changelog](https://github.com/pydantic/pydantic/blob/main/HISTORY.md) -
+  [Commits](https://github.com/pydantic/pydantic/compare/v2.11.3...v2.11.4)
+
+--- updated-dependencies: - dependency-name: pydantic dependency-version: 2.11.4
+
+dependency-type: direct:production
+
+update-type: version-update:semver-patch ...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+
+
 ## v0.6.1 (2025-04-30)
 
 ### Bug Fixes
