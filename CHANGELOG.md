@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.7.0 (2025-05-03)
+
+### Features
+
+- Remove overwritten files
+  ([`424d8db`](https://github.com/pedrozavalat/saviia-lib/commit/424d8db3804953e7d3c88c7be5f3d2445350a6a8))
+
+### Refactoring
+
+- Apply lint
+  ([`4486b99`](https://github.com/pedrozavalat/saviia-lib/commit/4486b9940458d9f6a13ddc724e79830bc4b46dc0))
+
+
 ## v0.6.2 (2025-05-01)
 
 ### Bug Fixes
