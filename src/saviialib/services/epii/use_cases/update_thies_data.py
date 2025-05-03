@@ -171,5 +171,5 @@ class UpdateThiesDataUseCase:
         upload_statistics = await self.upload_thies_files_to_sharepoint(
             thies_fetched_files
         )
-        
+
         return parse_execute_response(thies_fetched_files, upload_statistics)
