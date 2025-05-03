@@ -122,7 +122,7 @@ class UpdateThiesDataUseCase:
         self, files: dict
     ) -> dict[str, list[str]]:
         """Upload files to SharePoint and categorize the results."""
-        upload_results = {"failed_files": [], "overwritten_files": [], "new_files": []}
+        upload_results = {"failed_files": [], "new_files": []}
 
         async with self.sharepoint_client:
             for file, file_content in files.items():
@@ -133,12 +133,8 @@ class UpdateThiesDataUseCase:
                         file_content=file_content,
                         file_name=file_name,
                     )
-                    response = await self.sharepoint_client.upload_file(args)
-
-                    if response.get("Exists", False):
-                        upload_results["overwritten_files"].append(file)
-                    else:
-                        upload_results["new_files"].append(file)
+                    await self.sharepoint_client.upload_file(args)
+                    upload_results["new_files"].append(file)
 
                 except ConnectionError as error:
                     upload_results["failed_files"].append(
