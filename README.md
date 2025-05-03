@@ -91,9 +91,8 @@ make lint
 This command checks the codebase for linting issues and outputs any problems that need to be addressed.
 
 ## Contributing
-If you're interested in contributing to this project, please follow the contributing guidelines. Contributions are welcome and appreciated!
-
-Interested in contributing? Check out the contributing guidelines. Please note that this project is released with a Code of Conduct. By contributing to this project, you agree to abide by its terms.
+If you're interested in contributing to this project, please follow the contributing guidelines. By contributing to this project, you agree to abide by its terms.
+Contributions are welcome and appreciated!
 
 ## License
 
