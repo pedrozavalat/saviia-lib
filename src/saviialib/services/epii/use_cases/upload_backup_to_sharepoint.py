@@ -87,13 +87,12 @@ class UploadBackupToSharepointUsecase:
             except ConnectionError as error:
                 error_message = str(error)
                 uploaded = False
-            finally:
-                print(f"[BACKUP] Uploading file '{file_name}' ...")
 
         return uploaded, error_message
 
     async def upload_and_log_progress_task(self, folder_name, file_name) -> dict:
         """Task for uploads a file and logs progress."""
+        print(f"[BACKUP] Uploading file '{file_name}' from '{folder_name}' ")
         file_path = os.path.join(self.local_backup_source_path, folder_name, file_name)
         file_content = await self.files_client.read(ReadArgs(file_path, mode="rb"))
         uploaded, error_message = await self.export_file_to_sharepoint(
@@ -144,7 +143,7 @@ class UploadBackupToSharepointUsecase:
             ):
                 print(f"[BACKUP] The folder '{folder_name}' is empty ⚠️")
                 continue
-
+            print("[BACKUP]" + f" Extracting files from '{folder_name} ".center(15, '*'))
             for file_name in self.grouped_files_by_folder[folder_name]:
                 tasks.append(self.upload_and_log_progress_task(folder_name, file_name))
 
