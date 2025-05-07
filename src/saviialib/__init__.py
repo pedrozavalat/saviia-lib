@@ -4,6 +4,9 @@ from importlib.metadata import version
 __version__ = version("saviialib")
 
 from .services.epii.api import EpiiAPI
-from .general_types.api.update_thies_data_types import EpiiUpdateThiesConfig
+from .general_types.api.epii_api_types import (
+    EpiiUpdateThiesConfig,
+    EpiiSharepointBackupConfig,
+)
 
-__all__ = ["EpiiAPI", "EpiiUpdateThiesConfig"]
+__all__ = ["EpiiAPI", "EpiiUpdateThiesConfig", "EpiiSharepointBackupConfig"]

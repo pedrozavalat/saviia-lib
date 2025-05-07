@@ -1,7 +1,5 @@
-from dotenv import load_dotenv
-
-import saviialib.services.epii.constants.update_thies_data_constants as c
-from saviialib.general_types.error_types.api.update_thies_data_error_types import (
+import saviialib.services.epii.use_cases.constants.update_thies_data_constants as c
+from saviialib.general_types.error_types.api.epii_api_error_types import (
     SharePointFetchingError,
     SharePointUploadError,
     ThiesConnectionError,
@@ -32,8 +30,6 @@ from saviialib.services.epii.use_cases.types import (
 from saviialib.services.epii.utils import (
     parse_execute_response,
 )
-
-load_dotenv()
 
 
 class UpdateThiesDataUseCase:

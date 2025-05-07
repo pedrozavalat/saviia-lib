@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, patch
 
 from dotenv import load_dotenv
 
-from saviialib.general_types.api.update_thies_data_types import (
+from saviialib.general_types.api.epii_api_types import (
     EpiiUpdateThiesConfig,
 )
 from saviialib.services.epii.api import EpiiAPI

@@ -1,22 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Dict
-
-
-@dataclass
-class FtpClientConfig:
-    ftp_host: str
-    ftp_port: int
-    ftp_user: str
-    ftp_password: str
-
-
-@dataclass
-class SharepointConfig:
-    sharepoint_client_id: str
-    sharepoint_client_secret: str
-    sharepoint_tenant_id: str
-    sharepoint_tenant_name: str
-    sharepoint_site_name: str
+from saviialib.general_types.api.epii_api_types import FtpClientConfig, SharepointConfig
 
 
 @dataclass

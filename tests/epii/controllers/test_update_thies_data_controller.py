@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import AsyncMock, patch
 
-from saviialib.general_types.error_types.api.update_thies_data_error_types import (
+from saviialib.general_types.error_types.api.epii_api_error_types import (
     SharePointFetchingError,
 )
 from saviialib.general_types.error_types.common import (
@@ -15,7 +15,7 @@ from saviialib.services.epii.controllers.types import (
 from saviialib.services.epii.controllers.update_thies_data import (
     UpdateThiesDataController,
 )
-from saviialib.general_types.api.update_thies_data_types import (
+from saviialib.general_types.api.epii_api_types import (
     EpiiUpdateThiesConfig,
 )
 
