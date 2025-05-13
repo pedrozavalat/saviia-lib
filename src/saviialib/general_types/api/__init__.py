@@ -1,3 +1,3 @@
-from .update_thies_data_types import EpiiUpdateThiesConfig
+from .epii_api_types import EpiiUpdateThiesConfig, EpiiSharepointBackupConfig
 
-__all__ = ["EpiiUpdateThiesConfig"]
+__all__ = ["EpiiUpdateThiesConfig", "EpiiSharepointBackupConfig"]

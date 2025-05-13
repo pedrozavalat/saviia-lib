@@ -14,23 +14,11 @@ pip install saviialib
 ## Usage
 
 ### Initialize the EPii API Client
-To start using the library, you need to create an `EpiiAPI` client instance:
+To start using the library, you need to create an `EpiiAPI` client instance with its configuration class:
 
 ```python
-from saviialib import EpiiAPI
-
-api_client = EpiiAPI()
-```
-
-### Update THIES Data Logger Files
-The library provides a method to synchronize THIES Data Logger files with the RCER SharePoint client. This method updates the folder containing binary files with meteorological data:
-
-```python
-from saviialib import EpiiUpdateThiesConfig
-import asyncio
-
-async def update_thies_data():
-    config = EpiiUpdateThiesConfig(
+from saviialib import EpiiAPI, EpiiAPIConfig
+config = EpiiAPIConfig(
         ftp_port=FTP_PORT,
         ftp_host=FTP_HOST,
         ftp_user=FTP_USER,
@@ -41,14 +29,25 @@ async def update_thies_data():
         sharepoint_tenant_name=SHAREPOINT_TENANT_NAME,
         sharepoint_site_name=SHAREPOINT_SITE_NAME
     )
-    response = await api_client.update_thies_data(config)
-    return response
-
-asyncio.run(update_thies_data())
+api_client = EpiiAPI(config)
 ```
-
 **Notes:** 
 - Store sensitive data like `FTP_PASSWORD`, `FTP_USER`, and SharePoint credentials securely. Use environment variables or a secrets management tool to avoid hardcoding sensitive information in your codebase.
+
+### Update THIES Data Logger Files
+The library provides a method to synchronize THIES Data Logger files with the RCER SharePoint client. This method updates the folder containing binary files with meteorological data:
+
+```python
+from saviialib import EpiiUpdateThiesConfig
+import asyncio
+
+async def main():
+    # Before calling this method, you must have initialised the api class ...
+    response = await api_client.update_thies_data()
+    return response
+
+asyncio.run(main())
+```
 
 ## Development
 

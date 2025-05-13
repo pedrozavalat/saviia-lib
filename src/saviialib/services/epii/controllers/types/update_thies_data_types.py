@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Dict
-from saviialib.general_types.api.update_thies_data_types import (
+from saviialib.general_types.api.epii_api_types import (
     EpiiUpdateThiesConfig,
 )
 

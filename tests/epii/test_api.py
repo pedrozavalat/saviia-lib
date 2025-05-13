@@ -3,10 +3,7 @@ from unittest.mock import AsyncMock, patch
 
 from dotenv import load_dotenv
 
-from saviialib.general_types.api.update_thies_data_types import (
-    EpiiUpdateThiesConfig,
-)
-from saviialib.services.epii.api import EpiiAPI
+from saviialib.services.epii.api import EpiiAPI, EpiiAPIConfig
 from saviialib.services.epii.controllers.types import (
     UpdateThiesDataControllerOutput,
 )
@@ -16,7 +13,7 @@ load_dotenv()
 
 class TestEpiiAPIUpdateThiesData(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
-        self.config = EpiiUpdateThiesConfig(
+        self.config = EpiiAPIConfig(
             ftp_host="ftp.example.com",
             ftp_port=21,
             ftp_password="password123",
@@ -33,7 +30,7 @@ class TestEpiiAPIUpdateThiesData(unittest.IsolatedAsyncioTestCase):
         self, mock_update_thies_data_controller
     ):
         # Arrange
-        api = EpiiAPI()
+        api = EpiiAPI(self.config)
         expected_response = UpdateThiesDataControllerOutput(
             message="valid message", status=200, metadata={"data": "value"}
         )
@@ -46,7 +43,7 @@ class TestEpiiAPIUpdateThiesData(unittest.IsolatedAsyncioTestCase):
         )
 
         # Act
-        response = await api.update_thies_data(self.config)
+        response = await api.update_thies_data()
 
         # Assert
         self.assertEqual(response, expected_response.__dict__)
