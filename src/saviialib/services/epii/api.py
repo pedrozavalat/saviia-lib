@@ -33,7 +33,7 @@ class EpiiAPI:
         """
         This method establishes a connection to an FTP server using the provided
         credentials and updates data related to THIES Data Logger.
-        
+
         Returns:
             response (dict): A dictionary representation of the API response.
         """
