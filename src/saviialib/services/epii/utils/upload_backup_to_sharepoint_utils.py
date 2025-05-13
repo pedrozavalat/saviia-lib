@@ -63,16 +63,16 @@ def extract_error_message(results: List[Dict], success: float) -> str:
 
 
 def parse_execute_response(results: List[Dict]) -> Dict[str, List[str]]:
-    print("[BACKUP] All the files were uploaded successfully 🎉")
     return {
         "new_files": [item["file_name"] for item in results if item.get("uploaded")],
     }
 
 
-def show_upload_result(uploaded: bool, file_name: str):
+def show_upload_result(uploaded: bool, file_name: str) -> str:
     status = "✅" if uploaded else "❌"
     message = "was uploaded successfully" if uploaded else "failed to upload"
-    print(f"[BACKUP] File {file_name} {message} {status}")
+    result = f"[BACKUP] File {file_name} {message} {status}"
+    return result
 
 
 def calculate_percentage_uploaded(results: List[Dict], total_files: int) -> float:

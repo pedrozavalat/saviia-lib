@@ -1,6 +1,6 @@
 from .clients.aiofiles_client import AioFilesClient
 from .files_client_contract import FilesClientContract
-from .types.files_client_types import FilesClientInitArgs, ReadArgs
+from .types.files_client_types import FilesClientInitArgs, ReadArgs, WriteArgs
 
 
 class FilesClient(FilesClientContract):
@@ -23,3 +23,6 @@ class FilesClient(FilesClientContract):
         :return file: The result of the read operation, as returned by the client object.
         """
         return await self.client_obj.read(args)
+
+    async def write(self, args: WriteArgs):
+        return await self.client_obj.write(args)

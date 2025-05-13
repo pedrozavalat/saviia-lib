@@ -22,3 +22,10 @@ class ReadArgs:
     file_path: str
     mode: Literal["r", "rb"]
     encoding: str = "utf-8"
+
+
+@dataclass
+class WriteArgs:
+    destination_path: str
+    file_name: str
+    file_content: str | bytes
