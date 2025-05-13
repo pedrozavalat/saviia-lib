@@ -64,7 +64,7 @@ def extract_error_message(results: List[Dict], success: float) -> str:
 
 def parse_execute_response(results: List[Dict]) -> Dict[str, List[str]]:
     return {
-        "new_files": [item["file_name"] for item in results if item.get("uploaded")],
+        "new_files": len([item["file_name"] for item in results if item.get("uploaded")]),
     }
 
 
