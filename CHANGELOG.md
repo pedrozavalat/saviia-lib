@@ -1,6 +1,36 @@
 # CHANGELOG
 
 
+## v0.8.0 (2025-05-13)
+
+### Bug Fixes
+
+- Update thies data api test
+  ([`e6370ff`](https://github.com/pedrozavalat/saviia-lib/commit/e6370fff3ab774a6f3de0e50708e8a7e52d95d2f))
+
+### Features
+
+- Add aiofiles client
+  ([`f8f73e6`](https://github.com/pedrozavalat/saviia-lib/commit/f8f73e6dfcef231727ddb374f02822bd1282c961))
+
+- Add log_history file implementation
+  ([`9159c1c`](https://github.com/pedrozavalat/saviia-lib/commit/9159c1c4574724f426b48ae366eafd23fab073a4))
+
+- Add upload backup to sharepoint files
+  ([`dc3f466`](https://github.com/pedrozavalat/saviia-lib/commit/dc3f466d43630da27d2a206a3f185ae25de3912e))
+
+### Refactoring
+
+- Api configuration
+  ([`15a039e`](https://github.com/pedrozavalat/saviia-lib/commit/15a039e09fe3398cb100a970025a8b4d4c00e949))
+
+- Clean code, remove files and move folders
+  ([`3b04337`](https://github.com/pedrozavalat/saviia-lib/commit/3b04337d95cb4f5e55ad689b852616d3ddcc135e))
+
+- Prints
+  ([`f8da5b2`](https://github.com/pedrozavalat/saviia-lib/commit/f8da5b24f6d723d932e80cd8c8748415c41d48ee))
+
+
 ## v0.7.0 (2025-05-03)
 
 ### Features
