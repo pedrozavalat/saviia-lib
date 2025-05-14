@@ -151,10 +151,24 @@ class UploadBackupToSharepointUsecase:
         """Exports all files from the local backup folder to SharePoint cloud."""
         tasks = []
         start_time = time()
+        # Check if the local path exists in the main directory
         if not directory_exists(self.local_backup_source_path):
             raise BackupSourcePathError(
                 reason=f"'{self.local_backup_source_path}' doesn't exist."
             )
+
+        # Check if the current folder only have files.
+        for item in os.listdir(self.local_backup_source_path):
+            if not os.path.isdir(os.path.join(self.local_backup_source_path, item)):
+                continue
+            else:
+                raise BackupSourcePathError(
+                    reason=(
+                        f"'{self.local_backup_source_path}' have an directory. ",
+                        "It must have only files",
+                    )
+                )
+
         if self.total_files == 0:
             no_files_message = (
                 f"[BACKUP] {self.local_backup_source_path} has no files ⚠️"
