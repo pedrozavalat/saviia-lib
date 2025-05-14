@@ -70,7 +70,7 @@ class EpiiAPI:
             sharepoint_tenant_id=self.sharepoint_tenant_id,
             sharepoint_tenant_name=self.sharepoint_tenant_name,
             local_backup_source_path=local_backup_source_path,
-            destination_folders=destination_folders
+            destination_folders=destination_folders,
         )
 
         controller = UploadBackupToSharepointController(

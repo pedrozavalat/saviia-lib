@@ -1,5 +1,8 @@
 import aiofiles
-
+from saviialib.libs.directory_client.directory_client import (
+    DirectoryClient,
+    DirectoryClientArgs,
+)
 from saviialib.libs.files_client.files_client_contract import FilesClientContract
 from saviialib.libs.files_client.types.files_client_types import (
     FilesClientInitArgs,
@@ -10,7 +13,7 @@ from saviialib.libs.files_client.types.files_client_types import (
 
 class AioFilesClient(FilesClientContract):
     def __init__(self, args: FilesClientInitArgs):
-        pass
+        self.dir_client = DirectoryClient(DirectoryClientArgs(client_name="os_client"))
 
     async def read(self, args: ReadArgs) -> str | bytes:
         encoding = None if args.mode == "rb" else args.encoding
@@ -18,4 +21,7 @@ class AioFilesClient(FilesClientContract):
             return await file.read()
 
     async def write(self, args: WriteArgs) -> None:
-        return None
+        file_path = self.dir_client.join_paths(args.destination_path, args.file_name)
+        mode = "w" if isinstance(args.file_content, str) else "wb"
+        async with aiofiles.open(file_path, mode) as file:
+            await file.write(args.file_content)

@@ -1,6 +1,6 @@
 import asyncio
-import os
 from time import time
+
 import saviialib.services.epii.use_cases.constants.upload_backup_to_sharepoint_constants as c
 from saviialib.general_types.error_types.api.epii_api_error_types import (
     BackupEmptyError,
@@ -10,7 +10,13 @@ from saviialib.general_types.error_types.api.epii_api_error_types import (
 from saviialib.general_types.error_types.common import (
     SharepointClientError,
 )
-from saviialib.libs.files_client import FilesClient, FilesClientInitArgs, ReadArgs
+from saviialib.libs.directory_client import DirectoryClient, DirectoryClientArgs
+from saviialib.libs.files_client import (
+    FilesClient,
+    FilesClientInitArgs,
+    ReadArgs,
+    WriteArgs,
+)
 from saviialib.libs.sharepoint_client import (
     SharepointClient,
     SharepointClientInitArgs,
@@ -19,16 +25,15 @@ from saviialib.libs.sharepoint_client import (
 from saviialib.services.epii.utils.upload_backup_to_sharepoint_utils import (
     calculate_percentage_uploaded,
     count_files_in_directory,
-    directory_exists,
     extract_error_message,
     parse_execute_response,
     show_upload_result,
 )
 
+from .constants.upload_backup_to_sharepoint_constants import LOGGER
 from .types.upload_backup_to_sharepoint_types import (
     UploadBackupToSharepointUseCaseInput,
 )
-from .constants.upload_backup_to_sharepoint_constants import LOGGER
 
 
 class UploadBackupToSharepointUsecase:
@@ -37,38 +42,45 @@ class UploadBackupToSharepointUsecase:
         self.local_backup_source_path = input.local_backup_source_path
         self.destination_folders = input.destination_folders
         self.files_client = self._initialize_files_client()
+        self.dir_client = self._initialize_directory_client()
         self.log_history = []
         self.grouped_files_by_folder = None
         self.total_files = None
+
+    def _initialize_directory_client(self):
+        return DirectoryClient(DirectoryClientArgs(client_name="os_client"))
 
     def _initialize_files_client(self):
         return FilesClient(FilesClientInitArgs(client_name="aiofiles_client"))
 
     async def _extract_filesnames_by_folder(self) -> dict[str, list[str]]:
         """Groups files by their parent folder."""
-        backup_folder_exists = await asyncio.to_thread(
-            os.path.exists, self.local_backup_source_path
+        backup_folder_exists = await self.dir_client.path_exists(
+            self.local_backup_source_path
         )
+
         if not backup_folder_exists:
             return {}
-        folder_names = await asyncio.to_thread(
-            os.listdir, self.local_backup_source_path
-        )
+        folder_names = await self.dir_client.listdir(self.local_backup_source_path)
         return {
             folder_name: [
                 file_name
-                for file_name in await asyncio.to_thread(
-                    os.listdir, os.path.join(self.local_backup_source_path, folder_name)
+                for file_name in await self.dir_client.listdir(
+                    self.dir_client.join_paths(
+                        self.local_backup_source_path, folder_name
+                    )
                 )
             ]
             for folder_name in folder_names
         }
 
-    def _save_log_history(self) -> None:
-        text_file = "\n".join(self.log_history)
-        log_history_filepath = "BACKUP_LOG_HISTORY.log"
-        with open(log_history_filepath, "w") as file:
-            file.write(text_file)
+    async def _save_log_history(self) -> None:
+        await self.files_client.write(
+            WriteArgs(
+                file_name="BACKUP_LOG_HISTORY.log",
+                file_content="\n".join(self.log_history),
+            )
+        )
 
     async def export_file_to_sharepoint(
         self, folder_name: str, file_name: str, file_content: bytes
@@ -105,14 +117,16 @@ class UploadBackupToSharepointUsecase:
 
         return uploaded, error_message
 
-    async def upload_and_log_progress_task(self, folder_name, file_name) -> dict:
+    async def _upload_and_log_progress_task(self, folder_name, file_name) -> dict:
         """Task for uploads a file and logs progress."""
         uploading_message = (
             f"[BACKUP] Uploading file '{file_name}' from '{folder_name}' "
         )
         self.log_history.append(uploading_message)
         LOGGER.debug(uploading_message)
-        file_path = os.path.join(self.local_backup_source_path, folder_name, file_name)
+        file_path = self.dir_client.join_paths(
+            self.local_backup_source_path, folder_name, file_name
+        )
         file_content = await self.files_client.read(ReadArgs(file_path, mode="rb"))
         uploaded, error_message = await self.export_file_to_sharepoint(
             folder_name, file_name, file_content
@@ -137,7 +151,7 @@ class UploadBackupToSharepointUsecase:
         LOGGER.debug(retry_message)
         for file in failed_files:
             tasks.append(
-                self.upload_and_log_progress_task(
+                self._upload_and_log_progress_task(
                     file["parent_folder"], file["file_name"]
                 )
             )
@@ -164,7 +178,7 @@ class UploadBackupToSharepointUsecase:
         start_time = time()
 
         # Check if the local path exists in the main directory
-        if not await directory_exists(self.local_backup_source_path):
+        if not await self.dir_client.path_exists(self.local_backup_source_path):
             raise BackupSourcePathError(
                 reason=f"'{self.local_backup_source_path}' doesn't exist."
             )
@@ -172,14 +186,12 @@ class UploadBackupToSharepointUsecase:
         # Check if the current folder only have files.
         items = [
             item
-            for item in await asyncio.to_thread(
-                os.listdir, self.local_backup_source_path
-            )
+            for item in await self.dir_client.listdir(self.local_backup_source_path)
         ]
         for item in items:
             folder_included = item in self.destination_folders.keys()
-            is_file = not await asyncio.to_thread(
-                os.path.isdir, os.path.join(self.local_backup_source_path, item)
+            is_file = not await self.dir_client.isdir(
+                self.dir_client.join_paths(self.local_backup_source_path, item)
             )
 
             if not folder_included and not is_file:
@@ -217,7 +229,7 @@ class UploadBackupToSharepointUsecase:
             self.log_history.append(extracting_files_message)
             LOGGER.debug(extracting_files_message)
             for file_name in self.grouped_files_by_folder[folder_name]:
-                tasks.append(self.upload_and_log_progress_task(folder_name, file_name))
+                tasks.append(self._upload_and_log_progress_task(folder_name, file_name))
 
         # Execution of multiple asynchronous tasks for files migration.
         results = await asyncio.gather(*tasks, return_exceptions=True)

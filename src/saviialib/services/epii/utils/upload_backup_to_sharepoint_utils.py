@@ -1,13 +1,14 @@
 import re
 from typing import List, Dict, Optional
-import asyncio
-import os
 from saviialib.general_types.error_types.api.epii_api_error_types import (
     BackupSourcePathError,
 )
 from saviialib.services.epii.use_cases.constants.upload_backup_to_sharepoint_constants import (
     LOGGER,
 )
+from saviialib.libs.directory_client import DirectoryClient, DirectoryClientArgs
+
+dir_client = DirectoryClient(DirectoryClientArgs(client_name="os_client"))
 
 
 def extract_error_information(error: str) -> Optional[Dict[str, str]]:
@@ -94,9 +95,5 @@ def calculate_percentage_uploaded(results: List[Dict], total_files: int) -> floa
     return (uploaded_count / total_files) * 100 if total_files > 0 else 0
 
 
-async def directory_exists(path: str) -> bool:
-    return await asyncio.to_thread(os.path.exists, path)
-
-
 async def count_files_in_directory(path: str, folder_name: str) -> int:
-    return len(await asyncio.to_thread(os.listdir, os.path.join(path, folder_name)))
+    return len(await dir_client.listdir(dir_client.join_paths(path, folder_name)))

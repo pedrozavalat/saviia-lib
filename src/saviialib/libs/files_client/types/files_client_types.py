@@ -26,6 +26,6 @@ class ReadArgs:
 
 @dataclass
 class WriteArgs:
-    destination_path: str
     file_name: str
     file_content: str | bytes
+    destination_path: str = "/"
