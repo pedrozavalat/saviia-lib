@@ -36,28 +36,32 @@ class UploadBackupToSharepointUsecase:
         self.sharepoint_config = input.sharepoint_config
         self.local_backup_source_path = input.local_backup_source_path
         self.destination_folders = input.destination_folders
-        self.grouped_files_by_folder = self._extract_filesnames_by_folder()
         self.files_client = self._initialize_files_client()
-        self.total_files = sum(
-            len(files) for files in self.grouped_files_by_folder.values()
-        )
         self.log_history = []
+        self.grouped_files_by_folder = None
+        self.total_files = None
 
     def _initialize_files_client(self):
         return FilesClient(FilesClientInitArgs(client_name="aiofiles_client"))
 
-    def _extract_filesnames_by_folder(self) -> dict[str, list[str]]:
+    async def _extract_filesnames_by_folder(self) -> dict[str, list[str]]:
         """Groups files by their parent folder."""
-        if not os.path.exists(self.local_backup_source_path):
+        backup_folder_exists = await asyncio.to_thread(
+            os.path.exists, self.local_backup_source_path
+        )
+        if not backup_folder_exists:
             return {}
+        folder_names = await asyncio.to_thread(
+            os.listdir, self.local_backup_source_path
+        )
         return {
             folder_name: [
                 file_name
-                for file_name in os.listdir(
-                    os.path.join(self.local_backup_source_path, folder_name)
+                for file_name in await asyncio.to_thread(
+                    os.listdir, os.path.join(self.local_backup_source_path, folder_name)
                 )
             ]
-            for folder_name in os.listdir(self.local_backup_source_path)
+            for folder_name in folder_names
         }
 
     def _save_log_history(self) -> None:
@@ -84,7 +88,9 @@ class UploadBackupToSharepointUsecase:
 
         async with sharepoint_client:
             try:
-                destination_folder = self.destination_folders.get(folder_name, folder_name)
+                destination_folder = self.destination_folders.get(
+                    folder_name, folder_name
+                )
                 folder_url = f"{c.SHAREPOINT_BASE_URL}/{destination_folder}"
                 args = SpUploadFileArgs(
                     folder_relative_url=folder_url,
@@ -150,20 +156,33 @@ class UploadBackupToSharepointUsecase:
 
     async def execute(self):
         """Exports all files from the local backup folder to SharePoint cloud."""
+        self.grouped_files_by_folder = await self._extract_filesnames_by_folder()
+        self.total_files = sum(
+            len(files) for files in self.grouped_files_by_folder.values()
+        )
         tasks = []
         start_time = time()
-        
+
         # Check if the local path exists in the main directory
-        if not directory_exists(self.local_backup_source_path):
+        if not await directory_exists(self.local_backup_source_path):
             raise BackupSourcePathError(
                 reason=f"'{self.local_backup_source_path}' doesn't exist."
             )
 
         # Check if the current folder only have files.
-        for item in os.listdir(self.local_backup_source_path):
+        items = [
+            item
+            for item in await asyncio.to_thread(
+                os.listdir, self.local_backup_source_path
+            )
+        ]
+        for item in items:
             folder_included = item in self.destination_folders.keys()
-            is_file = not os.path.isdir(os.path.join(self.local_backup_source_path, item))
-            if not folder_included and not is_file: 
+            is_file = not await asyncio.to_thread(
+                os.path.isdir, os.path.join(self.local_backup_source_path, item)
+            )
+
+            if not folder_included and not is_file:
                 raise BackupSourcePathError(
                     reason=(
                         f"'{item}' must be included in the destination folders dictionary",
@@ -171,12 +190,8 @@ class UploadBackupToSharepointUsecase:
                 )
             elif folder_included and is_file:
                 print(folder_included, is_file)
-                raise BackupSourcePathError(
-                    reason=(
-                        f"'{item}' must be a directory.",
-                    )
-                )
-            
+                raise BackupSourcePathError(reason=(f"'{item}' must be a directory.",))
+
         if self.total_files == 0:
             no_files_message = (
                 f"[BACKUP] {self.local_backup_source_path} has no files ⚠️"
@@ -187,7 +202,9 @@ class UploadBackupToSharepointUsecase:
         # Create task for each file stored in the the local backup folder.
         for folder_name in self.grouped_files_by_folder:
             if (
-                count_files_in_directory(self.local_backup_source_path, folder_name)
+                await count_files_in_directory(
+                    self.local_backup_source_path, folder_name
+                )
                 == 0
             ):
                 empty_folder_message = f"[BACKUP] The folder '{folder_name}' is empty ⚠️"
