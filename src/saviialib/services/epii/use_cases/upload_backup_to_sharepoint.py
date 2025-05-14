@@ -36,12 +36,10 @@ class UploadBackupToSharepointUsecase:
         self.sharepoint_config = input.sharepoint_config
         self.local_backup_source_path = input.local_backup_source_path
         self.destination_folders = input.destination_folders
-        self.grouped_files_by_folder = self._extract_filesnames_by_folder()
         self.files_client = self._initialize_files_client()
-        self.total_files = sum(
-            len(files) for files in self.grouped_files_by_folder.values()
-        )
         self.log_history = []
+        self.grouped_files_by_folder = None
+        self.total_files = None
 
     def _initialize_files_client(self):
         return FilesClient(FilesClientInitArgs(client_name="aiofiles_client"))
@@ -158,6 +156,10 @@ class UploadBackupToSharepointUsecase:
 
     async def execute(self):
         """Exports all files from the local backup folder to SharePoint cloud."""
+        self.grouped_files_by_folder = await self._extract_filesnames_by_folder()
+        self.total_files = sum(
+            len(files) for files in self.grouped_files_by_folder.values()
+        )
         tasks = []
         start_time = time()
 
