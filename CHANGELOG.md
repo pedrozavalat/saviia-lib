@@ -1,6 +1,17 @@
 # CHANGELOG
 
 
+## v0.10.1 (2025-05-14)
+
+### Bug Fixes
+
+- Logs
+  ([`27599da`](https://github.com/pedrozavalat/saviia-lib/commit/27599da0368da28212bba2d5c68e5765e5dc5aa9))
+
+- Test
+  ([`68a0116`](https://github.com/pedrozavalat/saviia-lib/commit/68a01163609055fd13790e9742bbc23e5740510b))
+
+
 ## v0.10.0 (2025-05-14)
 
 ### Features
