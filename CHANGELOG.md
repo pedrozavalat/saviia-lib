@@ -1,6 +1,22 @@
 # CHANGELOG
 
 
+## v0.9.0 (2025-05-14)
+
+### Bug Fixes
+
+- Add only files exception
+  ([`a1eecd2`](https://github.com/pedrozavalat/saviia-lib/commit/a1eecd24df7c112eba2eac71423e54b90d192ebb))
+
+- Error handling and logging
+  ([`e435300`](https://github.com/pedrozavalat/saviia-lib/commit/e435300458a3b190f3bb3c76b1a458f62463ddef))
+
+### Features
+
+- Add destination_folders parameter
+  ([`96d9a96`](https://github.com/pedrozavalat/saviia-lib/commit/96d9a965abeb2f8d39302e595eabf750358f0ed8))
+
+
 ## v0.8.0 (2025-05-13)
 
 ### Bug Fixes
