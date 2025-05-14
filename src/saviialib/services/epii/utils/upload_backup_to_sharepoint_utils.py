@@ -1,5 +1,6 @@
 import re
 from typing import List, Dict, Optional
+import asyncio
 import os
 from saviialib.general_types.error_types.api.epii_api_error_types import (
     BackupSourcePathError,
@@ -93,9 +94,9 @@ def calculate_percentage_uploaded(results: List[Dict], total_files: int) -> floa
     return (uploaded_count / total_files) * 100 if total_files > 0 else 0
 
 
-def directory_exists(path: str) -> bool:
-    return os.path.exists(path)
+async def directory_exists(path: str) -> bool:
+    return await asyncio.to_thread(os.path.exists, path)
 
 
-def count_files_in_directory(path: str, folder_name: str) -> int:
-    return len(os.listdir(os.path.join(path, folder_name)))
+async def count_files_in_directory(path: str, folder_name: str) -> int:
+    return len(await asyncio.to_thread(os.listdir, os.path.join(path, folder_name)))
