@@ -31,8 +31,8 @@ def explain_status_code(status_code: int) -> str:
 
 def extract_error_message(logger: Logger, results: List[Dict], success: float) -> str:
     logger.info(
-        "[BACKUP] Not all files uploaded ⚠️\n"
-        f"[BACKUP] Files failed to upload: {(1 - success):.2%}"
+        "[local_backup_lib] Not all files uploaded ⚠️\n"
+        f"[local_backup_lib] Files failed to upload: {(1 - success):.2%}"
     )
 
     failed_files = [item for item in results if not item.get("uploaded")]
@@ -58,10 +58,12 @@ def extract_error_message(logger: Logger, results: List[Dict], success: float) -
 
     # Summary
     for code, items in grouped_errors.items():
-        logger.info(f"[BACKUP] Status code {code} - {explain_status_code(int(code))}")
+        logger.info(
+            f"[local_backup_lib] Status code {code} - {explain_status_code(int(code))}"
+        )
         for item in items:
             logger.info(
-                f"[BACKUP] File {item['file_name']}, url: {item['url']}, message: {item['message']}"
+                f"[local_backup_lib] File {item['file_name']}, url: {item['url']}, message: {item['message']}"
             )
 
     failed_file_names = [item["file_name"] for item in failed_files]
@@ -82,7 +84,7 @@ def parse_execute_response(results: List[Dict]) -> Dict[str, List[str]]:
 def show_upload_result(uploaded: bool, file_name: str) -> str:
     status = "✅" if uploaded else "❌"
     message = "was uploaded successfully" if uploaded else "failed to upload"
-    result = f"[BACKUP] File {file_name} {message} {status}"
+    result = f"[local_backup_lib] File {file_name} {message} {status}"
     return result
 
 
