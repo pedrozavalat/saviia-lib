@@ -1,6 +1,17 @@
 # CHANGELOG
 
 
+## v0.9.1 (2025-05-14)
+
+### Bug Fixes
+
+- Asynchronous os methods
+  ([`134d319`](https://github.com/pedrozavalat/saviia-lib/commit/134d319aa7c023aff6e0e7050927f6dabe18a117))
+
+- Grouped_by_folders method
+  ([`99b8ade`](https://github.com/pedrozavalat/saviia-lib/commit/99b8ade2419f744993abbd565f8b1547b9f15e58))
+
+
 ## v0.9.0 (2025-05-14)
 
 ### Bug Fixes
