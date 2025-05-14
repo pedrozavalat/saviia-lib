@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from logging import Logger
 
 
 @dataclass
@@ -27,6 +28,7 @@ class EpiiAPIConfig:
     sharepoint_tenant_id: str
     sharepoint_tenant_name: str
     sharepoint_site_name: str
+    logger: Logger
 
 
 @dataclass
@@ -80,3 +82,4 @@ class EpiiSharepointBackupConfig:
     sharepoint_site_name: str
     local_backup_source_path: str
     destination_folders: str
+    logger: Logger

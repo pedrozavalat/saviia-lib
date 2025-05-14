@@ -21,7 +21,10 @@ class AioFilesClient(FilesClientContract):
             return await file.read()
 
     async def write(self, args: WriteArgs) -> None:
-        file_path = self.dir_client.join_paths(args.destination_path, args.file_name)
-        mode = "w" if isinstance(args.file_content, str) else "wb"
-        async with aiofiles.open(file_path, mode) as file:
+        file_path = (
+            self.dir_client.join_paths(args.destination_path, args.file_name)
+            if args.destination_path
+            else args.file_name
+        )
+        async with aiofiles.open(file_path, args.mode) as file:
             await file.write(args.file_content)

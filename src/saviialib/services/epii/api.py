@@ -28,6 +28,7 @@ class EpiiAPI:
         self.sharepoint_tenant_id = config.sharepoint_tenant_id
         self.sharepoint_tenant_name = config.sharepoint_tenant_name
         self.sharepoint_site_name = config.sharepoint_site_name
+        self.logger = config.logger
 
     async def update_thies_data(self) -> Dict[str, Any]:
         """
@@ -71,6 +72,7 @@ class EpiiAPI:
             sharepoint_tenant_name=self.sharepoint_tenant_name,
             local_backup_source_path=local_backup_source_path,
             destination_folders=destination_folders,
+            logger=self.logger,
         )
 
         controller = UploadBackupToSharepointController(

@@ -1,10 +1,8 @@
 import re
+from logging import Logger
 from typing import List, Dict, Optional
 from saviialib.general_types.error_types.api.epii_api_error_types import (
     BackupSourcePathError,
-)
-from saviialib.services.epii.use_cases.constants.upload_backup_to_sharepoint_constants import (
-    LOGGER,
 )
 from saviialib.libs.directory_client import DirectoryClient, DirectoryClientArgs
 
@@ -31,8 +29,8 @@ def explain_status_code(status_code: int) -> str:
     return explanations.get(status_code, "Unknown error occurred.")
 
 
-def extract_error_message(results: List[Dict], success: float) -> str:
-    LOGGER.info(
+def extract_error_message(logger: Logger, results: List[Dict], success: float) -> str:
+    logger.info(
         "[BACKUP] Not all files uploaded ⚠️\n"
         f"[BACKUP] Files failed to upload: {(1 - success):.2%}"
     )
@@ -60,9 +58,9 @@ def extract_error_message(results: List[Dict], success: float) -> str:
 
     # Summary
     for code, items in grouped_errors.items():
-        LOGGER.info(f"[BACKUP] Status code {code} - {explain_status_code(int(code))}")
+        logger.info(f"[BACKUP] Status code {code} - {explain_status_code(int(code))}")
         for item in items:
-            LOGGER.info(
+            logger.info(
                 f"[BACKUP] File {item['file_name']}, url: {item['url']}, message: {item['message']}"
             )
 
