@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.10.0 (2025-05-14)
+
+### Features
+
+- Add directory_client library
+  ([`cb9ca00`](https://github.com/pedrozavalat/saviia-lib/commit/cb9ca003e271947f9b1f20c22ca65ce952a3353e))
+
+
 ## v0.9.1 (2025-05-14)
 
 ### Bug Fixes
