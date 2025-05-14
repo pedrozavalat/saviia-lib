@@ -28,6 +28,7 @@ from saviialib.services.epii.utils.upload_backup_to_sharepoint_utils import (
 from .types.upload_backup_to_sharepoint_types import (
     UploadBackupToSharepointUseCaseInput,
 )
+from .constants.upload_backup_to_sharepoint_constants import LOGGER
 
 
 class UploadBackupToSharepointUsecase:
@@ -103,14 +104,14 @@ class UploadBackupToSharepointUsecase:
             f"[BACKUP] Uploading file '{file_name}' from '{folder_name}' "
         )
         self.log_history.append(uploading_message)
-        print(uploading_message)
+        LOGGER.debug(uploading_message)
         file_path = os.path.join(self.local_backup_source_path, folder_name, file_name)
         file_content = await self.files_client.read(ReadArgs(file_path, mode="rb"))
         uploaded, error_message = await self.export_file_to_sharepoint(
             folder_name, file_name, file_content
         )
         result_message = show_upload_result(uploaded, file_name)
-        print(result_message)
+        LOGGER.debug(result_message)
         self.log_history.append(result_message)
         return {
             "parent_folder": folder_name,
@@ -126,7 +127,7 @@ class UploadBackupToSharepointUsecase:
             f"[BACKUP] Retrying upload for {len(failed_files)} failed files... 🚨"
         )
         self.log_history.append(retry_message)
-        print(retry_message)
+        LOGGER.debug(retry_message)
         for file in failed_files:
             tasks.append(
                 self.upload_and_log_progress_task(
@@ -142,7 +143,7 @@ class UploadBackupToSharepointUsecase:
                 "[BACKUP] All files uploaded successfully after retry."
             )
             self.log_history.append(successful_upload_retry)
-            print(successful_upload_retry)
+            LOGGER.debug(successful_upload_retry)
             self._save_log_history()
             return parse_execute_response(results)
 
@@ -159,7 +160,7 @@ class UploadBackupToSharepointUsecase:
                 f"[BACKUP] {self.local_backup_source_path} has no files ⚠️"
             )
             self.log_history.append(no_files_message)
-            print(no_files_message)
+            LOGGER.debug(no_files_message)
             raise BackupEmptyError
         # Create task for each file stored in the the local backup folder.
         for folder_name in self.grouped_files_by_folder:
@@ -168,14 +169,14 @@ class UploadBackupToSharepointUsecase:
                 == 0
             ):
                 empty_folder_message = f"[BACKUP] The folder '{folder_name}' is empty ⚠️"
-                print(empty_folder_message)
+                LOGGER.debug(empty_folder_message)
                 self.log_history.append(empty_folder_message)
                 continue
             extracting_files_message = (
                 "[BACKUP]" + f" Extracting files from '{folder_name} ".center(15, "*")
             )
             self.log_history.append(extracting_files_message)
-            print(extracting_files_message)
+            LOGGER.debug(extracting_files_message)
             for file_name in self.grouped_files_by_folder[folder_name]:
                 tasks.append(self.upload_and_log_progress_task(folder_name, file_name))
 

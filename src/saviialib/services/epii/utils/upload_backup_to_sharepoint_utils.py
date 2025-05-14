@@ -1,6 +1,12 @@
 import re
 from typing import List, Dict, Optional
 import os
+from saviialib.general_types.error_types.api.epii_api_error_types import (
+    BackupSourcePathError,
+)
+from saviialib.services.epii.use_cases.constants.upload_backup_to_sharepoint_constants import (
+    LOGGER,
+)
 
 
 def extract_error_information(error: str) -> Optional[Dict[str, str]]:
@@ -24,7 +30,7 @@ def explain_status_code(status_code: int) -> str:
 
 
 def extract_error_message(results: List[Dict], success: float) -> str:
-    print(
+    LOGGER.info(
         "[BACKUP] Not all files uploaded ⚠️\n"
         f"[BACKUP] Files failed to upload: {(1 - success):.2%}"
     )
@@ -52,9 +58,9 @@ def extract_error_message(results: List[Dict], success: float) -> str:
 
     # Summary
     for code, items in grouped_errors.items():
-        print(f"[BACKUP] Status code {code} - {explain_status_code(int(code))}")
+        LOGGER.info(f"[BACKUP] Status code {code} - {explain_status_code(int(code))}")
         for item in items:
-            print(
+            LOGGER.info(
                 f"[BACKUP] File {item['file_name']}, url: {item['url']}, message: {item['message']}"
             )
 
@@ -63,11 +69,14 @@ def extract_error_message(results: List[Dict], success: float) -> str:
 
 
 def parse_execute_response(results: List[Dict]) -> Dict[str, List[str]]:
-    return {
-        "new_files": len(
-            [item["file_name"] for item in results if item.get("uploaded")]
-        ),
-    }
+    try:
+        return {
+            "new_files": len(
+                [item["file_name"] for item in results if item.get("uploaded")]
+            ),
+        }
+    except (IsADirectoryError, AttributeError, ConnectionError) as error:
+        raise BackupSourcePathError(reason=error)
 
 
 def show_upload_result(uploaded: bool, file_name: str) -> str:
