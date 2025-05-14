@@ -121,7 +121,7 @@ class UploadBackupToSharepointUsecase:
     async def _upload_and_log_progress_task(self, folder_name, file_name) -> dict:
         """Task for uploads a file and logs progress."""
         uploading_message = (
-            f"[BACKUP] Uploading file '{file_name}' from '{folder_name}' "
+            f"[local_backup_lib] Uploading file '{file_name}' from '{folder_name}' "
         )
         self.log_history.append(uploading_message)
         self.logger.debug(uploading_message)
@@ -145,9 +145,7 @@ class UploadBackupToSharepointUsecase:
     async def retry_upload_failed_files(self, results) -> None:
         failed_files = [item for item in results if not item["uploaded"]]
         tasks = []
-        retry_message = (
-            f"[BACKUP] Retrying upload for {len(failed_files)} failed files... 🚨"
-        )
+        retry_message = f"[local_backup_lib] Retrying upload for {len(failed_files)} failed files... 🚨"
         self.log_history.append(retry_message)
         self.logger.debug(retry_message)
         for file in failed_files:
@@ -164,7 +162,7 @@ class UploadBackupToSharepointUsecase:
             )
         else:
             successful_upload_retry = (
-                "[BACKUP] All files uploaded successfully after retry."
+                "[local_backup_lib] All files uploaded successfully after retry."
             )
             self.log_history.append(successful_upload_retry)
             self.logger.debug(successful_upload_retry)
@@ -209,7 +207,7 @@ class UploadBackupToSharepointUsecase:
 
         if self.total_files == 0:
             no_files_message = (
-                f"[BACKUP] {self.local_backup_source_path} has no files ⚠️"
+                f"[local_backup_lib] {self.local_backup_source_path} has no files ⚠️"
             )
             self.log_history.append(no_files_message)
             self.logger.debug(no_files_message)
@@ -222,12 +220,15 @@ class UploadBackupToSharepointUsecase:
                 )
                 == 0
             ):
-                empty_folder_message = f"[BACKUP] The folder '{folder_name}' is empty ⚠️"
+                empty_folder_message = (
+                    f"[local_backup_lib] The folder '{folder_name}' is empty ⚠️"
+                )
                 self.logger.debug(empty_folder_message)
                 self.log_history.append(empty_folder_message)
                 continue
             extracting_files_message = (
-                "[BACKUP]" + f" Extracting files from '{folder_name} ".center(15, "*")
+                "[local_backup_lib]"
+                + f" Extracting files from '{folder_name} ".center(15, "*")
             )
             self.log_history.append(extracting_files_message)
             self.logger.debug(extracting_files_message)
@@ -243,12 +244,12 @@ class UploadBackupToSharepointUsecase:
             end_time = time()
             backup_time = end_time - start_time
             successful_backup_message = (
-                f"[BACKUP] Migration time: {backup_time:.2f} seconds ✨"
+                f"[local_backup_lib] Migration time: {backup_time:.2f} seconds ✨"
             )
             self.log_history.append(successful_backup_message)
 
             finished_backup_message = (
-                "[BACKUP] All the files were uploaded successfully 🎉"
+                "[local_backup_lib] All the files were uploaded successfully 🎉"
             )
             self.log_history.append(finished_backup_message)
 
