@@ -34,6 +34,7 @@ class UploadBackupToSharepointController:
                     sharepoint_tenant_id=input.config.sharepoint_tenant_id,
                 ),
                 local_backup_source_path=input.config.local_backup_source_path,
+                destination_folders=input.config.destination_folders
             )
         )
 

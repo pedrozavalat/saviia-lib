@@ -79,3 +79,4 @@ class EpiiSharepointBackupConfig:
     sharepoint_tenant_name: str
     sharepoint_site_name: str
     local_backup_source_path: str
+    destination_folders: str

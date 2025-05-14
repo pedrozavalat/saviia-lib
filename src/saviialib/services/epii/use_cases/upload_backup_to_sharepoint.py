@@ -35,6 +35,7 @@ class UploadBackupToSharepointUsecase:
     def __init__(self, input: UploadBackupToSharepointUseCaseInput):
         self.sharepoint_config = input.sharepoint_config
         self.local_backup_source_path = input.local_backup_source_path
+        self.destination_folders = input.destination_folders
         self.grouped_files_by_folder = self._extract_filesnames_by_folder()
         self.files_client = self._initialize_files_client()
         self.total_files = sum(
@@ -83,7 +84,7 @@ class UploadBackupToSharepointUsecase:
 
         async with sharepoint_client:
             try:
-                destination_folder = c.DESTINATION_FOLDERS.get(folder_name, folder_name)
+                destination_folder = self.destination_folders.get(folder_name, folder_name)
                 folder_url = f"{c.SHAREPOINT_BASE_URL}/{destination_folder}"
                 args = SpUploadFileArgs(
                     folder_relative_url=folder_url,
@@ -151,6 +152,7 @@ class UploadBackupToSharepointUsecase:
         """Exports all files from the local backup folder to SharePoint cloud."""
         tasks = []
         start_time = time()
+        
         # Check if the local path exists in the main directory
         if not directory_exists(self.local_backup_source_path):
             raise BackupSourcePathError(
@@ -159,16 +161,22 @@ class UploadBackupToSharepointUsecase:
 
         # Check if the current folder only have files.
         for item in os.listdir(self.local_backup_source_path):
-            if not os.path.isdir(os.path.join(self.local_backup_source_path, item)):
-                continue
-            else:
+            folder_included = item in self.destination_folders.keys()
+            is_file = not os.path.isdir(os.path.join(self.local_backup_source_path, item))
+            if not folder_included and not is_file: 
                 raise BackupSourcePathError(
                     reason=(
-                        f"'{self.local_backup_source_path}' have an directory. ",
-                        "It must have only files",
+                        f"'{item}' must be included in the destination folders dictionary",
                     )
                 )
-
+            elif folder_included and is_file:
+                print(folder_included, is_file)
+                raise BackupSourcePathError(
+                    reason=(
+                        f"'{item}' must be a directory.",
+                    )
+                )
+            
         if self.total_files == 0:
             no_files_message = (
                 f"[BACKUP] {self.local_backup_source_path} has no files ⚠️"

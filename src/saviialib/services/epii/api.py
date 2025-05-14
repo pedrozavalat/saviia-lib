@@ -53,7 +53,7 @@ class EpiiAPI:
         return response.__dict__
 
     async def upload_backup_to_sharepoint(
-        self, local_backup_source_path: str
+        self, local_backup_source_path: str, destination_folders: dict[str, str]
     ) -> Dict[str, Any]:
         """Migrate a backup folder from Home assistant to Sharepoint directory.
         Args:
@@ -70,6 +70,7 @@ class EpiiAPI:
             sharepoint_tenant_id=self.sharepoint_tenant_id,
             sharepoint_tenant_name=self.sharepoint_tenant_name,
             local_backup_source_path=local_backup_source_path,
+            destination_folders=destination_folders
         )
 
         controller = UploadBackupToSharepointController(
