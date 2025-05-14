@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, patch, Mock
 
 from dotenv import load_dotenv
 
@@ -23,6 +23,7 @@ class TestEpiiAPIUpdateThiesData(unittest.IsolatedAsyncioTestCase):
             sharepoint_site_name="site_name_123",
             sharepoint_tenant_id="tenant_id_123",
             sharepoint_tenant_name="tenant_name_123",
+            logger=Mock(),
         )
 
     @patch("saviialib.services.epii.api.UpdateThiesDataController")

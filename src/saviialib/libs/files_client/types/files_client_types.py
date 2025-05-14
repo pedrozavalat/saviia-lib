@@ -28,4 +28,5 @@ class ReadArgs:
 class WriteArgs:
     file_name: str
     file_content: str | bytes
-    destination_path: str = "/"
+    mode: Literal["w", "wb", "a"]
+    destination_path: str = ""

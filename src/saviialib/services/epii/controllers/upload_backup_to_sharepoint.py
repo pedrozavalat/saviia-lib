@@ -35,6 +35,7 @@ class UploadBackupToSharepointController:
                 ),
                 local_backup_source_path=input.config.local_backup_source_path,
                 destination_folders=input.config.destination_folders,
+                logger=input.config.logger,
             )
         )
 
