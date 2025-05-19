@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, patch, MagicMock
 
 from saviialib.general_types.error_types.api.epii_api_error_types import (
     SharePointFetchingError,
@@ -32,6 +32,7 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
             sharepoint_site_name="valid_site_name",
             sharepoint_tenant_id="valid_tenant_id",
             sharepoint_tenant_name="valid_tenant_name",
+            logger=MagicMock(),
         )
         self.sharepoint_folders_path = [
             "Shared%20Documents/General/Test_Raspberry/THIES/AVG",
