@@ -8,6 +8,8 @@ from saviialib.general_types.api.epii_api_types import (
 @dataclass
 class UpdateThiesDataControllerInput:
     config: EpiiUpdateThiesConfig
+    sharepoint_folders_path: list
+    ftp_server_folders_path: list
 
 
 @dataclass

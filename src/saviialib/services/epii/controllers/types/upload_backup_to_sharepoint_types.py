@@ -7,6 +7,8 @@ from saviialib.general_types.api.epii_api_types import EpiiSharepointBackupConfi
 @dataclass
 class UploadBackupToSharepointControllerInput:
     config: EpiiSharepointBackupConfig
+    local_backup_source_path: str
+    sharepoint_destination_path: str
 
 
 @dataclass

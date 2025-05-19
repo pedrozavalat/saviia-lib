@@ -33,6 +33,14 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
             sharepoint_tenant_id="valid_tenant_id",
             sharepoint_tenant_name="valid_tenant_name",
         )
+        self.sharepoint_folders_path = [
+            "Shared%20Documents/General/Test_Raspberry/THIES/AVG",
+            "Shared%20Documents/General/Test_Raspberry/THIES/EXT",
+        ]
+        self.ftp_server_folders_path = [
+            "ftp/thies/BINFILES/ARCH_AV1",
+            "ftp/thies/BINFILES/ARCH_EX1",
+        ]
 
     @patch(
         "saviialib.services.epii.controllers.update_thies_data.UpdateThiesDataUseCase"
@@ -42,7 +50,9 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         mock_use_case_inst.execute = AsyncMock(return_value={"key": "value"})
 
         controller = UpdateThiesDataController(
-            UpdateThiesDataControllerInput(self.config)
+            UpdateThiesDataControllerInput(
+                self.config, self.sharepoint_folders_path, self.ftp_server_folders_path
+            )
         )
 
         result = await controller.execute()
@@ -59,7 +69,9 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         mock_use_case_inst.execute.side_effect = FtpClientError("FTP")
 
         controller = UpdateThiesDataController(
-            UpdateThiesDataControllerInput(self.config)
+            UpdateThiesDataControllerInput(
+                self.config, self.sharepoint_folders_path, self.ftp_server_folders_path
+            )
         )
 
         result = await controller.execute()
@@ -76,7 +88,9 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         mock_use_case_inst.execute.side_effect = SharepointClientError("Sharepoint")
 
         controller = UpdateThiesDataController(
-            UpdateThiesDataControllerInput(self.config)
+            UpdateThiesDataControllerInput(
+                self.config, self.sharepoint_folders_path, self.ftp_server_folders_path
+            )
         )
 
         result = await controller.execute()
@@ -95,7 +109,9 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         )
 
         controller = UpdateThiesDataController(
-            UpdateThiesDataControllerInput(self.config)
+            UpdateThiesDataControllerInput(
+                self.config, self.sharepoint_folders_path, self.ftp_server_folders_path
+            )
         )
 
         result = await controller.execute()
@@ -114,7 +130,9 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         mock_use_case_inst.execute.side_effect = EmptyDataError(reason="No files")
 
         controller = UpdateThiesDataController(
-            UpdateThiesDataControllerInput(self.config)
+            UpdateThiesDataControllerInput(
+                self.config, self.sharepoint_folders_path, self.ftp_server_folders_path
+            )
         )
 
         result = await controller.execute()
@@ -130,7 +148,9 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         mock_use_case_inst.execute.side_effect = ValueError("Unexpected error")
 
         controller = UpdateThiesDataController(
-            UpdateThiesDataControllerInput(self.config)
+            UpdateThiesDataControllerInput(
+                self.config, self.sharepoint_folders_path, self.ftp_server_folders_path
+            )
         )
 
         result = await controller.execute()

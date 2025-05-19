@@ -5,6 +5,7 @@ from saviialib.general_types.error_types.api.epii_api_error_types import (
     ThiesConnectionError,
     ThiesFetchingError,
     SharePointUploadError,
+    SharePointDirectoryError,
 )
 from saviialib.general_types.error_types.common.common_types import (
     EmptyDataError,
@@ -42,6 +43,8 @@ class UpdateThiesDataController:
                     sharepoint_tenant_name=input.config.sharepoint_tenant_name,
                     sharepoint_tenant_id=input.config.sharepoint_tenant_id,
                 ),
+                sharepoint_folders_path=input.sharepoint_folders_path,
+                ftp_server_folders_path=input.ftp_server_folders_path,
             )
         )
 
@@ -51,7 +54,7 @@ class UpdateThiesDataController:
             return UpdateThiesDataControllerOutput(
                 message="THIES was synced successfully",
                 status=HTTPStatus.OK.value,
-                metadata={"data": data},
+                metadata={"data": data},  # type: ignore
             )
         except EmptyDataError:
             return UpdateThiesDataControllerOutput(
@@ -87,7 +90,14 @@ class UpdateThiesDataController:
 
         except SharePointUploadError as error:
             return UpdateThiesDataControllerOutput(
-                message="An error oucrred while uploading files to RCER Cloud",
+                message="An error ocurred while uploading files to RCER Cloud",
+                status=HTTPStatus.BAD_REQUEST.value,
+                metadata={"error": error.__str__()},
+            )
+
+        except SharePointDirectoryError as error:
+            return UpdateThiesDataControllerOutput(
+                message="An error ocurred while extracting folders from Microsoft Sharepoint",
                 status=HTTPStatus.BAD_REQUEST.value,
                 metadata={"error": error.__str__()},
             )

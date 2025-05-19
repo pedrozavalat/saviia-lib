@@ -15,8 +15,8 @@ class FTPClient(FTPClientContract):
             self.client_obj = AioFTPClient(args)
         self.client_name = args.client_name
 
-    def list_files(self, args: FtpListFilesArgs) -> list[str]:
-        return self.client_obj.list_files(args)
+    async def list_files(self, args: FtpListFilesArgs) -> list[str]:
+        return await self.client_obj.list_files(args)
 
-    def read_file(self, args: FtpReadFileArgs) -> bytes:
-        return self.client_obj.read_file(args)
+    async def read_file(self, args: FtpReadFileArgs) -> bytes:
+        return await self.client_obj.read_file(args)

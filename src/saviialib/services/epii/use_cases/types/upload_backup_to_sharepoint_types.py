@@ -7,5 +7,5 @@ from logging import Logger
 class UploadBackupToSharepointUseCaseInput:
     sharepoint_config: SharepointConfig
     local_backup_source_path: str
-    destination_folders: dict
+    sharepoint_destination_path: str
     logger: Logger

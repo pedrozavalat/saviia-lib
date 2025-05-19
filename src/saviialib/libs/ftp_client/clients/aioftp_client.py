@@ -34,12 +34,16 @@ class AioFTPClient(FTPClientContract):
             )
 
     async def list_files(self, args: FtpListFilesArgs) -> list[str]:
-        await self._async_start()
-        return [
-            path.name async for path, _ in self.client.list(args.path, recursive=False)
-        ]
+        try:
+            await self._async_start()
+            return [
+                path.name
+                async for path, _ in self.client.list(args.path, recursive=False)  # type: ignore
+            ]
+        except StatusCodeError as error:
+            raise ConnectionAbortedError(error)
 
     async def read_file(self, args: FtpReadFileArgs) -> bytes:
         await self._async_start()
-        async with self.client.download_stream(args.file_path) as stream:
+        async with self.client.download_stream(args.file_path) as stream:  # type: ignore
             return await stream.read()

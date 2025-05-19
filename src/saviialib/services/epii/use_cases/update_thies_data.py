@@ -1,6 +1,6 @@
-import saviialib.services.epii.use_cases.constants.update_thies_data_constants as c
 from saviialib.general_types.error_types.api.epii_api_error_types import (
     SharePointFetchingError,
+    SharePointDirectoryError,
     SharePointUploadError,
     ThiesConnectionError,
     ThiesFetchingError,
@@ -20,6 +20,7 @@ from saviialib.libs.sharepoint_client import (
     SharepointClient,
     SharepointClientInitArgs,
     SpListFilesArgs,
+    SpListFoldersArgs,
     SpUploadFileArgs,
 )
 from saviialib.services.epii.use_cases.types import (
@@ -38,6 +39,9 @@ class UpdateThiesDataUseCase:
             input.sharepoint_config
         )
         self.thies_ftp_client = self._initialize_thies_ftp_client(input.ftp_config)
+        self.sharepoint_folders_path = input.sharepoint_folders_path
+        self.ftp_server_folders_path = input.ftp_server_folders_path
+        self.sharepoint_base_url = f"/sites/{self.sharepoint_client.site_name}"
         self.uploading = set()
 
     def _initialize_sharepoint_client(
@@ -58,36 +62,56 @@ class UpdateThiesDataUseCase:
         except RuntimeError as error:
             raise FtpClientError(error)
 
+    async def _validate_sharepoint_current_folders(self):
+        async with self.sharepoint_client:
+            folder_base_path = "/".join(
+                self.sharepoint_folders_path[0].split("/")[0:-1]
+            )
+            relative_url = f"{self.sharepoint_base_url}/{folder_base_path}"
+            response = await self.sharepoint_client.list_folders(
+                SpListFoldersArgs(relative_url)
+            )
+
+        current_folders = [item["Name"] for item in response["value"]]  # type: ignore
+
+        for folder_path in self.sharepoint_folders_path:
+            folder_name = folder_path.split("/")[-1]
+            if folder_name not in current_folders:
+                raise SharePointDirectoryError(
+                    reason=f"The current folder '{folder_name}' doesn't exist."
+                )
+
     async def fetch_cloud_file_names(self) -> set[str]:
         """Fetch file names from the RCER cloud."""
-
+        await self._validate_sharepoint_current_folders()
         try:
             cloud_files = set()
             async with self.sharepoint_client:
-                for folder in c.SHAREPOINT_THIES_FOLDERS:
-                    args = SpListFilesArgs(
-                        folder_relative_url=f"{c.SHAREPOINT_BASE_URL}/{folder}"
-                    )
+                for folder_path in self.sharepoint_folders_path:
+                    folder_name = folder_path.split("/")[-1]
+                    relative_url = f"{self.sharepoint_base_url}/{folder_path}"
+                    args = SpListFilesArgs(folder_relative_url=relative_url)
                     response = await self.sharepoint_client.list_files(args)
                     cloud_files.update(
-                        {f"{folder}_{item['Name']}" for item in response["value"]}
+                        {f"{folder_name}_{item['Name']}" for item in response["value"]}  # type: ignore
                     )
             return cloud_files
-        except ConnectionError as error:
+        except Exception as error:
             raise SharePointFetchingError(reason=error)
 
     async def fetch_thies_file_names(self) -> set[str]:
         """Fetch file names from the THIES FTP server."""
         try:
-            avg_files = await self.thies_ftp_client.list_files(
-                FtpListFilesArgs(path=c.FTP_SERVER_PATH_AVG_FILES)
-            )
-            ext_files = await self.thies_ftp_client.list_files(
-                FtpListFilesArgs(path=c.FTP_SERVER_PATH_EXT_FILES)
-            )
-            return {f"AVG_{name}" for name in avg_files} | {
-                f"EXT_{name}" for name in ext_files
-            }
+            thies_files = set()
+            for folder_path in self.ftp_server_folders_path:
+                # AV for average, and EXT for extreme.
+                prefix = "AVG" if "AV" in folder_path else "EXT"
+                files = await self.thies_ftp_client.list_files(
+                    FtpListFilesArgs(path=folder_path)
+                )
+                files_names = {f"{prefix}_{name}" for name in files}
+                thies_files.update(files_names)
+            return thies_files
         except ConnectionRefusedError as error:
             raise ThiesConnectionError(reason=error)
         except ConnectionAbortedError as error:
@@ -98,16 +122,19 @@ class UpdateThiesDataUseCase:
         try:
             content_files = {}
             for file in self.uploading:
-                origin, filename = file.split("_", 1)
-                file_path = (
-                    f"{c.FTP_SERVER_PATH_AVG_FILES}/{filename}"
-                    if origin == "AVG"
-                    else f"{c.FTP_SERVER_PATH_EXT_FILES}/{filename}"
+                _, filename = file.split("_", 1)
+                folder_path = (
+                    self.ftp_server_folders_path[0]
+                    if "AV" in self.ftp_server_folders_path[0]  # Folder with AVG prefix
+                    else self.ftp_server_folders_path[1]  # Folder with EXT prefix
                 )
+                file_path = f"{folder_path}/{filename}"
                 content = await self.thies_ftp_client.read_file(
                     FtpReadFileArgs(file_path)
                 )
-                content_files[file] = content  # Save the file with its prefix
+                content_files[file] = (
+                    content  # Save file content with its original name.
+                )
             return content_files
         except ConnectionRefusedError as error:
             raise ThiesConnectionError(reason=error)
@@ -123,9 +150,16 @@ class UpdateThiesDataUseCase:
         async with self.sharepoint_client:
             for file, file_content in files.items():
                 try:
-                    folder, file_name = file.split("_", 1)
+                    _, file_name = file.split("_", 1)
+                    # Could be AVG or EXT.
+                    if file_name in self.sharepoint_folders_path[0]:
+                        folder_path = self.sharepoint_folders_path[0]
+                    else:
+                        folder_path = self.sharepoint_folders_path[1]
+                    relative_url = f"{self.sharepoint_base_url}/{folder_path}"
+
                     args = SpUploadFileArgs(
-                        folder_relative_url=f"{c.SHAREPOINT_BASE_URL}/{folder}",
+                        folder_relative_url=relative_url,
                         file_content=file_content,
                         file_name=file_name,
                     )
@@ -145,16 +179,17 @@ class UpdateThiesDataUseCase:
 
         return upload_results
 
-    async def execute(self) -> dict:
+    async def execute(self):
         """Synchronize data from the THIES Center to the cloud."""
         try:
             thies_files = await self.fetch_thies_file_names()
         except RuntimeError as error:
             raise FtpClientError(error)
+
         try:
             cloud_files = await self.fetch_cloud_file_names()
         except RuntimeError as error:
-            raise SharepointClient(error)
+            raise SharepointClient(error)  # type: ignore
 
         self.uploading = thies_files - cloud_files
         if not self.uploading:
@@ -168,4 +203,4 @@ class UpdateThiesDataUseCase:
             thies_fetched_files
         )
 
-        return parse_execute_response(thies_fetched_files, upload_statistics)
+        return parse_execute_response(thies_fetched_files, upload_statistics)  # type: ignore

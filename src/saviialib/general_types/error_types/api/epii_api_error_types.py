@@ -43,6 +43,18 @@ class SharePointFetchingError(Exception):
             return self.reason.__str__()
 
 
+class SharePointDirectoryError(Exception):
+    def __init__(self, *args, reason):
+        super().__init__(*args, reason)
+        self.reason = reason
+
+    def __str__(self):
+        return (
+            "An error occurred while fetching the folders from Microsoft SharePoint. "
+            + self.reason.__str__()
+        )
+
+
 class SharePointUploadError(Exception):
     """Raised when there is an error uploading files to the Microsoft SharePoint folder."""
 
