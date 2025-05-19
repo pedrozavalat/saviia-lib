@@ -37,9 +37,9 @@ class EpiiAPI:
         and transferring data to specified Sharepoint folders.
 
         Args:
-            sharepoint_folders_path (list): List of Sharepoint folder paths for AVG and EXT data. 
+            sharepoint_folders_path (list): List of Sharepoint folder paths for AVG and EXT data.
             The AVG path must be the first element.
-            ftp_server_folders_path (list): List of FTP server folder paths for AVG and EXT data. 
+            ftp_server_folders_path (list): List of FTP server folder paths for AVG and EXT data.
             The AVG path must be the first element.
 
         Returns:
