@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.11.1 (2025-05-19)
+
+### Bug Fixes
+
+- Path avg and ext
+  ([`3238872`](https://github.com/pedrozavalat/saviia-lib/commit/323887237404bca92f35e0f766b94dc294a36852))
+
+
 ## v0.11.0 (2025-05-19)
 
 ### Features

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "saviialib"
-version = "0.11.0"
+version = "0.11.1"
 description = "A client library for IoT projects in the RCER initiative"
 authors = ["pedropablozavalat"]
 license = "MIT"
