@@ -55,6 +55,7 @@ class EpiiAPI:
             sharepoint_site_name=self.sharepoint_site_name,
             sharepoint_tenant_id=self.sharepoint_tenant_id,
             sharepoint_tenant_name=self.sharepoint_tenant_name,
+            logger=self.logger,
         )
         controller = UpdateThiesDataController(
             UpdateThiesDataControllerInput(

@@ -45,6 +45,7 @@ class UpdateThiesDataController:
                 ),
                 sharepoint_folders_path=input.sharepoint_folders_path,
                 ftp_server_folders_path=input.ftp_server_folders_path,
+                logger=input.config.logger,
             )
         )
 
