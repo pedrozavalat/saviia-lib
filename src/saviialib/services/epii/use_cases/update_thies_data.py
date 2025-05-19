@@ -38,6 +38,7 @@ class UpdateThiesDataUseCase:
         self.sharepoint_client = self._initialize_sharepoint_client(
             input.sharepoint_config
         )
+        self.logger = input.logger
         self.thies_ftp_client = self._initialize_thies_ftp_client(input.ftp_config)
         self.sharepoint_folders_path = input.sharepoint_folders_path
         self.ftp_server_folders_path = input.ftp_server_folders_path
@@ -122,15 +123,24 @@ class UpdateThiesDataUseCase:
         try:
             content_files = {}
             for file in self.uploading:
-                _, filename = file.split("_", 1)
-                folder_path = (
-                    self.ftp_server_folders_path[0]
-                    if "AV" in self.ftp_server_folders_path[0]  # Folder with AVG prefix
-                    else self.ftp_server_folders_path[1]  # Folder with EXT prefix
+                prefix, filename = file.split("_", 1)
+                # The first path is for AVG files. The second file is for EXT files
+                folder_path = next(
+                    (
+                        path
+                        for path in self.ftp_server_folders_path
+                        if prefix == ("AVG" if "AV" in path else "EXT")
+                    ),
+                    self.ftp_server_folders_path[0],  # Default to the first path
                 )
                 file_path = f"{folder_path}/{filename}"
                 content = await self.thies_ftp_client.read_file(
                     FtpReadFileArgs(file_path)
+                )
+                self.logger.debug(
+                    "[thies_synchronization_lib] Fetching file '%s' from '%s'.",
+                    file,
+                    folder_path,
                 )
                 content_files[file] = (
                     content  # Save file content with its original name.
@@ -162,7 +172,7 @@ class UpdateThiesDataUseCase:
                     folder_path = avg_folder if origin == "AVG" else ext_folder
 
                     relative_url = f"{self.sharepoint_base_url}/{folder_path}"
-                    print(relative_url)
+
                     args = SpUploadFileArgs(
                         folder_relative_url=relative_url,
                         file_content=file_content,
@@ -170,8 +180,18 @@ class UpdateThiesDataUseCase:
                     )
                     await self.sharepoint_client.upload_file(args)
                     upload_results["new_files"].append(file)
+                    self.logger.debug(
+                        "[thies_synchronization_lib] File '%s' from '%s' uploaded successfully to '%s' ✅",
+                        file_name,
+                        folder_path,
+                        relative_url,
+                    )
 
                 except ConnectionError as error:
+                    self.logger.error(
+                        "[thies_synchronization_lib] Unexpected error from with file '%s'",
+                        file_name,
+                    )
                     upload_results["failed_files"].append(
                         f"{file} (Error: {str(error)})"
                     )
@@ -186,16 +206,23 @@ class UpdateThiesDataUseCase:
 
     async def execute(self):
         """Synchronize data from the THIES Center to the cloud."""
+        self.logger.debug("[thies_synchronization_lib] Starting ...")
         try:
             thies_files = await self.fetch_thies_file_names()
         except RuntimeError as error:
             raise FtpClientError(error)
-
+        self.logger.debug(
+            "[thies_synchronization_lib] Total files fetched from THIES: %s",
+            str(len(thies_files)),
+        )
         try:
             cloud_files = await self.fetch_cloud_file_names()
         except RuntimeError as error:
             raise SharepointClient(error)  # type: ignore
-
+        self.logger.debug(
+            "[thies_synchronization_lib] Total files fetched from Sharepoint: %s",
+            str(len(cloud_files)),
+        )
         self.uploading = thies_files - cloud_files
         if not self.uploading:
             raise EmptyDataError(reason="No files to upload.")
@@ -206,5 +233,7 @@ class UpdateThiesDataUseCase:
         upload_statistics = await self.upload_thies_files_to_sharepoint(
             thies_fetched_files
         )
-
+        self.logger.debug(
+            "[thies_synchronization_lib] All the files were uploaded successfully 🎉"
+        )
         return parse_execute_response(thies_fetched_files, upload_statistics)  # type: ignore

@@ -45,5 +45,8 @@ class AioFTPClient(FTPClientContract):
 
     async def read_file(self, args: FtpReadFileArgs) -> bytes:
         await self._async_start()
-        async with self.client.download_stream(args.file_path) as stream:  # type: ignore
-            return await stream.read()
+        try:
+            async with self.client.download_stream(args.file_path) as stream:  # type: ignore
+                return await stream.read()
+        except StatusCodeError as error:
+            raise FileNotFoundError(f"File not found: {args.file_path}") from error

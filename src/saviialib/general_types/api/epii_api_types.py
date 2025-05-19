@@ -59,6 +59,7 @@ class EpiiUpdateThiesConfig:
     sharepoint_tenant_id: str
     sharepoint_tenant_name: str
     sharepoint_site_name: str
+    logger: Logger
 
 
 @dataclass
