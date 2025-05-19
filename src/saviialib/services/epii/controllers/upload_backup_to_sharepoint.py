@@ -33,8 +33,8 @@ class UploadBackupToSharepointController:
                     sharepoint_tenant_name=input.config.sharepoint_tenant_name,
                     sharepoint_tenant_id=input.config.sharepoint_tenant_id,
                 ),
-                local_backup_source_path=input.config.local_backup_source_path,
-                destination_folders=input.config.destination_folders,
+                local_backup_source_path=input.local_backup_source_path,
+                sharepoint_destination_path=input.sharepoint_destination_path,
                 logger=input.config.logger,
             )
         )
@@ -45,7 +45,7 @@ class UploadBackupToSharepointController:
             return UploadBackupToSharepointControllerOutput(
                 message="Local backup was migrated successfully",
                 status=HTTPStatus.OK.value,
-                metadata={"data": data},
+                metadata={"data": data},  # type: ignore
             )
         except EmptyDataError:
             return UploadBackupToSharepointControllerOutput(

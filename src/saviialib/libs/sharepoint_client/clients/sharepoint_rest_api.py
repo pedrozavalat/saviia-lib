@@ -104,10 +104,11 @@ class SharepointRestAPI(SharepointClientContract):
             folder_relative_url = (
                 f"GetFolderByServerRelativeUrl('{args.folder_relative_url}')"
             )
-            endpoint = f"web/{folder_relative_url}/Folder"
+            endpoint = f"web/{folder_relative_url}/Folders"
             response = await self.session.get(endpoint.lstrip("/"))
             response.raise_for_status()
-            return await response.json()
+            response_json = await response.json()
+            return response_json
         except ClientError as error:
             raise ConnectionError(error) from error
 

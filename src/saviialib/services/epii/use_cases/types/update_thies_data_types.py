@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Dict
+from typing import Dict, List
 from saviialib.general_types.api.epii_api_types import FtpClientConfig, SharepointConfig
 
 
@@ -7,6 +7,8 @@ from saviialib.general_types.api.epii_api_types import FtpClientConfig, Sharepoi
 class UpdateThiesDataUseCaseInput:
     ftp_config: FtpClientConfig
     sharepoint_config: SharepointConfig
+    sharepoint_folders_path: List
+    ftp_server_folders_path: List
 
 
 @dataclass

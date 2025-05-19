@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from .controllers.types.update_thies_data_types import UpdateThiesDataControllerInput
 from .controllers.types.upload_backup_to_sharepoint_types import (
@@ -28,15 +28,21 @@ class EpiiAPI:
         self.sharepoint_tenant_id = config.sharepoint_tenant_id
         self.sharepoint_tenant_name = config.sharepoint_tenant_name
         self.sharepoint_site_name = config.sharepoint_site_name
+
         self.logger = config.logger
 
-    async def update_thies_data(self) -> Dict[str, Any]:
-        """
-        This method establishes a connection to an FTP server using the provided
-        credentials and updates data related to THIES Data Logger.
+    async def update_thies_data(
+        self, sharepoint_folders_path: List[str], ftp_server_folders_path: List[str]
+    ) -> Dict[str, Any]:
+        """Updates data from a THIES Data Logger by connecting to an FTP server
+        and transferring data to specified Sharepoint folders.
+
+        Args:
+            sharepoint_folders_path (list): List of Sharepoint folder paths for AVG and EXT data.
+            ftp_server_folders_path (list): List of FTP server folder paths for AVG and EXT data.
 
         Returns:
-            response (dict): A dictionary representation of the API response.
+            dict: A dictionary representation of the API response.
         """
         config = EpiiUpdateThiesConfig(
             ftp_port=self.ftp_port,
@@ -49,12 +55,16 @@ class EpiiAPI:
             sharepoint_tenant_id=self.sharepoint_tenant_id,
             sharepoint_tenant_name=self.sharepoint_tenant_name,
         )
-        controller = UpdateThiesDataController(UpdateThiesDataControllerInput(config))
+        controller = UpdateThiesDataController(
+            UpdateThiesDataControllerInput(
+                config, sharepoint_folders_path, ftp_server_folders_path
+            )
+        )
         response = await controller.execute()
         return response.__dict__
 
     async def upload_backup_to_sharepoint(
-        self, local_backup_source_path: str, destination_folders: dict[str, str]
+        self, local_backup_source_path: str, sharepoint_destination_path: str
     ) -> Dict[str, Any]:
         """Migrate a backup folder from Home assistant to Sharepoint directory.
         Args:
@@ -70,13 +80,13 @@ class EpiiAPI:
             sharepoint_site_name=self.sharepoint_site_name,
             sharepoint_tenant_id=self.sharepoint_tenant_id,
             sharepoint_tenant_name=self.sharepoint_tenant_name,
-            local_backup_source_path=local_backup_source_path,
-            destination_folders=destination_folders,
             logger=self.logger,
         )
 
         controller = UploadBackupToSharepointController(
-            UploadBackupToSharepointControllerInput(config)
+            UploadBackupToSharepointControllerInput(
+                config, local_backup_source_path, sharepoint_destination_path
+            )
         )
         response = await controller.execute()
         return response.__dict__

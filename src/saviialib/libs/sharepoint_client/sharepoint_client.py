@@ -18,6 +18,26 @@ class SharepointClient(SharepointClientContract):
         elif args.client_name == "sharepoint_rest_api":
             self.client_obj = SharepointRestAPI(args)
 
+    @property
+    def tenant_id(self):
+        return self.client_obj.tenant_id
+
+    @property
+    def tenant_name(self):
+        return self.client_obj.tenant_name
+
+    @property
+    def site_name(self):
+        return self.client_obj.site_name
+
+    @property
+    def client_id(self):
+        return self.client_obj.client_id
+
+    @property
+    def client_secret(self):
+        return self.client_obj.client_secret
+
     async def __aenter__(self):
         return await self.client_obj.__aenter__()
 
@@ -28,7 +48,7 @@ class SharepointClient(SharepointClientContract):
         return await self.client_obj.list_files(args)
 
     async def list_folders(self, args: SpListFoldersArgs) -> list:
-        return await self.client_obj.list_files(args)
+        return await self.client_obj.list_folders(args)
 
     async def upload_file(self, args: SpUploadFileArgs) -> dict:
         return await self.client_obj.upload_file(args)

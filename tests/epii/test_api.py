@@ -25,6 +25,14 @@ class TestEpiiAPIUpdateThiesData(unittest.IsolatedAsyncioTestCase):
             sharepoint_tenant_name="tenant_name_123",
             logger=Mock(),
         )
+        self.sharepoint_folders_path = [
+            "Shared%20Documents/General/Test_Raspberry/THIES/AVG",
+            "Shared%20Documents/General/Test_Raspberry/THIES/EXT",
+        ]
+        self.ftp_server_folders_path = [
+            "ftp/thies/BINFILES/ARCH_AV1",
+            "ftp/thies/BINFILES/ARCH_EX1",
+        ]
 
     @patch("saviialib.services.epii.api.UpdateThiesDataController")
     async def test_should_update_thies_data_successfully(
@@ -44,7 +52,10 @@ class TestEpiiAPIUpdateThiesData(unittest.IsolatedAsyncioTestCase):
         )
 
         # Act
-        response = await api.update_thies_data()
+        response = await api.update_thies_data(
+            sharepoint_folders_path=self.sharepoint_folders_path,
+            ftp_server_folders_path=self.ftp_server_folders_path,
+        )
 
         # Assert
         self.assertEqual(response, expected_response.__dict__)
