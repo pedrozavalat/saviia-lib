@@ -1,6 +1,20 @@
 # CHANGELOG
 
 
+## v0.11.2 (2025-05-19)
+
+### Bug Fixes
+
+- Linter and tests
+  ([`fe5efad`](https://github.com/pedrozavalat/saviia-lib/commit/fe5efad923b43948635092699ef758543d62a7ae))
+
+- Linter and tests
+  ([`9a50709`](https://github.com/pedrozavalat/saviia-lib/commit/9a50709adb0f1c0d5c58e16450d3bbb3666e08a2))
+
+- Paths AVG and EXT
+  ([`b92f087`](https://github.com/pedrozavalat/saviia-lib/commit/b92f08740c56c52c892ca53efc4c8e400262584a))
+
+
 ## v0.11.1 (2025-05-19)
 
 ### Bug Fixes
