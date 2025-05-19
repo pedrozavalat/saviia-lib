@@ -28,7 +28,6 @@ class EpiiAPI:
         self.sharepoint_tenant_id = config.sharepoint_tenant_id
         self.sharepoint_tenant_name = config.sharepoint_tenant_name
         self.sharepoint_site_name = config.sharepoint_site_name
-
         self.logger = config.logger
 
     async def update_thies_data(
@@ -38,8 +37,10 @@ class EpiiAPI:
         and transferring data to specified Sharepoint folders.
 
         Args:
-            sharepoint_folders_path (list): List of Sharepoint folder paths for AVG and EXT data.
-            ftp_server_folders_path (list): List of FTP server folder paths for AVG and EXT data.
+            sharepoint_folders_path (list): List of Sharepoint folder paths for AVG and EXT data. 
+            The AVG path must be the first element.
+            ftp_server_folders_path (list): List of FTP server folder paths for AVG and EXT data. 
+            The AVG path must be the first element.
 
         Returns:
             dict: A dictionary representation of the API response.
