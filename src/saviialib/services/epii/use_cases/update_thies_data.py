@@ -150,14 +150,19 @@ class UpdateThiesDataUseCase:
         async with self.sharepoint_client:
             for file, file_content in files.items():
                 try:
-                    _, file_name = file.split("_", 1)
-                    # Could be AVG or EXT.
-                    if file_name in self.sharepoint_folders_path[0]:
-                        folder_path = self.sharepoint_folders_path[0]
+                    origin, file_name = file.split("_", 1)
+                    # Check if the first folder is for AVG, otherwise assume it's for EXT
+                    if "AVG" in self.sharepoint_folders_path[0]:
+                        avg_folder = self.sharepoint_folders_path[0]
+                        ext_folder = self.sharepoint_folders_path[1]
                     else:
-                        folder_path = self.sharepoint_folders_path[1]
-                    relative_url = f"{self.sharepoint_base_url}/{folder_path}"
+                        avg_folder = self.sharepoint_folders_path[1]
+                        ext_folder = self.sharepoint_folders_path[0]
 
+                    folder_path = avg_folder if origin == "AVG" else ext_folder
+
+                    relative_url = f"{self.sharepoint_base_url}/{folder_path}"
+                    print(relative_url)
                     args = SpUploadFileArgs(
                         folder_relative_url=relative_url,
                         file_content=file_content,
@@ -194,7 +199,6 @@ class UpdateThiesDataUseCase:
         self.uploading = thies_files - cloud_files
         if not self.uploading:
             raise EmptyDataError(reason="No files to upload.")
-
         # Fetch the content of the files to be uploaded from THIES FTP Server
         thies_fetched_files = await self.fetch_thies_file_content()
 
