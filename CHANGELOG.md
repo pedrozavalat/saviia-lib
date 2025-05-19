@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.11.0 (2025-05-19)
+
+### Features
+
+- Update api parameters
+  ([`c4a7de4`](https://github.com/pedrozavalat/saviia-lib/commit/c4a7de49fc2d1572a0f036faeb0ea1d63637be65))
+
+
 ## v0.10.2 (2025-05-14)
 
 ### Bug Fixes
