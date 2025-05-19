@@ -140,7 +140,7 @@ class TestUpdateThiesDataUseCaseFetchThiesFileContent(unittest.IsolatedAsyncioTe
         )
         expected_content_files = {
             "AVG_file1.bin": b"content_of_ftp/thies/BINFILES/ARCH_AV1/file1.bin",
-            "EXT_file2.bin": b"content_of_ftp/thies/BINFILES/ARCH_AV1/file2.bin",
+            "EXT_file2.bin": b"content_of_ftp/thies/BINFILES/ARCH_EX1/file2.bin",
         }
 
         # Act
