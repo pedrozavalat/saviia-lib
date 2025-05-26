@@ -8,11 +8,11 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-aioftp = "0.25.1"
-aiohttp = "3.11.16"
-aiofiles = "24.1.0"
-dotenv = "0.9.9"
-pytest-cov="6.1.1"
+aioftp = "*"
+aiohttp = "*"
+aiofiles = "*"
+dotenv = "^0.9.9"
+pytest-cov="^6.1.1"
 build="*"
 [tool.poetry.group.dev.dependencies]
 pytest = "8.3.5"
