@@ -1,3 +1,5 @@
+import logging
+import asyncio
 from saviialib.general_types.error_types.api.epii_api_error_types import (
     SharePointFetchingError,
     SharePointDirectoryError,
@@ -59,7 +61,7 @@ class UpdateThiesDataUseCase:
     def _initialize_thies_ftp_client(self, config: FtpClientConfig) -> FTPClient:
         """Initialize the FTP client."""
         try:
-            return FTPClient(FtpClientInitArgs(config, client_name="aioftp_client"))
+            return FTPClient(FtpClientInitArgs(config, client_name="ftplib_client"))
         except RuntimeError as error:
             raise FtpClientError(error)
 
@@ -237,3 +239,40 @@ class UpdateThiesDataUseCase:
             "[thies_synchronization_lib] All the files were uploaded successfully 🎉"
         )
         return parse_execute_response(thies_fetched_files, upload_statistics)  # type: ignore
+
+
+if __name__ == "__main__":
+    
+    async def main():
+        SHAREPOINT_THIES_FOLDERS = [
+            "Shared%20Documents/General/Microsoft%20Fabric/Estacion%20Patagonia/archivosthies/archivosbinarios/AVG",
+            "Shared%20Documents/General/Microsoft%20Fabric/Estacion%20Patagonia/archivosthies/archivosbinarios/EXT",
+        ]
+        FTP_SERVER_FOLDERS = [
+            "/ARCH_AV1",
+        ]
+        input_config  =  UpdateThiesDataUseCaseInput(
+            ftp_config=FtpClientConfig(
+                ftp_host="192.168.1.200",
+                ftp_port=21,
+                ftp_password="12345678",
+                ftp_user="anonymous",
+            ),
+            sharepoint_config=SharepointConfig(
+                sharepoint_client_id="5cc9b69f-0e49-419c-97be-0c5b4048bf94",
+                sharepoint_client_secret="Snf8Q~vSYLkEHWc6MCgHAmPEMI9j8egA6fTz7aFh",
+                sharepoint_tenant_id="5ff5d9fa-f83f-4ac1-a4d2-eb48ea0a00d2",
+                sharepoint_site_name="uc365_CentrosyEstacionesRegionalesUC",
+                sharepoint_tenant_name="uccl0",
+                
+            ),
+            logger=logging.getLogger(__package__),
+            ftp_server_folders_path=FTP_SERVER_FOLDERS,
+            sharepoint_folders_path=SHAREPOINT_THIES_FOLDERS
+        )
+        usecase = UpdateThiesDataUseCase(input=input_config)
+        result = await usecase.execute()
+        print(result)
+        
+    asyncio.run(main())
+

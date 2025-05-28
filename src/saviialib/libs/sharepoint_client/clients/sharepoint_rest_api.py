@@ -1,5 +1,5 @@
 from typing import Any
-
+import json
 from aiohttp import ClientError, ClientSession
 from dotenv import load_dotenv
 
@@ -10,6 +10,7 @@ from saviialib.libs.sharepoint_client.types.sharepoint_client_types import (
     SpListFilesArgs,
     SpListFoldersArgs,
     SpUploadFileArgs,
+    SpCreateFolderArgs,
     SharepointClientInitArgs,
 )
 
@@ -133,4 +134,23 @@ class SharepointRestAPI(SharepointClientContract):
             response.raise_for_status()
             return await response.json()
         except ClientError as error:
+            raise ConnectionError(error) from error
+        
+    async def create_folder(self, args: SpCreateFolderArgs):
+        try:
+            # Load form digest value
+            form_digest_value = await self._load_form_digest_value()
+            headers = {
+                **self.base_headers,
+                "X-RequestDigest": form_digest_value,
+            }
+            body = {
+                "ServerRelativeUrl": f"{args.folder_relative_url}"
+            }
+            endpoint = "web/folders"
+            response = await self.session.post(endpoint.lstrip("/"), data=json.dumps(body), headers=headers)
+            response.raise_for_status()
+            response_json = await response.json()
+            return response_json
+        except ClientError as error: 
             raise ConnectionError(error) from error

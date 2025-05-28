@@ -23,3 +23,7 @@ class SpUploadFileArgs:
     folder_relative_url: str
     file_name: str
     file_content: bytes = bytes()
+    
+@dataclass
+class SpCreateFolderArgs: 
+    folder_relative_url: str
