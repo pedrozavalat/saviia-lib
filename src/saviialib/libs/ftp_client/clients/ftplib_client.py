@@ -27,10 +27,9 @@ class FtplibClient(FTPClientContract):
                 f"{self.host}:{self.port} isn't active. "
                 "Please ensure the server is running and accessible."
             )
-        except Exception as error: 
+        except Exception as error:
             raise ConnectionError(
-                f"General connection for {self.host}:{self.port}.",
-                error.__str__()
+                f"General connection for {self.host}:{self.port}.", error.__str__()
             )
 
     async def list_files(self, args: FtpListFilesArgs) -> list[str]:
@@ -38,8 +37,10 @@ class FtplibClient(FTPClientContract):
             EXCLUDED_NAMES = [".", ".."]
             await self._async_start()
             await asyncio.to_thread(self.client.cwd, args.path)
-            filenames =  await asyncio.to_thread(self.client.nlst, args.path)
-            return [filename for filename in filenames if filename not in EXCLUDED_NAMES]
+            filenames = await asyncio.to_thread(self.client.nlst, args.path)
+            return [
+                filename for filename in filenames if filename not in EXCLUDED_NAMES
+            ]
         except Exception as error:
             raise ConnectionAbortedError(error)
 
@@ -47,9 +48,11 @@ class FtplibClient(FTPClientContract):
         await self._async_start()
         try:
             file_content = BytesIO()
-            await asyncio.to_thread(self.client.retrbinary, 'RETR ' + args.file_path, file_content.write)
+            await asyncio.to_thread(
+                self.client.retrbinary, "RETR " + args.file_path, file_content.write
+            )
             await asyncio.to_thread(file_content.seek, 0)
-            file_bytes = await asynciwo.to_thread(file_content.read)
+            file_bytes = await asyncio.to_thread(file_content.read)
             return file_bytes
         except Exception as error:
             raise FileNotFoundError(f"File not found: {args.file_path}") from error

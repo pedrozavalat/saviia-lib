@@ -14,7 +14,7 @@ class FTPClient(FTPClientContract):
 
         if args.client_name == "aioftp_client":
             self.client_obj = AioFTPClient(args)
-        elif args.client_name == 'ftplib_client':
+        elif args.client_name == "ftplib_client":
             self.client_obj = FtplibClient(args)
         self.client_name = args.client_name
 

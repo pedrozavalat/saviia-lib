@@ -135,7 +135,7 @@ class SharepointRestAPI(SharepointClientContract):
             return await response.json()
         except ClientError as error:
             raise ConnectionError(error) from error
-        
+
     async def create_folder(self, args: SpCreateFolderArgs):
         try:
             # Load form digest value
@@ -144,13 +144,13 @@ class SharepointRestAPI(SharepointClientContract):
                 **self.base_headers,
                 "X-RequestDigest": form_digest_value,
             }
-            body = {
-                "ServerRelativeUrl": f"{args.folder_relative_url}"
-            }
+            body = {"ServerRelativeUrl": f"{args.folder_relative_url}"}
             endpoint = "web/folders"
-            response = await self.session.post(endpoint.lstrip("/"), data=json.dumps(body), headers=headers)
+            response = await self.session.post(
+                endpoint.lstrip("/"), data=json.dumps(body), headers=headers
+            )
             response.raise_for_status()
             response_json = await response.json()
             return response_json
-        except ClientError as error: 
+        except ClientError as error:
             raise ConnectionError(error) from error

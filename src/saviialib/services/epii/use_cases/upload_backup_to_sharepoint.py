@@ -21,7 +21,6 @@ from saviialib.libs.sharepoint_client import (
     SharepointClient,
     SharepointClientInitArgs,
     SpUploadFileArgs,
-    SpListFoldersArgs,
     SpCreateFolderArgs,
 )
 from saviialib.services.epii.utils.upload_backup_to_sharepoint_utils import (
@@ -68,22 +67,24 @@ class UploadBackupToSharepointUsecase:
         local_backup_name = (
             f"/local-backup-{datetime_to_str(today(), date_format='%m-%d-%Y')}"
         )
-        local_backup_destination_path = self.sharepoint_destination_path + local_backup_name
+        local_backup_destination_path = (
+            self.sharepoint_destination_path + local_backup_name
+        )
         async with self.sharepoint_client:
             await self.sharepoint_client.create_folder(
-                SpCreateFolderArgs(
-                    folder_relative_url=local_backup_destination_path
-                )
+                SpCreateFolderArgs(folder_relative_url=local_backup_destination_path)
             )
         self.sharepoint_destination_path = local_backup_destination_path
-        base_folder_message = "[local_backup_lib] Creating base folder" + local_backup_name
+        base_folder_message = (
+            "[local_backup_lib] Creating base folder" + local_backup_name
+        )
         self.logger.info(base_folder_message)
         self.log_history.append(base_folder_message)
 
     async def _validate_backup_structure(self):
-        # Initialize the backup folder 
+        # Initialize the backup folder
         await self._initialize_backup_base_folder()
-        
+
         # Check if the local path exists in the main directory
         if not await self.dir_client.path_exists(self.local_backup_source_path):
             raise BackupSourcePathError(
@@ -97,12 +98,16 @@ class UploadBackupToSharepointUsecase:
         )
         async with self.sharepoint_client:  # type: ignore
             for local_dir in local_directories:
-                create_message = f"[local_backup_lib] Creating a new directory '{local_dir}'."
-                
+                create_message = (
+                    f"[local_backup_lib] Creating a new directory '{local_dir}'."
+                )
+
                 self.log_history.append(create_message)
                 await self.sharepoint_client.create_folder(
                     SpCreateFolderArgs(
-                        folder_relative_url=self.sharepoint_destination_path + "/" + local_dir
+                        folder_relative_url=self.sharepoint_destination_path
+                        + "/"
+                        + local_dir
                     )
                 )
                 self.logger.info("[local_backup_lib] %s", create_message)
