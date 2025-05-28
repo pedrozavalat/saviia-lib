@@ -5,6 +5,7 @@ from .types.sharepoint_client_types import (
     SpListFilesArgs,
     SpListFoldersArgs,
     SpUploadFileArgs,
+    SpCreateFolderArgs,
 )
 
 
@@ -52,3 +53,6 @@ class SharepointClient(SharepointClientContract):
 
     async def upload_file(self, args: SpUploadFileArgs) -> dict:
         return await self.client_obj.upload_file(args)
+
+    async def create_folder(self, args: SpCreateFolderArgs) -> dict:
+        return await self.client_obj.create_folder(args)

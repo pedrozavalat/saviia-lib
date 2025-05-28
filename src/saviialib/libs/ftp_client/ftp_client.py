@@ -1,10 +1,11 @@
 from .clients.aioftp_client import AioFTPClient
+from .clients.ftplib_client import FtplibClient
 from .ftp_client_contract import FTPClientContract
 from .types.ftp_client_types import FtpClientInitArgs, FtpListFilesArgs, FtpReadFileArgs
 
 
 class FTPClient(FTPClientContract):
-    CLIENTS = {"aioftp_client"}
+    CLIENTS = {"aioftp_client", "ftplib_client"}
 
     def __init__(self, args: FtpClientInitArgs) -> None:
         if args.client_name not in FTPClient.CLIENTS:
@@ -13,6 +14,8 @@ class FTPClient(FTPClientContract):
 
         if args.client_name == "aioftp_client":
             self.client_obj = AioFTPClient(args)
+        elif args.client_name == "ftplib_client":
+            self.client_obj = FtplibClient(args)
         self.client_name = args.client_name
 
     async def list_files(self, args: FtpListFilesArgs) -> list[str]:

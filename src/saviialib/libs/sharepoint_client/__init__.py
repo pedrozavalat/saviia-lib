@@ -4,6 +4,7 @@ from .types.sharepoint_client_types import (
     SpListFilesArgs,
     SpListFoldersArgs,
     SpUploadFileArgs,
+    SpCreateFolderArgs,
 )
 
 __all__ = [
@@ -12,4 +13,5 @@ __all__ = [
     "SpListFilesArgs",
     "SpListFoldersArgs",
     "SpUploadFileArgs",
+    "SpCreateFolderArgs",
 ]

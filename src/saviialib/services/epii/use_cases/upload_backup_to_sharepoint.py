@@ -1,5 +1,6 @@
 import asyncio
 from time import time
+from saviialib.libs.zero_dependency.utils.datetime_utils import today, datetime_to_str
 from logging import Logger
 from saviialib.general_types.error_types.api.epii_api_error_types import (
     BackupEmptyError,
@@ -20,7 +21,7 @@ from saviialib.libs.sharepoint_client import (
     SharepointClient,
     SharepointClientInitArgs,
     SpUploadFileArgs,
-    SpListFoldersArgs,
+    SpCreateFolderArgs,
 )
 from saviialib.services.epii.utils.upload_backup_to_sharepoint_utils import (
     calculate_percentage_uploaded,
@@ -40,6 +41,7 @@ class UploadBackupToSharepointUsecase:
         self.sharepoint_config = input.sharepoint_config
         self.local_backup_source_path = input.local_backup_source_path
         self.sharepoint_destination_path = input.sharepoint_destination_path
+
         self.files_client = self._initialize_files_client()
         self.dir_client = self._initialize_directory_client()
         self.log_history = []
@@ -61,7 +63,28 @@ class UploadBackupToSharepointUsecase:
     def _initialize_files_client(self):
         return FilesClient(FilesClientInitArgs(client_name="aiofiles_client"))
 
+    async def _initialize_backup_base_folder(self):
+        local_backup_name = (
+            f"/local-backup-{datetime_to_str(today(), date_format='%m-%d-%Y')}"
+        )
+        local_backup_destination_path = (
+            self.sharepoint_destination_path + local_backup_name
+        )
+        async with self.sharepoint_client:
+            await self.sharepoint_client.create_folder(
+                SpCreateFolderArgs(folder_relative_url=local_backup_destination_path)
+            )
+        self.sharepoint_destination_path = local_backup_destination_path
+        base_folder_message = (
+            "[local_backup_lib] Creating base folder" + local_backup_name
+        )
+        self.logger.info(base_folder_message)
+        self.log_history.append(base_folder_message)
+
     async def _validate_backup_structure(self):
+        # Initialize the backup folder
+        await self._initialize_backup_base_folder()
+
         # Check if the local path exists in the main directory
         if not await self.dir_client.path_exists(self.local_backup_source_path):
             raise BackupSourcePathError(
@@ -74,20 +97,21 @@ class UploadBackupToSharepointUsecase:
             else []
         )
         async with self.sharepoint_client:  # type: ignore
-            response = await self.sharepoint_client.list_folders(
-                SpListFoldersArgs(folder_relative_url=self.sharepoint_destination_path)
-            )
-            sharepoint_directories = [x["Name"] for x in response["value"]]  # type: ignore
-
-        # Verify that all local directories exist in SharePoint
-        for local_dir in local_directories:
-            if local_dir not in sharepoint_directories:
-                error_message = f"Folder '{local_dir}' does not exist in SharePoint destination path '{self.sharepoint_destination_path}'."
-                self.log_history.append(error_message)
-                self.logger.error("[local_backup_lib] %s", error_message)
-                raise BackupSourcePathError(
-                    reason=f"Folder '{local_dir}' does not exist in SharePoint destination path '{self.sharepoint_destination_path}'."
+            for local_dir in local_directories:
+                create_message = (
+                    f"[local_backup_lib] Creating a new directory '{local_dir}'."
                 )
+
+                self.log_history.append(create_message)
+                await self.sharepoint_client.create_folder(
+                    SpCreateFolderArgs(
+                        folder_relative_url=self.sharepoint_destination_path
+                        + "/"
+                        + local_dir
+                    )
+                )
+                self.logger.info("[local_backup_lib] %s", create_message)
+                self.log_history.append(f"[local_backup_lib] {create_message}")
 
         # Check if the current folder only have files and each folder exist in Microsoft Sharepoint.
         if self.total_files == 0:
