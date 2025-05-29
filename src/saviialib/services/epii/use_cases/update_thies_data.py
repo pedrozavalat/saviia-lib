@@ -31,6 +31,7 @@ from saviialib.services.epii.use_cases.types import (
 from saviialib.services.epii.utils import (
     parse_execute_response,
 )
+from saviialib.libs.zero_dependency.utils.datetime_utils import today, datetime_to_str
 
 
 class UpdateThiesDataUseCase:
@@ -204,6 +205,20 @@ class UpdateThiesDataUseCase:
 
         return upload_results
 
+    async def _sync_pending_files(self, thies_files: set, cloud_files: set) -> set:
+        uploading = thies_files - cloud_files
+
+        # Update content of the daily files
+        daily_files = {
+            prefix + datetime_to_str(today(), date_format="%Y%m%d") + ".BIN"
+            for prefix in ["EXT_", "AVG_"]
+        }
+        for file in daily_files:
+            if file in thies_files:
+                uploading.add(file)
+
+        return uploading
+
     async def execute(self):
         """Synchronize data from the THIES Center to the cloud."""
         self.logger.debug("[thies_synchronization_lib] Starting ...")
@@ -223,7 +238,7 @@ class UpdateThiesDataUseCase:
             "[thies_synchronization_lib] Total files fetched from Sharepoint: %s",
             str(len(cloud_files)),
         )
-        self.uploading = thies_files - cloud_files
+        self.uploading = await self._sync_pending_files(thies_files, cloud_files)
         if not self.uploading:
             raise EmptyDataError(reason="No files to upload.")
         # Fetch the content of the files to be uploaded from THIES FTP Server
