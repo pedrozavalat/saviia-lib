@@ -26,3 +26,6 @@ class DirectoryClient(DirectoryClientContract):
 
     async def isdir(self, path: str) -> bool:
         return await self.client_obj.isdir(path)
+
+    async def makedirs(self, path: str) -> None:
+        return await self.client_obj.makedirs(path)

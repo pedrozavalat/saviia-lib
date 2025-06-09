@@ -21,3 +21,7 @@ class OsClient(DirectoryClientContract):
     @staticmethod
     async def isdir(path: str) -> list:
         return await asyncio.to_thread(os.path.isdir, path)
+
+    @staticmethod
+    async def makedirs(path: str) -> None:
+        return await asyncio.to_thread(os.makedirs, path, exist_ok=True)
