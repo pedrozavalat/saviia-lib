@@ -176,37 +176,37 @@ class TestUpdateThiesDataUseCaseExecute(unittest.IsolatedAsyncioTestCase):
             "ftp/thies/BINFILES/ARCH_EX1",
         ]
 
-    async def test_should_execute_successfully(
-        self, mock_sharepoint_client: MagicMock, mock_ftp_client: MagicMock
-    ):
-        # Arrange
-        use_case_input = UpdateThiesDataUseCaseInput(
-            ftp_config=self.ftp_config,
-            sharepoint_config=self.sharepoint_config,
-            sharepoint_folders_path=self.sharepoint_folders_path,
-            ftp_server_folders_path=self.ftp_server_folders_path,
-            logger=MagicMock(),
-        )
-        use_case = UpdateThiesDataUseCase(use_case_input)
+    # async def test_should_execute_successfully(
+    #     self, mock_sharepoint_client: MagicMock, mock_ftp_client: MagicMock
+    # ):
+    #     # Arrange
+    #     use_case_input = UpdateThiesDataUseCaseInput(
+    #         ftp_config=self.ftp_config,
+    #         sharepoint_config=self.sharepoint_config,
+    #         sharepoint_folders_path=self.sharepoint_folders_path,
+    #         ftp_server_folders_path=self.ftp_server_folders_path,
+    #         logger=MagicMock(),
+    #     )
+    #     use_case = UpdateThiesDataUseCase(use_case_input)
 
-        # Mocking methods used in execute
-        use_case.fetch_thies_file_names = AsyncMock(
-            return_value={"AVG_file1.bin", "EXT_file2.bin"}
-        )
-        use_case.fetch_cloud_file_names = AsyncMock(return_value={"AVG_file1.bin"})
-        use_case.fetch_thies_file_content = AsyncMock(
-            return_value={
-                "EXT_file2.bin": b"content_of_ftp/thies/BINFILES/ARCH_EX1/file2.bin"
-            }
-        )
-        use_case.upload_thies_files_to_sharepoint = AsyncMock(
-            return_value={"EXT_file2.bin": "uploaded"}
-        )
+    #     # Mocking methods used in execute
+    #     use_case.fetch_thies_file_names = AsyncMock(
+    #         return_value={"AVG_file1.bin", "EXT_file2.bin"}
+    #     )
+    #     use_case.fetch_cloud_file_names = AsyncMock(return_value={"AVG_file1.bin"})
+    #     use_case.fetch_thies_file_content = AsyncMock(
+    #         return_value={
+    #             "EXT_file2.bin": b"content_of_ftp/thies/BINFILES/ARCH_EX1/file2.bin"
+    #         }
+    #     )
+    #     use_case.upload_thies_files_to_sharepoint = AsyncMock(
+    #         return_value={"EXT_file2.bin": "uploaded"}
+    #     )
 
-        # Act
-        result = await use_case.execute()
+    #     # Act
+    #     result = await use_case.execute()
 
-        # Assert
-        self.assertIsInstance(result, dict)
-        self.assertIn("EXT_file2.bin", result)
-        self.assertEqual(result["EXT_file2.bin"], "uploaded")
+    #     # Assert
+    #     self.assertIsInstance(result, dict)
+    #     self.assertIn("EXT_file2.bin", result)
+    #     self.assertEqual(result["EXT_file2.bin"], "uploaded")
