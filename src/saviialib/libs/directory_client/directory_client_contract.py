@@ -17,3 +17,7 @@ class DirectoryClientContract(ABC):
     @abstractmethod
     async def isdir(self, path) -> bool:
         pass
+
+    @abstractmethod
+    async def makedirs(self, path: str) -> None:
+        pass
