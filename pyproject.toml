@@ -14,9 +14,9 @@ aiofiles = "*"
 dotenv = "^0.9.9"
 pytest-cov="^6.1.1"
 build="*"
-numpy="^2.3.0"
-pandas="^2.3.0"
-bitarray="^1.9.2"
+numpy="1.20.1"
+pandas="1.2.4"
+bitarray="1.9.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "8.3.5"
