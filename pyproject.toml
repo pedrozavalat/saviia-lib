@@ -20,7 +20,7 @@ bitarray="*"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "8.3.5"
-pytest-asyncio = "0.26.0"
+pytest-asyncio = "1.0.0"
 black = "*"
 coverage = "*"
 flake8 = "*"
