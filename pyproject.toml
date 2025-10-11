@@ -12,11 +12,11 @@ aioftp = "*"
 aiohttp = "*"
 aiofiles = "*"
 dotenv = "^0.9.9"
-pytest-cov="^6.1.1"
 build="*"
 numpy = ">=2.2.0,<2.4.0"
 pandas = ">=2.2.3,<2.3.1"
 bitarray="*"
+certifi="*"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "8.3.5"

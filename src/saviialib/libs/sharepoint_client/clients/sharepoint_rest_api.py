@@ -1,7 +1,9 @@
 from typing import Any
 import json
-from aiohttp import ClientError, ClientSession
+from aiohttp import ClientError, ClientSession, TCPConnector
 from dotenv import load_dotenv
+import ssl
+import certifi
 
 from saviialib.libs.sharepoint_client.sharepoint_client_contract import (
     SharepointClientContract,
@@ -15,7 +17,7 @@ from saviialib.libs.sharepoint_client.types.sharepoint_client_types import (
 )
 
 load_dotenv()
-
+ssl_context = ssl.create_default_context(cafile=certifi.where())
 
 class SharepointRestAPI(SharepointClientContract):
     def __init__(self, args: SharepointClientInitArgs):
@@ -51,7 +53,7 @@ class SharepointRestAPI(SharepointClientContract):
             "Content-Type": "application/x-www-form-urlencoded",
         }
 
-        async with ClientSession() as session:
+        async with ClientSession(connector=TCPConnector(ssl=ssl_context)) as session:
             # Load access token
             response = await session.post(url, data=payload, headers=headers)
             if response.status != 200:
@@ -75,8 +77,9 @@ class SharepointRestAPI(SharepointClientContract):
                 "Content-Type": "application/json",
             }
             self.base_url = f"{site_url}/sites/{self.site_name}/_api/"
+            connector = TCPConnector(ssl=ssl_context)
             self.session = ClientSession(
-                headers=self.base_headers, base_url=self.base_url
+                headers=self.base_headers, base_url=self.base_url, connector=connector
             )
             return self
         except ClientError as error:
