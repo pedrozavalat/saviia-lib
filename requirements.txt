@@ -14,3 +14,4 @@ coverage
 flake8
 pyflakes
 pylint
+certifi
