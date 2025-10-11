@@ -127,6 +127,15 @@ async def create_thies_daily_statistics_file(
             if max_col not in row:
                 max_val = 0
 
+            if (mean < min_val or mean > max_val) and col not in ["WD"]:
+                logger.warning(
+                    f"[thies_synchronization_lib] Inconsistent data for {col}: "
+                    f"min {min_val}, max {max_val}, mean {mean}. "
+                )
+                mean = (min_val + max_val) / 2
+                logger.warning(
+                    f"[thies_synchronization_lib] Mean value corrected to {mean}.")
+
             if col in ["WD"]:  # Avoid error
                 rows.append(
                     {
