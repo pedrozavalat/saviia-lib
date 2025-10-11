@@ -1,4 +1,4 @@
-aioftp==0.25.1
+aioftp==0.27.2
 aiohttp==3.11.18
 aiofiles==24.1.0
 dotenv==0.9.9
