@@ -19,6 +19,7 @@ from saviialib.libs.sharepoint_client.types.sharepoint_client_types import (
 load_dotenv()
 ssl_context = ssl.create_default_context(cafile=certifi.where())
 
+
 class SharepointRestAPI(SharepointClientContract):
     def __init__(self, args: SharepointClientInitArgs):
         self.session: ClientSession | None = None
