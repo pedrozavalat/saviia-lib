@@ -57,7 +57,7 @@ class AsyncsshSFTPClient(SFTPClientContract):
             conflict_path = (
                 "destination path" if not args.destination_path else "source path"
             )
-            raise ConnectionRefusedError(f"The {conflict_path} must be provided.")
+            raise ConnectionError(f"The {conflict_path} must be provided.")
 
         download_all = len(args.files_to_download) == 0
         async with ssh_conn:
