@@ -30,6 +30,7 @@ class SaviiaAPIConfig:
     sharepoint_site_name: str
     logger: Logger
 
+
 @dataclass
 class FtpClientConfig:
     ftp_host: str

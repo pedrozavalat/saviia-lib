@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 from .controllers.upload_backup_to_sharepoint import (
     UploadBackupToSharepointControllerInput,

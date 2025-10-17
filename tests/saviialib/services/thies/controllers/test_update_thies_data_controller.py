@@ -17,6 +17,7 @@ from saviialib.services.thies.controllers.update_thies_data import (
 )
 from saviialib.general_types.api.saviia_thies_api_types import SaviiaThiesConfig
 
+
 class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.config = SaviiaThiesConfig(

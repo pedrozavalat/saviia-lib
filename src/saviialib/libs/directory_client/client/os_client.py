@@ -19,7 +19,7 @@ class OsClient(DirectoryClientContract):
         return await asyncio.to_thread(os.listdir, path)
 
     @staticmethod
-    async def isdir(path: str) -> list:
+    async def isdir(path: str) -> bool:
         return await asyncio.to_thread(os.path.isdir, path)
 
     @staticmethod

@@ -1,5 +1,4 @@
 from .thies_bp import THIESDayData
-from typing import List
 from logging import Logger
 from asyncio import to_thread
 from saviialib.libs.directory_client import DirectoryClient
@@ -134,7 +133,8 @@ async def create_thies_daily_statistics_file(
                 )
                 mean = (min_val + max_val) / 2
                 logger.warning(
-                    f"[thies_synchronization_lib] Mean value corrected to {mean}.")
+                    f"[thies_synchronization_lib] Mean value corrected to {mean}."
+                )
 
             if col in ["WD"]:  # Avoid error
                 rows.append(

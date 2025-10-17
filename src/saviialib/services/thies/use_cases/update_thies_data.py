@@ -270,10 +270,10 @@ class UpdateThiesDataUseCase:
                     FtpReadFileArgs(file_path)
                 )
             except FileNotFoundError as error:
-                reason = str(error) + ". The file might not be available yet for statistics."
-                self.logger.warning(
-                    "[thies_synchronization_lib] Warning: %s", reason
+                reason = (
+                    str(error) + ". The file might not be available yet for statistics."
                 )
+                self.logger.warning("[thies_synchronization_lib] Warning: %s", reason)
                 self.logger.warning(
                     "[thies_synchronization_lib] Skipping the creation of daily statistics %s",
                     filename,

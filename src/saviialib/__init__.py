@@ -12,6 +12,8 @@ from saviialib.services.thies.api import SaviiaThiesAPI
 from saviialib.general_types.api.saviia_thies_api_types import SaviiaThiesConfig
 from saviialib.general_types.api.saviia_backup_api_types import SaviiaBackupConfig
 
+__all__ = ["SaviiaAPI", "SaviiaAPIConfig"]
+
 
 class SaviiaAPI:
     API_REGISTRY: Dict[str, Type] = {

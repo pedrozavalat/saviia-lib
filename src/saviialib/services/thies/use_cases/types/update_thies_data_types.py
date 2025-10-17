@@ -1,6 +1,9 @@
 from dataclasses import dataclass, field
 from typing import Dict, List
-from saviialib.general_types.api.saviia_api_types import FtpClientConfig, SharepointConfig
+from saviialib.general_types.api.saviia_api_types import (
+    FtpClientConfig,
+    SharepointConfig,
+)
 from logging import Logger
 
 

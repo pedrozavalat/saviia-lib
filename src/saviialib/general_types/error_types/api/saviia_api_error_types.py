@@ -103,3 +103,11 @@ class BackupEmptyError(Exception):
 
     def __str__(self):
         return "The local backup folder is empty. "
+
+
+class ShakesNoContentError(Exception):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+    def __str__(self):
+        return "All the miniSEED files have been downloaded and are in the local directory."
