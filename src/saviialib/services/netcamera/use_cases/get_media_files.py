@@ -14,7 +14,9 @@ from saviialib.libs.directory_client.directory_client import (
     DirectoryClient,
     DirectoryClientArgs,
 )
-from saviialib.general_types.error_types.api.saviia_netcamera_error_types import NetcameraConnectionError
+from saviialib.general_types.error_types.api.saviia_netcamera_error_types import (
+    NetcameraConnectionError,
+)
 
 
 class GetMediaFilesUseCase:
@@ -36,7 +38,7 @@ class GetMediaFilesUseCase:
         for name, conn in self.cameras.items():
             ip, port = conn
             dest_path = self.dir_client.join_paths(self.dest_path, name)
-            try: 
+            try:
                 # Extraction of photo files into dest_path dir.
                 await self.ffmpeg_client.record_photo(
                     RecordPhotoArgs(

@@ -67,7 +67,9 @@ class FfmpegAsyncioClient(FfmpegClientContract):
             "Video",
             args.extension,
         )
-        cmd = await self._setup_command(input_arg, output_arg, extra={"-t": args.duration})
+        cmd = await self._setup_command(
+            input_arg, output_arg, extra={"-t": args.duration}
+        )
         process = await asyncio.create_subprocess_exec(
             *cmd, stderr=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE
         )
@@ -86,7 +88,9 @@ class FfmpegAsyncioClient(FfmpegClientContract):
             "Photo",
             args.extension,
         )
-        cmd = await self._setup_command(input_arg, output_arg, extra={"-frames:v": args.frames})
+        cmd = await self._setup_command(
+            input_arg, output_arg, extra={"-frames:v": args.frames}
+        )
         process = await asyncio.create_subprocess_exec(
             *cmd, stderr=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE
         )

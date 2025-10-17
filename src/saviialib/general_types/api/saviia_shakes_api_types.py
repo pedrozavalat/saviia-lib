@@ -19,4 +19,3 @@ class SaviiaShakesConfig:
     ssh_key_path: str
     logger: Logger
     sftp_port: int = 22
-    

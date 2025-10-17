@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from logging import Logger
 from typing import Dict, Tuple
 from saviialib.general_types.api.saviia_netcamera_api_types import SaviiaNetcameraConfig
 
