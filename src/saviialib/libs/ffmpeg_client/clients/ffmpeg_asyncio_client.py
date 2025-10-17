@@ -14,7 +14,6 @@ from saviialib.libs.zero_dependency.utils.datetime_utils import today, datetime_
 
 class FfmpegAsyncioClient(FfmpegClientContract):
     def __init__(self, args: FfmpegClientInitArgs) -> None:
-        self.source_path = args.source_path
         self.dir_client = DirectoryClient(DirectoryClientArgs("os_client"))
 
     def _setup_io_args(
@@ -68,7 +67,7 @@ class FfmpegAsyncioClient(FfmpegClientContract):
             "Video",
             args.extension,
         )
-        cmd = await self._setup_command(input_arg, output_arg, extra={"-t": 10})
+        cmd = await self._setup_command(input_arg, output_arg, extra={"-t": args.duration})
         process = await asyncio.create_subprocess_exec(
             *cmd, stderr=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE
         )
@@ -87,7 +86,7 @@ class FfmpegAsyncioClient(FfmpegClientContract):
             "Photo",
             args.extension,
         )
-        cmd = await self._setup_command(input_arg, output_arg, extra={"-frames:v": 1})
+        cmd = await self._setup_command(input_arg, output_arg, extra={"-frames:v": args.frames})
         process = await asyncio.create_subprocess_exec(
             *cmd, stderr=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE
         )
