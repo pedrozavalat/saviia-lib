@@ -25,3 +25,8 @@ class OsClient(DirectoryClientContract):
     @staticmethod
     async def makedirs(path: str) -> None:
         return await asyncio.to_thread(os.makedirs, path, exist_ok=True)
+
+    @staticmethod
+    async def remove_file(path: str) -> None:
+        if await asyncio.to_thread(os.path.exists, path):
+            await asyncio.to_thread(os.remove, path)

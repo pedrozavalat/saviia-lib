@@ -21,3 +21,7 @@ class DirectoryClientContract(ABC):
     @abstractmethod
     async def makedirs(self, path: str) -> None:
         pass
+
+    @abstractmethod
+    async def remove_file(self, path: str) -> None:
+        pass
