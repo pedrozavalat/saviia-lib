@@ -11,7 +11,7 @@ class DirectoryClientContract(ABC):
         pass
 
     @abstractmethod
-    async def listdir(self, path: str) -> list:
+    async def listdir(self, path: str, more_info: bool = False) -> list:
         pass
 
     @abstractmethod

@@ -21,8 +21,8 @@ class DirectoryClient(DirectoryClientContract):
     async def path_exists(self, path: str) -> bool:
         return await self.client_obj.path_exists(path)
 
-    async def listdir(self, path: str) -> list:
-        return await self.client_obj.listdir(path)
+    async def listdir(self, path: str, more_info: bool = False) -> list:
+        return await self.client_obj.listdir(path, more_info)
 
     async def isdir(self, path: str) -> bool:
         return await self.client_obj.isdir(path)

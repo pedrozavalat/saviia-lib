@@ -8,6 +8,7 @@ class UpdateThiesDataControllerInput:
     config: SaviiaThiesConfig
     sharepoint_folders_path: list
     ftp_server_folders_path: list
+    local_backup_source_path: str
 
 
 @dataclass
