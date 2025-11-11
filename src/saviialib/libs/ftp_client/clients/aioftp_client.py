@@ -36,10 +36,10 @@ class AioFTPClient(FTPClientContract):
     async def list_files(self, args: FtpListFilesArgs) -> list[str]:
         try:
             await self._async_start()
-            return [
-                path.name
-                async for path, _ in self.client.list(args.path, recursive=False)  # type: ignore
-            ]
+            files = []
+            async for path, info in self.client.list(args.path, recursive=False):
+                files.append((path.name, int((info.get('size', 0)))))
+            return files
         except StatusCodeError as error:
             raise ConnectionAbortedError(error)
 
