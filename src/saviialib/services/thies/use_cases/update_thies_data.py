@@ -118,7 +118,7 @@ class UpdateThiesDataUseCase:
                     cloud_files.update(
                         {
                             (f"{folder_name}_{item['Name']}", int(item["Length"]))
-                            for item in response["value"] # type: ignore
+                            for item in response["value"]  # type: ignore
                         }  # type: ignore
                     )
             return cloud_files
@@ -282,13 +282,15 @@ class UpdateThiesDataUseCase:
         local_avg_files = await self.os_client.listdir(
             self.os_client.join_paths(
                 self.local_backup_path, UpdateThiesDataUseCase.BASE_FOLDER_NAME, "AVG"
-            ), more_info=True
+            ),
+            more_info=True,
         )
         local_avg_files = {filename: size for filename, size in local_avg_files}
         local_ext_files = await self.os_client.listdir(
             self.os_client.join_paths(
                 self.local_backup_path, UpdateThiesDataUseCase.BASE_FOLDER_NAME, "EXT"
-            ), more_info=True
+            ),
+            more_info=True,
         )
         local_ext_files = {filename: size for filename, size in local_ext_files}
         try:
@@ -318,13 +320,13 @@ class UpdateThiesDataUseCase:
                     should_be_added = True
                 elif not new_size:
                     should_be_added = True
-                else: 
-                    # Should not be added, because it has the same size and it's saved in the local dir. 
+                else:
+                    # Should not be added, because it has the same size and it's saved in the local dir.
                     pass
-                
-                if not should_be_added: 
+
+                if not should_be_added:
                     continue
-                
+
                 self.logger.debug(
                     f"[thies_synchronization_lib] Saving {filename} in Thies local backup"
                 )

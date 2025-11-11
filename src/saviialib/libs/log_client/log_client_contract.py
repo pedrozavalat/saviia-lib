@@ -2,7 +2,12 @@
 from abc import ABC, abstractmethod
 
 # Internal modules
-from saviialib.libs.log_client.types.log_client_types import ErrorArgs, InfoArgs, DebugArgs, WarningArgs
+from saviialib.libs.log_client.types.log_client_types import (
+    ErrorArgs,
+    InfoArgs,
+    DebugArgs,
+    WarningArgs,
+)
 
 
 class LogClientContract(ABC):

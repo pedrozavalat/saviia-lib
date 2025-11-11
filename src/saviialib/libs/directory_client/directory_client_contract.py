@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Iterator
 
+
 class DirectoryClientContract(ABC):
     @abstractmethod
     def join_paths(self, *paths: str) -> str:
@@ -25,7 +26,7 @@ class DirectoryClientContract(ABC):
     @abstractmethod
     async def remove_file(self, path: str) -> None:
         pass
-    
+
     @abstractmethod
     async def walk(self, path: str) -> Iterator:
         pass

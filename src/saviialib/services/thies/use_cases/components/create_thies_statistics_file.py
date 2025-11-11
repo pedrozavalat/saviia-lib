@@ -13,11 +13,17 @@ async def create_thies_daily_statistics_file(
 ) -> None:
     csv_client = FilesClient(FilesClientInitArgs(client_name="csv_client"))
     filename = datetime_to_str(today(), date_format="%Y%m%d") + ".BIN"
-    logger.debug(f"[thies_synchronization_lib] Creating Daily Statistics for {filename}")
+    logger.debug(
+        f"[thies_synchronization_lib] Creating Daily Statistics for {filename}"
+    )
     path_bin_av = os_client.join_paths(local_backup_path, "thies", "AVG", filename)
-    path_ini_av = os_client.join_paths(local_backup_path, "thies", "AVG", "DESCFILE.INI")
+    path_ini_av = os_client.join_paths(
+        local_backup_path, "thies", "AVG", "DESCFILE.INI"
+    )
     path_bin_ex = os_client.join_paths(local_backup_path, "thies", "EXT", filename)
-    path_ini_ex = os_client.join_paths(local_backup_path, "thies", "EXT", "DESCFILE.INI")
+    path_ini_ex = os_client.join_paths(
+        local_backup_path, "thies", "EXT", "DESCFILE.INI"
+    )
 
     ext_df = THIESDayData("ex")
     await to_thread(ext_df.read_binfile, path_bin_ex, path_ini_ex)
@@ -65,13 +71,13 @@ async def create_thies_daily_statistics_file(
                 pass
             elif pd.isna(mean) and not (pd.isna(min_val) or pd.isna(max_val)):
                 mean = (min_val + max_val) / 2
-            else: 
+            else:
                 val_notna = [x for x in {mean, min_val, max_val} if not pd.isna(x)]
                 if len(val_notna) >= 1:
                     mean_val = sum(val_notna) / len(val_notna)
                     mean = max_val = min_val = mean_val
                 else:
-                    continue # Do not consider a row with null data
+                    continue  # Do not consider a row with null data
 
             # Normalize if the mean is upper than maxval or lower than minval
             if (mean < min_val or mean > max_val) and col not in ["WD"]:
