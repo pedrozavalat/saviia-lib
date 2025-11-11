@@ -38,7 +38,9 @@ from saviialib.services.backup.utils.upload_backup_to_sharepoint_utils import (
     count_files_in_directory,
     parse_execute_response,
     show_upload_result,
+    get_pending_files_for_folder,
 )
+from saviialib.libs.zero_dependency.utils.booleans_utils import boolean_to_emoji
 
 from .types.upload_backup_to_sharepoint_types import (
     UploadBackupToSharepointUseCaseInput,
@@ -88,53 +90,90 @@ class UploadBackupToSharepointUsecase:
         grouped = {}
         if len(folder_names) == 0:
             raise BackupEmptyError
+
+        async def walk_directory(base_folder: str) -> List[str]:
+            """Recursivelty collect file paths relative to base folder"""
+            all_files = []
+            entries = await self.dir_client.listdir(base_folder)
+            if ".PASS.txt" in entries:
+                return []
+            for entry in entries:
+                full_path = self.dir_client.join_paths(base_folder, entry)
+                if await self.dir_client.isdir(full_path):
+                    sub_entries = await self.dir_client.listdir(full_path)
+                    if ".PASS.txt" in sub_entries:
+                        continue
+                    sub_files = await walk_directory(full_path)
+                    all_files.extend(sub_files)
+                else:
+                    rel_path = self.dir_client.relative_path(
+                        full_path, self.local_backup_source_path
+                    )
+                    all_files.append(rel_path)
+            return all_files
+
         for folder_name in folder_names:
-            is_folder = await self.dir_client.isdir(
-                self.dir_client.join_paths(self.local_backup_source_path, folder_name)
+            folder_path = self.dir_client.join_paths(
+                self.local_backup_source_path, folder_name
             )
-            if not is_folder:
+            if not await self.dir_client.isdir(folder_path):
                 continue
-            grouped[folder_name] = await self.dir_client.listdir(
-                self.dir_client.join_paths(self.local_backup_source_path, folder_name)
-            )
-            grouped[folder_name] = set(grouped[folder_name])
+            entries = await self.dir_client.listdir(folder_path)
+            if ".PASS.txt" in entries:
+                grouped[folder_name] = set()
+                continue
+
+            all_files = await walk_directory(folder_path)
+            grouped[folder_name] = set(all_files)
         return grouped
 
     async def _create_or_update_infofile(self):
-        """Function that creates or update the information JSON file, which contains status flags
-        for each directory."""
+        """Creates or updates .infofile.json with pass/reset flags for each directory."""
         self.log_client.method_name = "_create_or_update_infofile"
+        self.log_client.info(
+            InfoArgs(LogStatus.STARTED, metadata={"msg": "Creating .infofile.json"})
+        )
         infofile_path = self.dir_client.join_paths(
             self.local_backup_source_path, ".infofile.json"
-        )  # type: ignore
+        )
         infofile_exists = await self.dir_client.path_exists(infofile_path)
+
         if infofile_exists:
             self.log_client.debug(
-                DebugArgs(LogStatus.ALERT, metadata={"msg": "Creating .infofile.json"})
+                DebugArgs(LogStatus.ALERT, metadata={"msg": "Updating .infofile.json"})
             )
             self.infofile = await self.files_client.read(
                 ReadArgs(file_path=infofile_path, mode="json")
             )  # type: ignore
-        else:
-            self.log_client.debug(
-                DebugArgs(LogStatus.ALERT, metadata={"msg": "Updating .infofile.json"})
+            return
+
+        for folder, files in self.grouped_files_by_folder.items():
+            should_pass = len(files) == 0
+            should_reset = any(
+                f.endswith(".RESET.txt") or "/.RESET.txt" in f for f in files
             )
-            for folder, files in self.grouped_files_by_folder.items():  # type: ignore
-                should_pass = (
-                    True
-                    if len(list(filter(lambda f: f == ".PASS.txt", files))) > 0
-                    else False
+            self.infofile[folder] = {
+                "pass": should_pass,
+                "reset": should_reset,
+                "failed": [],
+            }
+        self.log_client.info(
+            InfoArgs(
+                LogStatus.SUCCESSFUL, metadata={"msg": "Infofile created succesfully"}
+            )
+        )
+        for dir in self.infofile:
+            self.log_client.debug(
+                DebugArgs(
+                    LogStatus.ALERT,
+                    metadata={
+                        "msg": (
+                            f"{dir}: Pass {boolean_to_emoji(self.infofile[dir]['pass'])} "  # type: ignore
+                            f"Reset {boolean_to_emoji(self.infofile[dir]['reset'])}"  # type: ignore
+                        )
+                    },
                 )
-                should_reset = (
-                    True
-                    if len(list(filter(lambda f: f == ".RESET.txt", files))) > 0
-                    else False
-                )
-                self.infofile[folder] = {  # type: ignore
-                    "pass": should_pass,
-                    "reset": should_reset,
-                    "failed": [],
-                }
+            )
 
     async def prepare_backup(self):
         self.log_client.method_name = "prepare_backup"
@@ -195,9 +234,11 @@ class UploadBackupToSharepointUsecase:
                         folder_relative_url=complete_destination_path + "/" + folder
                     )
                 )
-            self.grouped_files_by_folder[folder] = set(
-                self.grouped_files_by_folder[folder]
-            ) - {".PASS.txt", ".RESET.txt"}  # type: ignore
+            self.grouped_files_by_folder[folder] = {  # type: ignore
+                f
+                for f in self.grouped_files_by_folder[folder]
+                if not f.endswith(".PASS.txt") and not f.endswith(".RESET.txt")
+            }
         self.sharepoint_destination_path = complete_destination_path
 
         self.log_client.debug(
@@ -239,20 +280,12 @@ class UploadBackupToSharepointUsecase:
                 )
             )
             async with self.sharepoint_client:
-                files = await self.sharepoint_client.list_files(
-                    SpListFilesArgs(
-                        self.sharepoint_destination_path + "/" + folder_name
-                    )
-                )
-                sharepoint_files = {x["Name"] for x in files["value"]}  # type: ignore
-                failed_files = set(self.infofile[folder_name]["failed"])  # type: ignore
-                pending_files = local_files.difference(sharepoint_files)
-                pending_files = pending_files.union(failed_files)
-                summary_msg = (
-                    f"Sharepoint Files: {len(sharepoint_files)}. "
-                    f"Local Files: {len(local_files)}. "
-                    f"Failed files: {len(failed_files)}. "
-                    f"Pending Files: {len(pending_files)}. "
+                pending_files, summary_msg = await get_pending_files_for_folder(
+                    self.sharepoint_client,
+                    self.dir_client,
+                    self.sharepoint_destination_path,
+                    local_files,
+                    set(self.infofile[folder_name]["failed"]),  # type: ignore
                 )
                 self.log_client.debug(
                     DebugArgs(
@@ -260,9 +293,13 @@ class UploadBackupToSharepointUsecase:
                         metadata={"msg": summary_msg},
                     )
                 )
-
                 # Update the files to upload
-                self.grouped_files_by_folder[folder_name] = list(pending_files)  # type: ignore
+                self.grouped_files_by_folder[folder_name] = [
+                    f
+                    for f in local_files
+                    if self.dir_client.get_basename(f) in pending_files
+                ]
+
                 if len(pending_files) == 0:
                     self.log_client.debug(
                         DebugArgs(
@@ -296,9 +333,7 @@ class UploadBackupToSharepointUsecase:
             )
         )
         # Retrieve the content from the file in the local directory
-        file_path = self.dir_client.join_paths(
-            self.local_backup_source_path, folder_name, file_name
-        )
+        file_path = self.dir_client.join_paths(self.local_backup_source_path, file_name)
         file_content = await self.files_client.read(ReadArgs(file_path, mode="rb"))
         # Upload the local file to Sharepoint directory
         uploaded, error_message = None, ""
@@ -318,19 +353,29 @@ class UploadBackupToSharepointUsecase:
             raise SharepointClientError(error)
         async with sharepoint_client:
             try:
-                folder_url = f"{self.sharepoint_destination_path}/{folder_name}"
-                args = SpUploadFileArgs(
-                    folder_relative_url=folder_url,
-                    file_content=file_content,  # type: ignore
-                    file_name=file_name,
+                relative_folder = "/".join(file_name.split("/")[:-1])
+                folder_url = (
+                    f"{self.sharepoint_destination_path}/{relative_folder}"
+                    if relative_folder
+                    else self.sharepoint_destination_path
                 )
-                await sharepoint_client.upload_file(args)
+                await sharepoint_client.create_folder(
+                    SpCreateFolderArgs(folder_relative_url=folder_url)
+                )
+
+                await sharepoint_client.upload_file(
+                    SpUploadFileArgs(
+                        folder_relative_url=folder_url,
+                        file_content=file_content,  # type: ignore
+                        file_name=self.dir_client.get_basename(file_name),
+                    )
+                )
                 uploaded = True
                 # Remove the file from the source directory if RESET is true
                 should_reset = self.infofile[folder_name]["reset"]  # type: ignore
                 if should_reset:
                     source_file_path = self.dir_client.join_paths(
-                        self.local_backup_source_path, folder_name, file_name
+                        self.local_backup_source_path, file_name
                     )
                     await self.dir_client.remove_file(source_file_path)
                     self.log_client.debug(
@@ -345,6 +390,12 @@ class UploadBackupToSharepointUsecase:
                 error_message = str(error)
                 uploaded = False
                 # Add the file to failed failes
+                self.log_client.debug(
+                    DebugArgs(
+                        LogStatus.ALERT,
+                        metadata={"msg": f"{file_name} could not be uploaded 🚨"},
+                    )
+                )
                 self.infofile[folder_name]["failed"].append(file_name)  # type: ignore
         self.log_client.debug(
             DebugArgs(
@@ -404,6 +455,10 @@ class UploadBackupToSharepointUsecase:
                     file_content=self.infofile,  # type: ignore
                     mode="json",
                 )
+            )
+            await self._save_log_history()
+            raise BackupUploadError(
+                reason="Not all the files have been uploaded successfully."
             )
         else:
             end_time = time()
