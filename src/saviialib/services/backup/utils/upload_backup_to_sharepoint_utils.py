@@ -89,6 +89,7 @@ def extract_folders_from_files(files: set[str]) -> set[str]:
                 folders.add("/".join(parts[:i]))
     return folders
 
+
 async def save_file(files_client, file_name, file_content, mode):
     await files_client.write(
         WriteArgs(

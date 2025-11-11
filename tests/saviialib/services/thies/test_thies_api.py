@@ -51,7 +51,7 @@ class TestEpiiAPIUpdateThiesData(unittest.IsolatedAsyncioTestCase):
         response = await self.thies_service.update_thies_data(
             sharepoint_folders_path=self.sharepoint_folders_path,
             ftp_server_folders_path=self.ftp_server_folders_path,
-            local_backup_source_path=self.local_backup_source_path
+            local_backup_source_path=self.local_backup_source_path,
         )
 
         # Assert
