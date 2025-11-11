@@ -13,6 +13,7 @@ class UpdateThiesDataUseCaseInput:
     sharepoint_config: SharepointConfig
     sharepoint_folders_path: List
     ftp_server_folders_path: List
+    local_backup_source_path: str
     logger: Logger
 
 
