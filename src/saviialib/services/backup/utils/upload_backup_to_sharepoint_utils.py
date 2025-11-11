@@ -7,6 +7,9 @@ from saviialib.libs.directory_client import DirectoryClient, DirectoryClientArgs
 from saviialib.libs.sharepoint_client import (
     SpListFilesArgs,
 )
+from saviialib.libs.files_client import (
+    WriteArgs,
+)
 
 dir_client = DirectoryClient(DirectoryClientArgs(client_name="os_client"))
 
@@ -85,3 +88,12 @@ def extract_folders_from_files(files: set[str]) -> set[str]:
             for i in range(1, len(parts)):
                 folders.add("/".join(parts[:i]))
     return folders
+
+async def save_file(files_client, file_name, file_content, mode):
+    await files_client.write(
+        WriteArgs(
+            file_name=file_name,
+            file_content=file_content,  # type: ignore
+            mode=mode,
+        )
+    )

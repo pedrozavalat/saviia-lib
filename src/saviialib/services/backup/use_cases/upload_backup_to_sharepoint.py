@@ -39,6 +39,7 @@ from saviialib.services.backup.utils.upload_backup_to_sharepoint_utils import (
     parse_execute_response,
     show_upload_result,
     get_pending_files_for_folder,
+    save_file,
 )
 from saviialib.libs.zero_dependency.utils.booleans_utils import boolean_to_emoji
 
@@ -152,7 +153,7 @@ class UploadBackupToSharepointUsecase:
             should_reset = any(
                 f.endswith(".RESET.txt") or "/.RESET.txt" in f for f in files
             )
-            self.infofile[folder] = {
+            self.infofile[folder] = { # type: ignore
                 "pass": should_pass,
                 "reset": should_reset,
                 "failed": [],
@@ -412,14 +413,6 @@ class UploadBackupToSharepointUsecase:
             "error_message": error_message,
         }
 
-    async def _save_log_history(self) -> None:
-        await self.files_client.write(
-            WriteArgs(
-                file_name="BACKUP_LOG_HISTORY.log",
-                file_content="\n".join(self.log_client.log_history),
-                mode="w",
-            )
-        )
 
     async def execute(self):
         """Exports all files from the local backup folder to SharePoint cloud."""
@@ -449,14 +442,8 @@ class UploadBackupToSharepointUsecase:
                 )
             )
             # Save any failed files for exporting in the next migration
-            await self.files_client.write(
-                WriteArgs(
-                    file_name=".infofile.json",
-                    file_content=self.infofile,  # type: ignore
-                    mode="json",
-                )
-            )
-            await self._save_log_history()
+            await save_file(self.files_client, ".infofile.json", self.infofile, "json")
+            await save_file(self.files_client, "BACKUP_LOG_HISTORY.log", "\n".join(self.log_client.log_history), "w")
             raise BackupUploadError(
                 reason="Not all the files have been uploaded successfully."
             )
@@ -474,6 +461,7 @@ class UploadBackupToSharepointUsecase:
                         )
                     },
                 )
-            )
-            await self._save_log_history()
+            ) 
+            await save_file(self.files_client, ".infofile.json", self.infofile, "json")
+            await save_file(self.files_client, "BACKUP_LOG_HISTORY.log", "\n".join(self.log_client.log_history), "w")
             return parse_execute_response(results)  # type: ignore
