@@ -258,8 +258,6 @@ class UpdateThiesDataUseCase:
                     filename,
                 )
                 return
-        if not await self.os_client.path_exists("thies_daily_statistics.tsv"):
-            await self.os_client.makedirs("thies_daily_statistics.tsv")
         await create_thies_daily_statistics_file(
             self.local_backup_path, self.os_client, self.logger
         )
