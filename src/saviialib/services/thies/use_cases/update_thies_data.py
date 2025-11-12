@@ -258,6 +258,8 @@ class UpdateThiesDataUseCase:
                     filename,
                 )
                 return
+        if not await self.os_client.path_exists("thies_daily_statistics.tsv"):
+            await self.os_client.makedirs("thies_daily_statistics.tsv")
         await create_thies_daily_statistics_file(
             self.local_backup_path, self.os_client, self.logger
         )
@@ -363,7 +365,7 @@ class UpdateThiesDataUseCase:
         try:
             cloud_files = await self.fetch_cloud_file_names()
         except RuntimeError as error:
-            raise SharepointClient(error)  # type: ignore
+            raise SharepointClientError(error)  # type: ignore
         self.logger.debug(
             "[thies_synchronization_lib] Total files fetched from Sharepoint: %s",
             str(len(cloud_files)),
