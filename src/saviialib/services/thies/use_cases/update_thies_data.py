@@ -75,7 +75,7 @@ class UpdateThiesDataUseCase:
     def _initialize_thies_ftp_client(self, config: FtpClientConfig) -> FTPClient:
         """Initialize the FTP client."""
         try:
-            return FTPClient(FtpClientInitArgs(config, client_name="aioftp_client"))
+            return FTPClient(FtpClientInitArgs(config, client_name="ftplib_client"))
         except RuntimeError as error:
             raise FtpClientError(error)
 
