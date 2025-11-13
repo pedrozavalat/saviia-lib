@@ -82,6 +82,13 @@ async def create_thies_daily_statistics_file(
             # Normalize if the mean is upper than maxval or lower than minval
             if (mean < min_val or mean > max_val) and col not in ["WD"]:
                 mean = (min_val + max_val) / 2
+            
+            # Filter battery values if they are out of the range 
+            if col_id == "battery":
+                values = [mean, max_val, min_val]
+                if any(v < 0 or v > 50 for v in values):
+                    continue
+                
 
             if col in ["WD"]:  # Avoid error
                 rows.append(
