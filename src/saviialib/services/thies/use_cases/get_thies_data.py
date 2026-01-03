@@ -26,6 +26,7 @@ from saviialib.libs.log_client import (
     LogStatus,
     DebugArgs,
     ErrorArgs,
+    WarningArgs
 )
 
 from saviialib.libs.files_client import (
@@ -63,6 +64,7 @@ class GetThiesDataUseCase:
 
         self.local_backup_path = input.local_backup_path
         self.sharepoint_base_url = f"/sites/{self.sharepoint_client.site_name}"
+        self.sync_error = False
         self.uploading = set()
 
     async def _fetch_local_backup_files(self) -> Dict[str, int | Set[str]]:
@@ -101,23 +103,21 @@ class GetThiesDataUseCase:
 
     async def _fetch_cloud_total_files(self) -> Set[str]:
         """Fetch file names from the RCER cloud."""
-        try:
-            cloud_files = set()
-            sharepoint_base_url = self.dir_client.join_paths(self.local_backup_path, 'thies')
-            async with self.sharepoint_client:
-                for folder_name in {"AVG", "EXT"}:
-                    relative_url = f"{sharepoint_base_url}/{folder_name}"
-                    args = SpListFilesArgs(folder_relative_url=relative_url)
-                    response = await self.sharepoint_client.list_files(args)
-                    cloud_files.update(
-                        {
-                            (f"{folder_name}_{item['Name']}", int(item["Length"]))
-                            for item in response["value"]  # type: ignore
-                        }  # type: ignore
-                    )
-            return cloud_files
-        except Exception as error:
-            raise SharePointFetchingError(reason=error)
+        cloud_files = set()
+        sharepoint_base_url = self.dir_client.join_paths(self.local_backup_path, 'thies')
+        async with self.sharepoint_client:
+            for folder_name in {"AVG", "EXT"}:
+                relative_url = f"{sharepoint_base_url}/{folder_name}"
+                args = SpListFilesArgs(folder_relative_url=relative_url)
+                response = await self.sharepoint_client.list_files(args)
+                cloud_files.update(
+                    {
+                        (f"{folder_name}_{item['Name']}", int(item["Length"]))
+                        for item in response["value"]  # type: ignore
+                    }  # type: ignore
+                )
+        return cloud_files
+      
 
     async def _fetch_thies_total_files(self) -> Set[str]:
         """Fetch file names from the THIES FTP server."""
@@ -156,15 +156,16 @@ class GetThiesDataUseCase:
             need_to_backup = True
         need_to_backup = True if len(unbacked_files) > 0 else False
         # Check out whether it should consider a new synchronisation
-        for f_from_thies, f_size_from_thies in thies_files_dict.items():
-            # If is in thies but not in cloud, then upload it
-            if f_from_thies not in cloud_files_dict:
-                unsynchronised_files.add(f_from_thies)
-            else:
-                # If the file is in both services, but the size is different, then upload it
-                f_size_from_cloud = cloud_files_dict[f_from_thies]
-                if f_size_from_thies != f_size_from_cloud:
+        if not self.sync_error:
+            for f_from_thies, f_size_from_thies in thies_files_dict.items():
+                # If is in thies but not in cloud, then upload it
+                if f_from_thies not in cloud_files_dict:
                     unsynchronised_files.add(f_from_thies)
+                else:
+                    # If the file is in both services, but the size is different, then upload it
+                    f_size_from_cloud = cloud_files_dict[f_from_thies]
+                    if f_size_from_thies != f_size_from_cloud:
+                        unsynchronised_files.add(f_from_thies)
         need_to_sync = True if len(unsynchronised_files) > 0 else False
         self.logger.debug(
             DebugArgs(
@@ -214,11 +215,12 @@ class GetThiesDataUseCase:
             raise FtpClientError(error)
         try:
             cloud_files = await self._fetch_cloud_total_files()
-        except RuntimeError as error:
-            self.logger.error(
-                ErrorArgs(status=LogStatus.ERROR, metadata={"msg": error.__str__()})
+        except (RuntimeError, ConnectionError) as error:
+            self.sync_error = True
+            self.logger.warning(
+                WarningArgs(status=LogStatus.FAILED, metadata={"msg": error.__str__()})
             )
-            raise SharepointClientError(error)
+            # raise SharepointClientError(error)
         validation = self._validate_pending_files(
             thies_files, cloud_files, backup_files
         )
