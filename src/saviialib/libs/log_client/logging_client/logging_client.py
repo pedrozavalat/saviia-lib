@@ -33,26 +33,26 @@ class LoggingClient(LogClientContract):
         if self.active_record:
             self._save_to_history(args.metadata)
         return logging.info(
-            format_message(self.class_name, self.method_name, args.status)
+            format_message(self.class_name, self.method_name, args.status, args.metadata)
         )
 
     def error(self, args: ErrorArgs) -> None:
         if self.active_record:
             self._save_to_history(args.metadata)
         return logging.error(
-            format_message(self.class_name, self.method_name, args.status)
+            format_message(self.class_name, self.method_name, args.status, args.metadata)
         )
 
     def debug(self, args: DebugArgs) -> None:
         if self.active_record:
             self._save_to_history(args.metadata)
         return logging.debug(
-            format_message(self.class_name, self.method_name, args.status)
+            format_message(self.class_name, self.method_name, args.status, args.metadata)
         )
 
     def warning(self, args: WarningArgs) -> None:
         if self.active_record:
             self._save_to_history(args.metadata)
         return logging.warning(
-            format_message(self.class_name, self.method_name, args.status)
+            format_message(self.class_name, self.method_name, args.status, args.metadata)
         )
