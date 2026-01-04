@@ -111,3 +111,12 @@ class ShakesNoContentError(Exception):
 
     def __str__(self):
         return "All the miniSEED files have been downloaded and are in the local directory."
+
+
+class ValidationError(Exception):
+    def __init__(self, *args: object, errors: dict) -> None:
+        super().__init__(*args)
+        self.errors = errors
+    
+    def __str__(self) -> str:
+        return f"Unexpected error while during JSON Validation: {self.errors}"

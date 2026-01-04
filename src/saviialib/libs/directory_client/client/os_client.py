@@ -43,6 +43,11 @@ class OsClient(DirectoryClientContract):
             await asyncio.to_thread(os.remove, path)
 
     @staticmethod
+    async def removedirs(path: str) -> None:
+        if await OsClient.path_exists(path):
+            await asyncio.to_thread(os.removedirs, path)
+
+    @staticmethod
     async def walk(path: str):
         return await asyncio.to_thread(os.walk, path)
 

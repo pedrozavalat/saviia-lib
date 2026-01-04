@@ -10,7 +10,7 @@ from saviialib.libs.files_client.types.files_client_types import (
     WriteArgs,
 )
 import json
-
+import base64
 
 class AioFilesClient(FilesClientContract):
     def __init__(self, args: FilesClientInitArgs):
@@ -34,10 +34,18 @@ class AioFilesClient(FilesClientContract):
             if args.destination_path
             else args.file_name
         )
+        # For JSON files
         if args.mode == "json":
             async with aiofiles.open(file_path, "w", encoding="utf-8") as file:
                 json_str = json.dumps(args.file_content, ensure_ascii=False, indent=2)
                 await file.write(json_str)
+            return
+        # For image files
+        elif args.mode in ["png", "jpeg"]: 
+            base64_string = args.file_content
+            img_bytes = base64.b64decode(base64_string) # type: ignore
+            async with aiofiles.open(file_path, "wb") as file:
+                await file.write(img_bytes)
             return
 
         async with aiofiles.open(file_path, args.mode) as file:
