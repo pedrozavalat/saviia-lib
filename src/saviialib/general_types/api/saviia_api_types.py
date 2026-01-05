@@ -17,6 +17,7 @@ class SaviiaAPIConfig:
         sharepoint_tenant_id (str): Tenant ID for SharePoint authentication.
         sharepoint_tenant_name (str): Tenant name for SharePoint.
         sharepoint_site_name (str): Site name in SharePoint.
+        notification_client_api_key (str): API Key for Notification Client (Discord)
     """
 
     ftp_host: str

@@ -147,3 +147,6 @@ thies-daily-files/
 thies_daily_statistics.tsv
 media
 shakes-mseed-files/
+saviia-local-backup/
+.infofile.json
+infofile.json
