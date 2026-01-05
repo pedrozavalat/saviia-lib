@@ -104,7 +104,7 @@ To interact with the Task System services, you can access the `tasks` attribute 
 ```python
 tasks_service = api_client.get('tasks')
 ```
-This instance provides methods to manage tasks in specified channels.
+This instance provides methods to manage tasks in specified channels. Note that this service requires an existing bot to be set up in the Discord server to function properly.
 
 For using the Tasks Services, you need to provide an additional parameter `notification_client_api_key` in the `SaviiaAPIConfig` configuration class:
 
