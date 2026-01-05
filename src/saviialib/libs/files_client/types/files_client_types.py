@@ -28,5 +28,5 @@ class ReadArgs:
 class WriteArgs:
     file_name: str
     file_content: Union[str, bytes, List[Dict]]
-    mode: Literal["w", "wb", "a", "json"]
+    mode: Literal["w", "wb", "a", "json", "png", "jpeg"]
     destination_path: str = ""

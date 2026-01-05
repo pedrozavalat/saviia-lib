@@ -30,6 +30,9 @@ class DirectoryClient(DirectoryClientContract):
 
     async def makedirs(self, path: str) -> None:
         return await self.client_obj.makedirs(path)
+    
+    async def removedirs(self, path: str) -> None:
+        return await self.client_obj.removedirs(path)
 
     async def remove_file(self, path: str) -> None:
         return await self.client_obj.remove_file(path)

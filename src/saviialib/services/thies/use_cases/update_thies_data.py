@@ -75,7 +75,7 @@ class UpdateThiesDataUseCase:
     def _initialize_thies_ftp_client(self, config: FtpClientConfig) -> FTPClient:
         """Initialize the FTP client."""
         try:
-            return FTPClient(FtpClientInitArgs(config, client_name="ftplib_client"))
+            return FTPClient(FtpClientInitArgs(config, client_name="aioftp_client"))
         except RuntimeError as error:
             raise FtpClientError(error)
 
@@ -362,7 +362,7 @@ class UpdateThiesDataUseCase:
         )
         try:
             cloud_files = await self.fetch_cloud_file_names()
-        except RuntimeError as error:
+        except (RuntimeError, ConnectionError) as error:
             raise SharepointClientError(error)  # type: ignore
         self.logger.debug(
             "[thies_synchronization_lib] Total files fetched from Sharepoint: %s",
