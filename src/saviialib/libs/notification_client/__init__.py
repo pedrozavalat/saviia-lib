@@ -3,7 +3,9 @@ from .types.notification_client_types import (
     NotificationClientInitArgs,
     ReactArgs,
     NotifyArgs,
-    ListNotificationArgs,
+    FindNotificationArgs,
+    UpdateNotificationArgs,
+    DeleteReactionArgs
 )
 
 __all__ = [
@@ -11,5 +13,8 @@ __all__ = [
     "NotificationClientInitArgs",
     "ReactArgs",
     "NotifyArgs",
-    "ListNotificationArgs",
+    "FindNotificationArgs",
+    "UpdateNotificationArgs",
+    "DeleteReactionArgs"
+    
 ]

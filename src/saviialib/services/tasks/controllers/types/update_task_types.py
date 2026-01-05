@@ -4,14 +4,15 @@ from saviialib.general_types.api.saviia_tasks_api_types import SaviiaTasksConfig
 
 
 @dataclass
-class CreateTaskControllerInput:
+class UpdateTaskControllerInput:
     config: SaviiaTasksConfig
     task: dict
     channel_id: str
+    completed: bool = False
 
 
 @dataclass
-class CreateTaskControllerOutput:
+class UpdateTaskControllerOutput:
     message: str
     status: int
     metadata: Dict[str, str] = field(default_factory=dict)

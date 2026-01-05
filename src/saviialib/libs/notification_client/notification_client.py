@@ -1,11 +1,15 @@
 from typing import Dict, List
 
-from saviialib.libs.notification_client.types.notification_client_types import ReactArgs
+from saviialib.libs.notification_client.types.notification_client_types import (
+    FindNotificationArgs,
+    ReactArgs,
+)
 from .notification_client_contract import NotificationClientContract
 from .types.notification_client_types import (
     NotifyArgs,
     NotificationClientInitArgs,
-    ListNotificationArgs,
+    UpdateNotificationArgs,
+    DeleteReactionArgs
 )
 from .clients.discord_client import DiscordClient
 
@@ -21,19 +25,26 @@ class NotificationClient(NotificationClientContract):
             self.client_obj = DiscordClient(args)
         self.client_name = args.client_name
 
-    async def __aenter__(self):
-        return await self.client_obj.__aenter__()
+    async def connect(self) -> None:
+        return await self.client_obj.connect()
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await self.client_obj.__aexit__(exc_type, exc_val, exc_tb)
+    async def close(self) -> None:
+        return await self.client_obj.close()
 
     async def notify(self, args: NotifyArgs) -> dict:
         return await self.client_obj.notify(args)
 
-    async def list_notifications(
-        self, args: ListNotificationArgs
-    ) -> List[Dict[str, str | int]]:
-        return await self.client_obj.list_notifications(args)
+    async def list_notifications(self) -> List[Dict[str, str | int]]:
+        return await self.client_obj.list_notifications()
 
-    async def react(self, args: ReactArgs) -> None:
+    async def react(self, args: ReactArgs) -> dict:
         return await self.client_obj.react(args)
+
+    async def find_notification(self, args: FindNotificationArgs) -> dict:
+        return await self.client_obj.find_notification(args)
+
+    async def update_notification(self, args: UpdateNotificationArgs) -> dict:
+        return await self.client_obj.update_notification(args)
+
+    async def delete_reaction(self, args: DeleteReactionArgs) -> dict:
+        return await self.client_obj.delete_reaction(args)

@@ -3,6 +3,7 @@ from saviialib.general_types.api.saviia_tasks_api_types import (
 )
 from typing import Dict, Any
 from .controllers.create_task import CreateTaskController, CreateTaskControllerInput
+from .controllers.update_task import UpdateTaskController, UpdateTaskControllerInput
 
 
 class SaviiaTasksAPI:
@@ -14,6 +15,15 @@ class SaviiaTasksAPI:
     ) -> Dict[str, Any]:
         controller = CreateTaskController(
             CreateTaskControllerInput(self.config, task=task, channel_id=channel_id)
+        )
+        response = await controller.execute()
+        return response.__dict__
+
+    async def update_task(
+        self, channel_id: str, task: Dict[str, Any], completed: bool = False
+    ) -> Dict[str, Any]:
+        controller = UpdateTaskController(
+            UpdateTaskControllerInput(self.config, task, channel_id, completed)
         )
         response = await controller.execute()
         return response.__dict__

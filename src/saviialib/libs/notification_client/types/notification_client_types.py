@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass
@@ -12,6 +12,7 @@ class NotificationClientInitArgs:
 class ListNotificationArgs:
     pass
 
+
 @dataclass
 class NotifyArgs:
     content: str
@@ -21,5 +22,23 @@ class NotifyArgs:
 
 @dataclass
 class ReactArgs:
+    notification_id: str
+    emoji: str
+
+
+@dataclass
+class FindNotificationArgs:
+    content: str
+    reactions: list = field(default_factory=list)
+
+
+@dataclass
+class UpdateNotificationArgs:
+    notification_title: str
+    new_content: str
+
+
+@dataclass
+class DeleteReactionArgs:
     notification_id: str
     emoji: str

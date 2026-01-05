@@ -4,14 +4,15 @@ from saviialib.libs.notification_client import NotificationClient
 
 
 @dataclass
-class CreateTaskUseCaseInput:
+class UpdateTaskUseCaseInput:
     task: SaviiaTask
     notification_client: NotificationClient
 
 
 @dataclass
-class CreateTaskUseCaseOutput:
-    content: str
-    description: str
+class UpdateTaskUseCaseOutput:
+    content: str 
+    description: str 
     priority: int
     due_date: str
+    completed: bool

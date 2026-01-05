@@ -1,6 +1,6 @@
-CREATE_TASK_SCHEMA = {
-    "title": "Controller input schema for creating a task",
-    "description": "Schema for validating input data when creating a task in Saviia",
+UPDATE_TASK_SCHEMA = {
+    "title": "Controller input schema for updating a task",
+    "description": "Schema for validating input data when updating a task in Saviia",
     "type": "object",
     "properties": {
         "task": {
@@ -31,7 +31,6 @@ CREATE_TASK_SCHEMA = {
                         "required": ["name", "type", "data"],
                         "additionalProperties": False,
                     },
-                    "maxItems": 10,
                 },
             },
             "required": [
@@ -54,6 +53,10 @@ CREATE_TASK_SCHEMA = {
         },
         "channel_id": {
             "type": "string",
+        },
+        "completed": {
+            "type": "boolean",
+            "default": False,
         },
     },
     "required": ["task", "config", "channel_id"],
