@@ -172,14 +172,14 @@ class DiscordClient(NotificationClientContract):
                 )
             new_notification = await self.session.post(url, data=form)  # type: ignore
             new_notification.raise_for_status()
-            new_notification_json = await new_notification.json()
-            # Supress embeds
-            nid = new_notification_json["id"]
-            url += f"/{nid}"
-            notification_updated = await self.session.patch(url, json={"flags": 4}) # type: ignore
-            notification_updated.raise_for_status()
             self.logger.debug(DebugArgs(LogStatus.SUCCESSFUL))
-            return await notification_updated.json()
+            return await new_notification.json()
+            # Supress embeds
+            # nid = new_notification_json["id"]
+            # url += f"/{nid}"
+            # notification_updated = await self.session.patch(url, json={"flags": 4}) # type: ignore
+            # notification_updated.raise_for_status()
+            # return await notification_updated.json()
         except ClientError as error:
             self.logger.debug(
                 DebugArgs(LogStatus.ALERT, metadata={"error": str(error)})

@@ -79,7 +79,7 @@ class SaviiaAPI:
 
             self._instances[name] = api_class(service_config)
 
-    def get(self, name: Literal["thies", "backup"]) -> Any:
+    def get(self, name: Literal["thies", "backup", "tasks"]) -> Any:
         """Returns the API instance associated with the given name."""
         try:
             return self._instances[name]

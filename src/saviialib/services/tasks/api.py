@@ -2,8 +2,14 @@ from saviialib.general_types.api.saviia_tasks_api_types import (
     SaviiaTasksConfig,
 )
 from typing import Dict, Any
-from .controllers.create_task import CreateTaskController, CreateTaskControllerInput
-from .controllers.update_task import UpdateTaskController, UpdateTaskControllerInput
+from .controllers import (
+    CreateTaskController,
+    CreateTaskControllerInput,
+    GetTasksController,
+    GetTasksControllerInput,
+    UpdateTaskController,
+    UpdateTaskControllerInput,
+)
 
 
 class SaviiaTasksAPI:
@@ -25,5 +31,12 @@ class SaviiaTasksAPI:
         controller = UpdateTaskController(
             UpdateTaskControllerInput(self.config, task, channel_id, completed)
         )
+        response = await controller.execute()
+        return response.__dict__
+
+    async def get_tasks(self, channel_id: str, params: dict = {}) -> Dict[str, Any]:
+        controller = GetTasksController(GetTasksControllerInput(
+            self.config, channel_id, params
+        ))
         response = await controller.execute()
         return response.__dict__
