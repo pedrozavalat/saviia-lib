@@ -79,9 +79,17 @@ class UploadBackupToSharepointController:
                 status=HTTPStatus.BAD_REQUEST.value,
                 metadata={"error": error.__str__()},
             )
+
         except BackupEmptyError as error:
             return UploadBackupToSharepointControllerOutput(
                 message="Each folder in the backup folder is empty. Check out again",
                 status=HTTPStatus.EXPECTATION_FAILED.value,
+                metadata={"error": error.__str__()},
+            )
+
+        except ConnectionError as error:
+            return UploadBackupToSharepointControllerOutput(
+                message="An unexpected error ocurred during connection with SharePoint Client",
+                status=HTTPStatus.INTERNAL_SERVER_ERROR.value,
                 metadata={"error": error.__str__()},
             )
