@@ -34,7 +34,7 @@ class NotificationClient(NotificationClientContract):
     async def notify(self, args: NotifyArgs) -> dict:
         return await self.client_obj.notify(args)
 
-    async def list_notifications(self) -> List[Dict[str, str | int]]:
+    async def list_notifications(self) -> List[Dict[str, str]]:
         return await self.client_obj.list_notifications()
 
     async def react(self, args: ReactArgs) -> dict:

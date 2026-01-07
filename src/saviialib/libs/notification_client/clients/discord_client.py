@@ -58,7 +58,7 @@ class DiscordClient(NotificationClientContract):
             await self.session.close()
             self.session = None
 
-    async def list_notifications(self) -> List[Dict[str, str | int]]:
+    async def list_notifications(self) -> List[Dict[str, str]]:
         self.logger.method_name = "list_notifications"
         self.logger.debug(DebugArgs(LogStatus.STARTED))
         try:
@@ -86,7 +86,7 @@ class DiscordClient(NotificationClientContract):
             notifications = await self.list_notifications()
             matches = []
             for notification in notifications:
-                if re.search(args.content, notification["content"]):  # type: ignore
+                if args.content in notification["content"]:  
                     reactions = notification.get("reactions", [])
                     if not args.reactions:
                         matches.append(notification)

@@ -56,7 +56,7 @@ class CreateTaskUseCase:
         if exists:
             self.log_client.debug(DebugArgs(LogStatus.ALERT))
             raise ExistingNotificationError(
-                reason="A task with the same name already exists in the notification channel."
+                reason=f"A task with the name '{self.task.name}' already exists."
             )
 
         # Create new task at #created-tasks in discord
