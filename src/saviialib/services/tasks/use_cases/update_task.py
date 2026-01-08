@@ -14,18 +14,13 @@ class UpdateTaskUseCase:
             LogClientArgs(service_name="tasks", class_name="update_tasks")
         )
         self.notification_client = input.notification_client
-        self.task = input.task
+        self.calendar_client = input.calendar_client
         self.presenter = TaskNotificationPresenter()
 
     async def execute(self) -> UpdateTaskUseCaseOutput:
         self.logger.method_name = "execute"
         self.logger.debug(DebugArgs(LogStatus.STARTED))
-        new_content = self.presenter.to_markdown(self.task)
-        task = await self.notification_client.update_notification(
-            UpdateNotificationArgs(
-                notification_title=self.task.name, new_content=new_content
-            )
-        )
+        
         if self.task.completed:
             await self.notification_client.react(ReactArgs(task["id"], "✅"))
             await self.notification_client.delete_reaction(

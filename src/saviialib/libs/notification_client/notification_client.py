@@ -1,7 +1,8 @@
 from typing import Dict, List
 
 from saviialib.libs.notification_client.types.notification_client_types import (
-    FindNotificationArgs,
+    FindNotificationByContentArgs,
+    FindNotificationById,
     ReactArgs,
 )
 from .notification_client_contract import NotificationClientContract
@@ -40,8 +41,11 @@ class NotificationClient(NotificationClientContract):
     async def react(self, args: ReactArgs) -> dict:
         return await self.client_obj.react(args)
 
-    async def find_notification(self, args: FindNotificationArgs) -> dict:
-        return await self.client_obj.find_notification(args)
+    async def find_notification_by_content(self, args: FindNotificationByContentArgs) -> dict:
+        return await self.client_obj.find_notification_by_content(args)
+    
+    async def find_notification_by_id(self, args: FindNotificationById) -> Dict:
+        return await self.client_obj.find_notification_by_id(args)
 
     async def update_notification(self, args: UpdateNotificationArgs) -> dict:
         return await self.client_obj.update_notification(args)

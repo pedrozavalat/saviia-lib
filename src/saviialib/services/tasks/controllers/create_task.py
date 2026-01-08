@@ -18,6 +18,7 @@ from saviialib.libs.notification_client import (
     NotificationClient,
     NotificationClientInitArgs,
 )
+from saviialib.libs.calendar_client import CalendarClient, CalendarClientInitArgs
 
 
 class CreateTaskController:
@@ -30,21 +31,29 @@ class CreateTaskController:
                 channel_id=self.input.channel_id,
             )
         )
+        self.calendar_client = CalendarClient(
+            CalendarClientInitArgs(
+                client_name="todoist_client",
+                api_key=input.config.calendar_client_api_key,
+            )
+        )
 
     async def _connect_clients(self) -> None:
         await self.notification_client.connect()
+        await self.calendar_client.connect()
 
     async def _close_clients(self) -> None:
         await self.notification_client.close()
+        await self.calendar_client.close()
 
     async def execute(self) -> CreateTaskControllerOutput:
         try:
-            # SchemaValidatorClient(schema=CREATE_TASK_SCHEMA).validate(self.input.task)
             SchemaValidatorClient(schema=CREATE_TASK_SCHEMA).validate(
                 {
                     "task": self.input.task,
                     "config": {
-                        "notification_client_api_key": self.input.config.notification_client_api_key
+                        "notification_client_api_key": self.input.config.notification_client_api_key,
+                        "calendar_client_api_key": self.input.config.calendar_client_api_key,
                     },
                     "channel_id": self.input.channel_id,
                 }
@@ -55,14 +64,15 @@ class CreateTaskController:
                 CreateTaskUseCaseInput(
                     task=SaviiaTask(
                         name=self.input.task["name"],
-                        description=self.input.task["description"],
                         due_date=self.input.task["due_date"],
                         priority=self.input.task["priority"],
-                        assignee=self.input.task["assignee"],
-                        category=self.input.task["category"],
+                        description=self.input.task.get("description", ""),
+                        assignee=self.input.task.get("assignee", ""),
+                        category=self.input.task.get("category", ""),
                         images=self.input.task.get("images", []),
                     ),
                     notification_client=self.notification_client,
+                    calendar_client=self.calendar_client
                 )
             )
             output = await use_case.execute()

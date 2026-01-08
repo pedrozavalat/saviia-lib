@@ -6,9 +6,7 @@ from saviialib.general_types.api.saviia_tasks_api_types import SaviiaTasksConfig
 @dataclass
 class UpdateTaskControllerInput:
     config: SaviiaTasksConfig
-    task: dict
     channel_id: str
-    completed: bool = False
 
 
 @dataclass

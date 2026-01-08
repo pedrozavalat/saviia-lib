@@ -36,11 +36,8 @@ CREATE_TASK_SCHEMA = {
             },
             "required": [
                 "name",
-                "description",
                 "due_date",
                 "priority",
-                "assignee",
-                "category",
             ],
             "additionalProperties": False,
         },
@@ -48,8 +45,9 @@ CREATE_TASK_SCHEMA = {
             "type": "object",
             "properties": {
                 "notification_client_api_key": {"type": "string"},
+                "calendar_client_api_key": {"type": "string"},
             },
-            "required": ["notification_client_api_key"],
+            "required": ["notification_client_api_key", "calendar_client_api_key"],
             "additionalProperties": False,
         },
         "channel_id": {

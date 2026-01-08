@@ -3,6 +3,7 @@ from saviialib.libs.zero_dependency.utils.datetime_utils import (
     is_within_date_range,
     str_to_timestamp,
 )
+from typing import Optional
 
 
 class TaskNotificationPresenter:
@@ -13,21 +14,24 @@ class TaskNotificationPresenter:
         return cls.PRIORITY_LABELS[priority - 1]
 
     @classmethod
-    def _format_content(cls, content: str) -> dict[str, str]:
+    def _format_content(cls, content: str) -> dict[str, str]: # TODO: add eid and did
         return {
             "title": content.split("\n")[0].replace("#", "").strip(),
             "priority": content.split("\n")[1].split("|")[0].replace(">", "").strip(),
             "category": content.split("\n")[1].split("|")[1].strip(),
+            "eid": content.split("\n")[1].split("|")[2].replace("ID:", "").strip().split("-")[0],
+            "did": content.split("\n")[1].split("|")[2].replace("ID:", "").strip().split("-")[1],
             "description": content.split("\n")[2].split(":")[1].strip(),
             "due_date": content.split("\n")[3].split(":")[1].strip(),
             "assignee": content.split("\n")[4].split(":")[1].strip(),
         }
 
     @classmethod
-    def to_markdown(cls, task: SaviiaTask) -> str:
+    def to_markdown(cls, task: SaviiaTask, task_id: Optional[str] = None) -> str:
+
         return (
             f"## {task.name}\n"
-            f"> {cls._format_priority(task.priority)}\t|\t{task.category}\n"
+            f"> {cls._format_priority(task.priority)}\t|\t{task.category}\t|\t_ID: {task_id}_\t|\n"
             f"* __Descripcion__: {task.description}\n"
             f"* __Fecha de realización__: {task.due_date}\n"
             f"* __Persona asignada__: {task.assignee}\n"

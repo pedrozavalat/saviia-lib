@@ -26,17 +26,18 @@ class SaviiaTasksAPI:
         return response.__dict__
 
     async def update_task(
-        self, channel_id: str, task: Dict[str, Any], completed: bool = False
+        self,
+        channel_id: str,
     ) -> Dict[str, Any]:
         controller = UpdateTaskController(
-            UpdateTaskControllerInput(self.config, task, channel_id, completed)
+            UpdateTaskControllerInput(self.config, channel_id)
         )
         response = await controller.execute()
         return response.__dict__
 
     async def get_tasks(self, channel_id: str, params: dict = {}) -> Dict[str, Any]:
-        controller = GetTasksController(GetTasksControllerInput(
-            self.config, channel_id, params
-        ))
+        controller = GetTasksController(
+            GetTasksControllerInput(self.config, channel_id, params)
+        )
         response = await controller.execute()
         return response.__dict__

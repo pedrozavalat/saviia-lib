@@ -3,7 +3,8 @@ from typing import List, Dict
 from .types.notification_client_types import (
     NotifyArgs,
     ReactArgs,
-    FindNotificationArgs,
+    FindNotificationByContentArgs,
+    FindNotificationById,
     UpdateNotificationArgs,
     DeleteReactionArgs
 )
@@ -23,7 +24,11 @@ class NotificationClientContract(ABC):
         pass
 
     @abstractmethod
-    async def find_notification(self, args: FindNotificationArgs) -> dict:
+    async def find_notification_by_content(self, args: FindNotificationByContentArgs) -> dict:
+        pass
+    
+    @abstractmethod
+    async def find_notification_by_id(self, args: FindNotificationById) -> dict:
         pass
 
     @abstractmethod

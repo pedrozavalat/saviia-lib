@@ -27,14 +27,19 @@ class ReactArgs:
 
 
 @dataclass
-class FindNotificationArgs:
+class FindNotificationByContentArgs:
     content: str
     reactions: list = field(default_factory=list)
 
 
 @dataclass
+class FindNotificationById:
+    notification_id: str
+
+
+@dataclass
 class UpdateNotificationArgs:
-    notification_title: str
+    notification_id: str
     new_content: str
 
 

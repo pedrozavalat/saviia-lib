@@ -7,7 +7,8 @@ from saviialib.libs.notification_client.types.notification_client_types import (
     NotifyArgs,
     NotificationClientInitArgs,
     ReactArgs,
-    FindNotificationArgs,
+    FindNotificationByContentArgs,
+    FindNotificationById,
     DeleteReactionArgs,
 )
 from saviialib.libs.directory_client import DirectoryClient, DirectoryClientArgs
@@ -17,7 +18,6 @@ from aiohttp import ClientError, ClientSession, TCPConnector, FormData
 import ssl
 import certifi
 import json
-import re
 
 ssl_context = ssl.create_default_context(cafile=certifi.where())
 
@@ -41,7 +41,6 @@ class DiscordClient(NotificationClientContract):
 
         headers = {
             "Authorization": f"Bot {self.api_key}",
-            
         }
         if self.api_key is None:
             raise ConnectionError("API key is not set")
@@ -73,20 +72,22 @@ class DiscordClient(NotificationClientContract):
             )
             raise ConnectionError(error)
 
-    async def find_notification(self, args: FindNotificationArgs) -> dict:
+    async def find_notification_by_content(
+        self, args: FindNotificationByContentArgs
+    ) -> dict:
         """Returns the first notification that matches the content and reactions criteria.
 
-        :param args: FindNotificationArgs
+        :param args: FindNotificationByContentArgs
         :return: JSON dict of the found notification or empty dict if none found
         :rtype: dict
         """
-        self.logger.method_name = "find_notification"
+        self.logger.method_name = "find_notification_by_content"
         self.logger.debug(DebugArgs(LogStatus.STARTED))
         try:
             notifications = await self.list_notifications()
             matches = []
             for notification in notifications:
-                if args.content in notification["content"]:  
+                if args.content in notification["content"]:
                     reactions = notification.get("reactions", [])
                     if not args.reactions:
                         matches.append(notification)
@@ -105,20 +106,40 @@ class DiscordClient(NotificationClientContract):
             )
             raise ConnectionError(error)
 
+    async def find_notification_by_id(self, args: FindNotificationById) -> dict:
+        """Returns the first notification that matches with the provided ID
+
+        :param args: FindNotificationById
+        :return: JSON dict of the found notification or empty dict if none found
+        :rtype: dict
+        """
+        self.logger.method_name = "find_notification_by_id"
+        self.logger.debug(DebugArgs(LogStatus.STARTED))
+        try:
+            url = f"/api/v10/channels/{self.channel_id}/messages/{args.notification_id}"
+            response = await self.session.get(url)  # type: ignore
+            response.raise_for_status()
+            self.logger.debug(DebugArgs(LogStatus.SUCCESSFUL))
+            return await response.json()
+        except ClientError as error:
+            self.logger.debug(
+                DebugArgs(LogStatus.ALERT, metadata={"error": str(error)})
+            )
+            raise ConnectionError(error)
+
     async def update_notification(self, args: UpdateNotificationArgs) -> dict:
         self.logger.method_name = "update_notification"
         self.logger.debug(DebugArgs(LogStatus.STARTED))
         try:
-            notification = await self.find_notification(
-                FindNotificationArgs(content=args.notification_title)
+            notification = await self.find_notification_by_id( 
+                FindNotificationById(notification_id=args.notification_id)
             )
             if not notification:
                 raise ClientError(
-                    f"Notification with content '{args.notification_title}' doesn't exist."
+                    f"Notification with ID '{args.notification_id}' doesn't exist."
                 )
 
-            nid = notification["id"]
-            url = f"/api/v10/channels/{self.channel_id}/messages/{nid}"
+            url = f"/api/v10/channels/{self.channel_id}/messages/{args.notification_id}"
             payload = {"content": args.new_content}
             response = await self.session.patch(url, json=payload)  # type: ignore
             response.raise_for_status()
