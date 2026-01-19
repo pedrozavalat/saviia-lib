@@ -1,6 +1,9 @@
 from dataclasses import dataclass, field
 from typing import Dict, List
-from saviialib.general_types.api.saviia_api_types import FtpClientConfig, SharepointConfig
+from saviialib.general_types.api.saviia_api_types import (
+    FtpClientConfig,
+    SharepointConfig,
+)
 from logging import Logger
 
 
@@ -10,6 +13,7 @@ class UpdateThiesDataUseCaseInput:
     sharepoint_config: SharepointConfig
     sharepoint_folders_path: List
     ftp_server_folders_path: List
+    local_backup_source_path: str
     logger: Logger
 
 

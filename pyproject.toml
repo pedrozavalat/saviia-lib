@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "saviialib"
-version = "1.4.0"
+version = "1.8.2"
 description = "A client library for IoT projects in the RCER initiative"
 authors = ["pedropablozavalat"]
 license = "MIT"
@@ -14,13 +14,17 @@ aiofiles = "*"
 dotenv = "^0.9.9"
 build="*"
 numpy = ">=2.2.0,<2.4.0"
-pandas = ">=2.2.3,<2.3.1"
+pandas = ">=2.2.3"
 bitarray="*"
 certifi="*"
+ffmpeg-asyncio="0.1.3"
+asyncssh="2.21.1"
+jsonschema="4.25.1"
+
 
 [tool.poetry.group.dev.dependencies]
-pytest = "8.3.5"
-pytest-asyncio = "1.2.0"
+pytest = "8.4.2"
+pytest-asyncio = "0.26.0"
 black = "*"
 coverage = "*"
 flake8 = "*"

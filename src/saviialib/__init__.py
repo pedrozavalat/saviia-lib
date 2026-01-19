@@ -7,22 +7,31 @@ from .general_types.api.saviia_api_types import SaviiaAPIConfig
 
 from typing import Dict, Type, Any, overload, Literal, List
 
-from saviialib.services.backup.api import SaviiaBackupAPI
-from saviialib.services.thies.api import SaviiaThiesAPI
-from saviialib.general_types.api.saviia_thies_api_types import SaviiaThiesConfig
-from saviialib.general_types.api.saviia_backup_api_types import SaviiaBackupConfig
+from saviialib.services import (
+    SaviiaThiesConfig,
+    SaviiaThiesAPI,
+    SaviiaBackupAPI,
+    SaviiaBackupConfig,
+    SaviiaTasksAPI,
+    SaviiaTasksConfig,
+)
+
+__all__ = ["SaviiaAPI", "SaviiaAPIConfig"]
 
 
 class SaviiaAPI:
     API_REGISTRY: Dict[str, Type] = {
         "thies": SaviiaThiesAPI,
         "backup": SaviiaBackupAPI,
+        "tasks": SaviiaTasksAPI,
     }
 
     @overload
     def get(self, name: Literal["thies"]) -> SaviiaThiesAPI: ...
     @overload
     def get(self, name: Literal["backup"]) -> SaviiaBackupAPI: ...
+    @overload
+    def get(self, name: Literal["tasks"]) -> SaviiaTasksAPI: ...
 
     def __init__(self, config: SaviiaAPIConfig):
         """
@@ -34,7 +43,8 @@ class SaviiaAPI:
         Example:
             configs = {
                 "thies": SaviiaThiesConfig(...),
-                "backup": SaviiaBackupConfig(...)
+                "backup": SaviiaBackupConfig(...),
+                "tasks": SaviiaTasksConfig(...),
             }
         """
         self._instances: Dict[str, Any] = {}
@@ -62,10 +72,14 @@ class SaviiaAPI:
                     sharepoint_site_name=config.sharepoint_site_name,
                     logger=config.logger,
                 )
+            elif name == "tasks":
+                service_config = SaviiaTasksConfig(
+                    notification_client_api_key=config.notification_client_api_key, 
+                )
 
             self._instances[name] = api_class(service_config)
 
-    def get(self, name: Literal["thies", "backup"]) -> Any:
+    def get(self, name: Literal["thies", "backup", "tasks"]) -> Any:
         """Returns the API instance associated with the given name."""
         try:
             return self._instances[name]

@@ -103,3 +103,28 @@ class BackupEmptyError(Exception):
 
     def __str__(self):
         return "The local backup folder is empty. "
+
+
+class ShakesNoContentError(Exception):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+    def __str__(self):
+        return "All the miniSEED files have been downloaded and are in the local directory."
+
+
+class ValidationError(Exception):
+    def __init__(self, *args: object, reason: str) -> None:
+        super().__init__(*args)
+        self.reason = reason
+    
+    def __str__(self) -> str:
+        return f"Unexpected error while during JSON Validation: {self.reason}"
+    
+class ExistingNotificationError(Exception):
+    def __init__(self, *args: object, reason: str) -> None:
+        super().__init__(*args)
+        self.reason = reason
+    
+    def __str__(self) -> str:
+        return f"Notification already exists: {self.reason}"

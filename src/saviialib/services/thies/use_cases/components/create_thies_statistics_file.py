@@ -1,84 +1,29 @@
 from .thies_bp import THIESDayData
-from typing import List
+import pandas as pd
 from logging import Logger
 from asyncio import to_thread
 from saviialib.libs.directory_client import DirectoryClient
 from saviialib.libs.zero_dependency.utils.datetime_utils import datetime_to_str, today
 from saviialib.libs.files_client import FilesClient, FilesClientInitArgs, WriteArgs
-
-
-AVG_COLUMNS = {
-    "Date": "date",
-    "Time": "time",
-    "AirTemperature": "air_temperature",
-    "Radiation": "radiation",
-    "CO2": "carbon_dioxide",
-    "Precipitation": "precipitation",
-    "WS": "wind_velocity",
-    "WD": "wind_direction",
-    "Humidity": "humidity",
-}
-
-EXT_COLUMNS = {
-    "Date": "date",
-    "Time": "time",
-    "AirTemperature MIN": "air_temperature",
-    "AirTemperature MAX": "air_temperature",
-    "Radiation MIN": "radiation",
-    "Radiation MAX": "radiation",
-    "CO2 MIN": "carbon_dioxide",
-    "CO2 MAX": "carbon_dioxide",
-    "WS MIN": "wind_velocity",
-    "WS MAX gust": "wind_velocity",
-    "WD MIN": "wind_direction",
-    "WD MAX gust": "wind_direction",
-    "Humidity MIN": "humidity",
-    "Humidity MAX": "humidity",
-}
-
-AGG_DICT = {
-    "AirTemperature": "mean",
-    "AirTemperature MIN": "mean",
-    "AirTemperature MAX": "mean",
-    "Precipitation": "sum",
-    "Humidity": "mean",
-    "Humidity MIN": "mean",
-    "Humidity MAX": "mean",
-    "Radiation": "sum",
-    "Radiation MIN": "sum",
-    "Radiation MAX": "sum",
-    "CO2": "sum",
-    "CO2 MIN": "sum",
-    "CO2 MAX": "sum",
-    "WS": "mean",
-    "WS MIN": "mean",
-    "WS MAX gust": "mean",
-    "WD": "mean",
-    "WD MIN": "mean",
-    "WD MAX gust": "mean",
-}
-
-UNITS = {
-    "AirTemperature": "°C",
-    "Precipitation": "mm",
-    "Humidity": "%",
-    "Radiation": "W/m2",
-    "CO2": "ppm",
-    "WS": "m/s",
-    "WD": "°",
-}
+import saviialib.services.thies.constants.update_thies_data_constants as c
 
 
 async def create_thies_daily_statistics_file(
-    os_client: DirectoryClient, logger: Logger
+    local_backup_path: str, os_client: DirectoryClient, logger: Logger
 ) -> None:
-    logger.debug("[thies_synchronization_lib] Creating Daily Statistics ...")
     csv_client = FilesClient(FilesClientInitArgs(client_name="csv_client"))
     filename = datetime_to_str(today(), date_format="%Y%m%d") + ".BIN"
-    path_bin_av = os_client.join_paths("thies-daily-files", "ARCH_AV1", filename)
-    path_ini_av = os_client.join_paths("thies-daily-files", "ARCH_AV1", "DESCFILE.INI")
-    path_bin_ex = os_client.join_paths("thies-daily-files", "ARCH_EX1", filename)
-    path_ini_ex = os_client.join_paths("thies-daily-files", "ARCH_EX1", "DESCFILE.INI")
+    logger.debug(
+        f"[thies_synchronization_lib] Creating Daily Statistics for {filename}"
+    )
+    path_bin_av = os_client.join_paths(local_backup_path, "thies", "AVG", filename)
+    path_ini_av = os_client.join_paths(
+        local_backup_path, "thies", "AVG", "DESCFILE.INI"
+    )
+    path_bin_ex = os_client.join_paths(local_backup_path, "thies", "EXT", filename)
+    path_ini_ex = os_client.join_paths(
+        local_backup_path, "thies", "EXT", "DESCFILE.INI"
+    )
 
     ext_df = THIESDayData("ex")
     await to_thread(ext_df.read_binfile, path_bin_ex, path_ini_ex)
@@ -86,8 +31,8 @@ async def create_thies_daily_statistics_file(
     avg_df = THIESDayData("av")
     await to_thread(avg_df.read_binfile, path_bin_av, path_ini_av)
 
-    ext_df = ext_df.dataDF[EXT_COLUMNS.keys()]
-    avg_df = avg_df.dataDF[AVG_COLUMNS.keys()]
+    ext_df = ext_df.dataDF[c.EXT_COLUMNS.keys()]
+    avg_df = avg_df.dataDF[c.AVG_COLUMNS.keys()]
 
     # Merge both dataframes
     df = avg_df.merge(ext_df, on=["Date", "Time"], how="outer")
@@ -98,11 +43,11 @@ async def create_thies_daily_statistics_file(
     df["Hour"] = df["Time"].str[:2]
 
     # Group by hour.
-    hourly_agg = df.groupby(["Date", "Hour"]).agg(AGG_DICT).reset_index()
+    hourly_agg = df.groupby(["Date", "Hour"]).agg(c.AGG_DICT).reset_index()
 
     rows = []
     # For each attribute in avg_columns (except Date, Time)
-    for col, col_id in AVG_COLUMNS.items():
+    for col, col_id in c.AVG_COLUMNS.items():
         if col in ["Date", "Time"]:
             continue
         # Determine the corresponding min/max columns if they exist
@@ -112,29 +57,38 @@ async def create_thies_daily_statistics_file(
         if col in ["WS", "WD"]:
             max_col += " gust"
 
-        unit = UNITS.get(col, "")
+        unit = c.UNITS.get(col, "")
 
         for idx, row in hourly_agg.iterrows():
             statistic_id = f"sensor.saviia_epii_{col_id}"
             start = f"{row['Date']} {row['Hour']}:00"
             mean = row[mean_col] if mean_col in row else 0
-            min_val = row[min_col] if min_col in row else 0
-            max_val = row[max_col] if max_col in row else 0
+            min_val = row[min_col] if min_col in row else mean
+            max_val = row[max_col] if max_col in row else mean
 
-            # If no min/max for this attribute is 0
-            if min_col not in row:
-                min_val = 0
-            if max_col not in row:
-                max_val = 0
-
-            if (mean < min_val or mean > max_val) and col not in ["WD"]:
-                logger.warning(
-                    f"[thies_synchronization_lib] Inconsistent data for {col}: "
-                    f"min {min_val}, max {max_val}, mean {mean}. "
-                )
+            # If no min/max for this attribute, set as Na or 0 as requested
+            if not (pd.isna(mean) or pd.isna(min_val) or pd.isna(max_val)):
+                pass
+            elif pd.isna(mean) and not (pd.isna(min_val) or pd.isna(max_val)):
                 mean = (min_val + max_val) / 2
-                logger.warning(
-                    f"[thies_synchronization_lib] Mean value corrected to {mean}.")
+            else:
+                val_notna = [x for x in {mean, min_val, max_val} if not pd.isna(x)]
+                if len(val_notna) >= 1:
+                    mean_val = sum(val_notna) / len(val_notna)
+                    mean = max_val = min_val = mean_val
+                else:
+                    continue  # Do not consider a row with null data
+
+            # Normalize if the mean is upper than maxval or lower than minval
+            if (mean < min_val or mean > max_val) and col not in ["WD"]:
+                mean = (min_val + max_val) / 2
+            
+            # Filter battery values if they are out of the range 
+            if col_id == "battery":
+                values = [mean, max_val, min_val]
+                if any(v < 0 or v > 50 for v in values):
+                    continue
+                
 
             if col in ["WD"]:  # Avoid error
                 rows.append(
@@ -159,8 +113,7 @@ async def create_thies_daily_statistics_file(
                     }
                 )
 
-    logger.debug("[thies_synchronization_lib] Saving file in /config folder ...")
-    logger.debug(rows[0].keys())
+    logger.debug("[thies_synchronization_lib] Saving file in the main directory")
     await csv_client.write(
         WriteArgs(file_name="thies_daily_statistics.tsv", file_content=rows, mode="w")
     )

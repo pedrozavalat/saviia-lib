@@ -28,6 +28,7 @@ class TestEpiiAPIUpdateThiesData(unittest.IsolatedAsyncioTestCase):
             "ftp/thies/BINFILES/ARCH_AV1",
             "ftp/thies/BINFILES/ARCH_EX1",
         ]
+        self.local_backup_source_path = "saviia-lib-backup"
         self.thies_service = SaviiaAPI(self.config).get("thies")
 
     @patch("saviialib.services.thies.api.UpdateThiesDataController")
@@ -50,6 +51,7 @@ class TestEpiiAPIUpdateThiesData(unittest.IsolatedAsyncioTestCase):
         response = await self.thies_service.update_thies_data(
             sharepoint_folders_path=self.sharepoint_folders_path,
             ftp_server_folders_path=self.ftp_server_folders_path,
+            local_backup_source_path=self.local_backup_source_path,
         )
 
         # Assert
