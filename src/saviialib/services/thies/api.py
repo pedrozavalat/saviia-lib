@@ -12,23 +12,30 @@ class SaviiaThiesAPI:
         self.config = config
 
     async def update_thies_data(
-        self, sharepoint_folders_path: List[str], ftp_server_folders_path: List[str]
+        self,
+        sharepoint_folders_path: List[str],
+        ftp_server_folders_path: List[str],
+        local_backup_source_path: str,
     ) -> Dict[str, Any]:
         """Updates data from a THIES Data Logger by connecting to an FTP server
         and transferring data to specified Sharepoint folders.
 
-        Args:
-            sharepoint_folders_path (list): List of Sharepoint folder paths for AVG and EXT data.
+        :param list sharepoint_folders_path: List of Sharepoint folder paths for AVG and EXT data.
             The AVG path must be the first element.
-            ftp_server_folders_path (list): List of FTP server folder paths for AVG and EXT data.
+        :param list ftp_server_folders_path: List of FTP server folder paths for AVG and EXT data.
             The AVG path must be the first element.
+        :param str local_backup_source_path: Path of the main directory where the files extracted from
+            the Thies FTP Server are going to be stored
 
-        Returns:
-            dict: A dictionary representation of the API response.
+        :return: A dictionary representation of the API response.
+        :rtype: dict
         """
         controller = UpdateThiesDataController(
             UpdateThiesDataControllerInput(
-                self.config, sharepoint_folders_path, ftp_server_folders_path
+                self.config,
+                sharepoint_folders_path,
+                ftp_server_folders_path,
+                local_backup_source_path,
             )
         )
         response = await controller.execute()

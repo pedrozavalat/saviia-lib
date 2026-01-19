@@ -20,7 +20,7 @@ class ReadArgs:
     """
 
     file_path: str
-    mode: Literal["r", "rb"]
+    mode: Literal["r", "rb", "json"]
     encoding: str = "utf-8"
 
 
@@ -28,5 +28,5 @@ class ReadArgs:
 class WriteArgs:
     file_name: str
     file_content: Union[str, bytes, List[Dict]]
-    mode: Literal["w", "wb", "a"]
+    mode: Literal["w", "wb", "a", "json", "png", "jpeg"]
     destination_path: str = ""
