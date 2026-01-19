@@ -40,6 +40,7 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
             "ftp/thies/BINFILES/ARCH_AV1",
             "ftp/thies/BINFILES/ARCH_EX1",
         ]
+        self.local_backup_source_path = "saviia-local-backup"
 
     @patch(
         "saviialib.services.thies.controllers.update_thies_data.UpdateThiesDataUseCase"
@@ -50,7 +51,10 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
 
         controller = UpdateThiesDataController(
             UpdateThiesDataControllerInput(
-                self.config, self.sharepoint_folders_path, self.ftp_server_folders_path
+                self.config,
+                self.sharepoint_folders_path,
+                self.ftp_server_folders_path,
+                self.local_backup_source_path,
             )
         )
 
@@ -69,7 +73,10 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
 
         controller = UpdateThiesDataController(
             UpdateThiesDataControllerInput(
-                self.config, self.sharepoint_folders_path, self.ftp_server_folders_path
+                self.config,
+                self.sharepoint_folders_path,
+                self.ftp_server_folders_path,
+                self.local_backup_source_path,
             )
         )
 
@@ -88,7 +95,10 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
 
         controller = UpdateThiesDataController(
             UpdateThiesDataControllerInput(
-                self.config, self.sharepoint_folders_path, self.ftp_server_folders_path
+                self.config,
+                self.sharepoint_folders_path,
+                self.ftp_server_folders_path,
+                self.local_backup_source_path,
             )
         )
 
@@ -109,7 +119,10 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
 
         controller = UpdateThiesDataController(
             UpdateThiesDataControllerInput(
-                self.config, self.sharepoint_folders_path, self.ftp_server_folders_path
+                self.config,
+                self.sharepoint_folders_path,
+                self.ftp_server_folders_path,
+                self.local_backup_source_path,
             )
         )
 
@@ -130,7 +143,10 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
 
         controller = UpdateThiesDataController(
             UpdateThiesDataControllerInput(
-                self.config, self.sharepoint_folders_path, self.ftp_server_folders_path
+                self.config,
+                self.sharepoint_folders_path,
+                self.ftp_server_folders_path,
+                self.local_backup_source_path,
             )
         )
 
@@ -148,7 +164,10 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
 
         controller = UpdateThiesDataController(
             UpdateThiesDataControllerInput(
-                self.config, self.sharepoint_folders_path, self.ftp_server_folders_path
+                self.config,
+                self.sharepoint_folders_path,
+                self.ftp_server_folders_path,
+                self.local_backup_source_path,
             )
         )
 
