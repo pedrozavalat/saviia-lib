@@ -12,10 +12,9 @@
             - [THIES files extraction and synchronization](#thies-files-extraction-and-synchronization)
         - [Access Backup Services](#access-backup-services)
             - [Create Backup](#create-backup)
-        - [Access Task System Services](#access-task-system-services)
-            - [Create Task](#create-task)
-            - [Update Task](#update-task)
-            - [Get Tasks](#get-tasks)
+        - [Access Netcamera Services](#access-netcamera-services)
+            - [Get Camera Rates](#get-camera-rates)
+
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -98,98 +97,47 @@ asyncio.run(main())
 - Ensure that the `local_backup_path` exists and contains the files you want to back up. It is a relative path from the Home Assistant configuration directory.
 - The `sharepoint_folder_path` should be the path to the folder in SharePoint where you want to upload the backup files. For example, if your url is `https://yourtenant.sharepoint.com/sites/yoursite/Shared Documents/Backups`, the folder path would be `sites/yoursite/Shared Documents/Backups`.
 
+### Access Netcamera Services
+The Netcamera service provides camera capture rate configuration based on meteorological data such as precipitation and precipitation probability.
 
-### Access Task System Services
-To interact with the Task System services, you can access the `tasks` attribute of the `SaviiaAPI` instance:
-```python
-tasks_service = api_client.get('tasks')
+This service uses the Weather Client library, currently implemented with OpenMeteo, and is designed to be extensible for future weather providers.
+
+```python 
+netcamera_service = api_client.get("netcamera")
 ```
-This instance provides methods to manage tasks in specified channels. Note that this service requires an existing bot to be set up in the Discord server to function properly.
-
-For using the Tasks Services, you need to provide an additional parameter `notification_client_api_key` in the `SaviiaAPIConfig` configuration class:
-
-```python
-config = SaviiaAPIConfig(
-    ... 
-    notification_client_api_key=NOTIFICATION_CLIENT_API_KEY
-)
-```
-
-#### Create Task
-Create a new task in a Discord channel with the following properties:
-```python
+#### Get Camera Rates
+Returns photo and video capture rates for a camera installed at a given geographic location.
+```python 
 import asyncio
 
 async def main():
-    response = await tasks_service.create_task(
-        channel_id=CHANNEL_ID,
-        task={
-            "name": "Task Title",
-            "description": "Task Description",
-            "due_date": "2024-12-31T23:59:59Z",
-            "priority": 1,
-            "assignee": "user_name",
-            "category": "work",
-            "images": [
-                {
-                    "name": "image.png",
-                    "type": "image/png",
-                    "data": "base64_encoded_data"
-                }
-            ]
-        }
-    )
-    return response
-
+    lat, lon = 10.511223, 20.123123
+    camera_rates = await netcamera_service.get_camera_rates(latitude=lat, longitude=lon)
+    return camera_rates
 asyncio.run(main())
 ```
-**Notes:**
-- `name`, `description`, `due_date`, `priority`, `assignee`, and `category` are required.
-- `images` is optional and accepts up to 10 images.
-- `due_date` must be in ISO 8601 format (datetime).
-- `priority` must be an integer between 1 and 4.
-
-#### Update Task
-Update an existing task or mark it as completed. The task will be reacted with ✅ if completed or 📌 if pending:
-```python
-import asyncio
-
-async def main():
-    response = await tasks_service.update_task(
-        channel_id=CHANNEL_ID,
-        task={"id": "task_id", "name": "Updated Title"},
-        completed=True
-    )
-    return response
-
-asyncio.run(main())
+Example output:
+```python 
+{
+    "status": "A",          # B or C
+    "photo_rate": number,   # in minutes
+    "video_rate": number    # in minutes
+}
 ```
+#### Description:
+* The capture rate is calculated using meteorological metrics:
+    * Precipitation
+    * Precipitation probability
+* The resulting configuration determines the camera capture frequency.
 
-#### Get Tasks
-Retrieve tasks from a Discord channel with optional filtering and sorting:
-```python
-import asyncio
+#### Status variable
+The status variable is classified based on weather conditions (currently, precipitation and precipitation probability) at the camera's location:
 
-async def main():
-    response = await tasks_service.get_tasks(
-        channel_id=CHANNEL_ID,
-        params={
-            "sort": "desc",
-            "completed": False,
-            "fields": ["title", "due_date", "priority"],
-            "after": 1000000,
-            "before": 2000000
-        }
-    )
-    return response
-
-asyncio.run(main())
-```
-**Notes:**
-- `sort`: Order results by `asc` or `desc`.
-- `completed`: Filter tasks by completion status.
-- `fields`: Specify which fields to include in the response. Must include `title` and `due_date`.
-- `after` and `before`: Filter tasks by timestamp ranges.
+| Status | 1 photo capture per | 1 video capture per |
+| --- | --- | --- |
+| A | 12 h | 12 h |
+| B | 30 min | 3 h |
+| C | 5 min | 1 h |
 
 ## Contributing
 If you're interested in contributing to this project, please follow the contributing guidelines. By contributing to this project, you agree to abide by its terms.
