@@ -196,7 +196,7 @@ class UploadBackupToSharepointUsecase:
             + "/"
             + UploadBackupToSharepointUsecase.LOCAL_BACKUP_NAME
         )
-        
+
         async with self.sharepoint_client:
             await self.sharepoint_client.create_folder(
                 SpCreateFolderArgs(folder_relative_url=complete_destination_path)
