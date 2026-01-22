@@ -142,6 +142,7 @@ dmypy.json
 .DS_Store
 
 src/dummy.py
+src/dummylib.py
 localBackup
 thies-daily-files/
 thies_daily_statistics.tsv

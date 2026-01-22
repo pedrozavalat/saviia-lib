@@ -14,6 +14,8 @@ from saviialib.services import (
     SaviiaBackupConfig,
     SaviiaTasksAPI,
     SaviiaTasksConfig,
+    SaviiaNetcameraAPI,
+    SaviiaNetcameraConfig,
 )
 
 __all__ = ["SaviiaAPI", "SaviiaAPIConfig"]
@@ -24,6 +26,7 @@ class SaviiaAPI:
         "thies": SaviiaThiesAPI,
         "backup": SaviiaBackupAPI,
         "tasks": SaviiaTasksAPI,
+        "netcamera": SaviiaNetcameraAPI,
     }
 
     @overload
@@ -32,6 +35,8 @@ class SaviiaAPI:
     def get(self, name: Literal["backup"]) -> SaviiaBackupAPI: ...
     @overload
     def get(self, name: Literal["tasks"]) -> SaviiaTasksAPI: ...
+    @overload
+    def get(self, name: Literal["netcamera"]) -> SaviiaNetcameraAPI: ...
 
     def __init__(self, config: SaviiaAPIConfig):
         """
@@ -45,6 +50,7 @@ class SaviiaAPI:
                 "thies": SaviiaThiesConfig(...),
                 "backup": SaviiaBackupConfig(...),
                 "tasks": SaviiaTasksConfig(...),
+                "netcamera": SaviiaNetcameraConfig(...),
             }
         """
         self._instances: Dict[str, Any] = {}
@@ -74,12 +80,16 @@ class SaviiaAPI:
                 )
             elif name == "tasks":
                 service_config = SaviiaTasksConfig(
-                    notification_client_api_key=config.notification_client_api_key, 
+                    notification_client_api_key=config.notification_client_api_key,
                 )
+            elif name == "netcamera":
+                service_config = (
+                    SaviiaNetcameraConfig()
+                )  # TODO: Open for future configs
 
             self._instances[name] = api_class(service_config)
 
-    def get(self, name: Literal["thies", "backup", "tasks"]) -> Any:
+    def get(self, name: Literal["thies", "backup", "tasks", "netcamera"]) -> Any:
         """Returns the API instance associated with the given name."""
         try:
             return self._instances[name]
