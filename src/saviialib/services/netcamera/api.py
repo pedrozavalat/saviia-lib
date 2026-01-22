@@ -1,30 +1,34 @@
-from .controllers.get_media_files import (
-    GetMediaFilesController,
-    GetMediaFilesControllerInput,
+from .controllers.get_camera_rates import (
+    GetCameraRatesController,
+    GetCameraRatesControllerInput,
 )
-from typing import Dict, Tuple, Any
+from typing import Dict, Any
 from saviialib.general_types.api.saviia_netcamera_api_types import SaviiaNetcameraConfig
 
 
-class NetcameraAPI:
-    """This class provides methods for interacting with network cameras and retrieving
-    files using streaming services."""
+class SaviiaNetcameraAPI:
+    """This class provides methods for interacting with network cameras"""
 
     def __init__(self, config: SaviiaNetcameraConfig):
         self.config = config
 
-    async def get_media_files(
-        self, cameras: Dict[str, Tuple[str, int]]
+    async def get_camera_rates(
+        self, latitude: float, longitude: float
     ) -> Dict[str, Any]:
-        """Retrieve media files from Network cameras.
+        """Returns the records a photos rates for any network camera installed at the station.
 
-        :param cameras: Dictionary where the key is the identifier of the camera, and the
-            value is a tuple wich contains the service IP address and port of connection.
-            Example: {'cam_01': ('192.168.1.10', 8080), ...}
-        :type cameras: dict
-        :return response: A dictionary containg information of the extraction operation.
-        :rtype: dict
+        The capturation is defined using meteorologic metrics from OpenMeteo Client,
+        and they are: precipitation and precipitation probability.
+
+        Args:
+            - latitude (float): The latitude of the station location.
+            - longitude (float): The longitude of the station location.
+
+        Returns:
+            dict: A dictionary containing the camera rates information.
         """
-        controller = GetMediaFilesController(GetMediaFilesControllerInput(cameras))
+        controller = GetCameraRatesController(
+            GetCameraRatesControllerInput(self.config, latitude, longitude)
+        )
         response = await controller.execute()
         return response.__dict__

@@ -24,6 +24,17 @@ def datetime_to_str(date: datetime, date_format: str = "%m/%d/%Y, %H:%M:%S") -> 
     """
     return date.strftime(date_format)
 
+def str_to_datetime(date: str, date_format: str = "%m/%d/%Y, %H:%M:%S") -> datetime:
+    """
+    Convert a string to a datetime object in the specified format.
+
+    :param date: The string to convert.
+    :param date_format: The format of the string.
+        Defaults to "%Y-%m-%dT%H:%M:%S".
+    :return: A datetime object.
+    """
+    return datetime.strptime(date, date_format)
+
 def str_to_timestamp(date: str, date_format: str = "%m/%d/%Y, %H:%M:%S", timezone: str = "America/Santiago") -> float:
     """
     Docstring para str_to_timestamp

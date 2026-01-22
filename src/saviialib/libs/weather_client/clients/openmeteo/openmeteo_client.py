@@ -81,17 +81,20 @@ class OpenmeteoClient(WeatherClientContract):
             params["timezone"] = self._timezone if self._timezone else "auto"
             res = await self.session.get(url=metric["source"], params=params)  # type: ignore
             resjson = await res.json()
+            self.logger.debug(DebugArgs(LogStatus.SUCCESSFUL))
             return {
-                metric_name: list(
-                    zip(resjson["hourly"]["time"], resjson["hourly"][metric["name"]])
-                ),
+                metric_name: {
+                    time: value
+                    for time, value in zip(resjson["hourly"]["time"], resjson["hourly"][metric["name"]])
+                },
                 "aggregations": {
-                    f"{metric['name']}_{aggr}": list(
-                        zip(
+                    f"{metric['name']}_{aggr}": {
+                        time: value
+                        for time, value in zip(
                             resjson["daily"]["time"],
                             resjson["daily"][f"{metric['name']}_{aggr}"],
                         )
-                    )
+                    }
                     for aggr in metric["aggr"]
                 }
                 if can_show_aggrs
