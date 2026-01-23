@@ -12,8 +12,6 @@ from saviialib.services import (
     SaviiaThiesAPI,
     SaviiaBackupAPI,
     SaviiaBackupConfig,
-    SaviiaTasksAPI,
-    SaviiaTasksConfig,
     SaviiaNetcameraAPI,
     SaviiaNetcameraConfig,
 )
@@ -25,7 +23,6 @@ class SaviiaAPI:
     API_REGISTRY: Dict[str, Type] = {
         "thies": SaviiaThiesAPI,
         "backup": SaviiaBackupAPI,
-        "tasks": SaviiaTasksAPI,
         "netcamera": SaviiaNetcameraAPI,
     }
 
@@ -33,8 +30,6 @@ class SaviiaAPI:
     def get(self, name: Literal["thies"]) -> SaviiaThiesAPI: ...
     @overload
     def get(self, name: Literal["backup"]) -> SaviiaBackupAPI: ...
-    @overload
-    def get(self, name: Literal["tasks"]) -> SaviiaTasksAPI: ...
     @overload
     def get(self, name: Literal["netcamera"]) -> SaviiaNetcameraAPI: ...
 
@@ -49,7 +44,6 @@ class SaviiaAPI:
             configs = {
                 "thies": SaviiaThiesConfig(...),
                 "backup": SaviiaBackupConfig(...),
-                "tasks": SaviiaTasksConfig(...),
                 "netcamera": SaviiaNetcameraConfig(...),
             }
         """
@@ -78,10 +72,6 @@ class SaviiaAPI:
                     sharepoint_site_name=config.sharepoint_site_name,
                     logger=config.logger,
                 )
-            elif name == "tasks":
-                service_config = SaviiaTasksConfig(
-                    notification_client_api_key=config.notification_client_api_key,
-                )
             elif name == "netcamera":
                 service_config = SaviiaNetcameraConfig(
                     latitude=config.latitude,
@@ -90,7 +80,7 @@ class SaviiaAPI:
 
             self._instances[name] = api_class(service_config)
 
-    def get(self, name: Literal["thies", "backup", "tasks", "netcamera"]) -> Any:
+    def get(self, name: Literal["thies", "backup", "netcamera"]) -> Any:
         """Returns the API instance associated with the given name."""
         try:
             return self._instances[name]
