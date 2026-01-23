@@ -83,9 +83,10 @@ class SaviiaAPI:
                     notification_client_api_key=config.notification_client_api_key,
                 )
             elif name == "netcamera":
-                service_config = (
-                    SaviiaNetcameraConfig()
-                )  # TODO: Open for future configs
+                service_config = SaviiaNetcameraConfig(
+                    latitude=config.latitude,
+                    longitude=config.longitude,
+                )
 
             self._instances[name] = api_class(service_config)
 

@@ -6,8 +6,6 @@ from saviialib.general_types.api.saviia_netcamera_api_types import SaviiaNetcame
 @dataclass
 class GetCameraRatesControllerInput:
     config: SaviiaNetcameraConfig
-    latitude: float
-    longitude: float
 
 
 @dataclass

@@ -3,8 +3,8 @@ GET_CAMERA_RATES_SCHEMA = {
     "description": "Schema for validating input data when getting camera rates from a net camera",
     "type": "object",
     "properties": {
-        "latitude": {"type": "number"},
-        "longitude": {"type": "number"},
+        "latitude": {"type": "number", "minimum": -90, "maximum": 90},
+        "longitude": {"type": "number", "minimum": -180, "maximum": 180},
     },
     "required": ["latitude", "longitude"],
     "additionalProperties": False,

@@ -3,4 +3,5 @@ from dataclasses import dataclass
 
 @dataclass
 class SaviiaNetcameraConfig:
-    pass
+    latitude: float = -91
+    longitude: float = -181
