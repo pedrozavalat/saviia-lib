@@ -31,6 +31,8 @@ class SaviiaAPIConfig:
     sharepoint_site_name: str
     logger: Logger
     notification_client_api_key: str = ""
+    latitude: float = -91
+    longitude: float = -181
 
 
 @dataclass

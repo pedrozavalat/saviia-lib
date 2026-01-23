@@ -31,8 +31,8 @@ class GetCameraRatesController:
         self.weather_client = WeatherClient(
             WeatherClientInitArgs(
                 client_name="open_meteo",
-                latitude=input.latitude,
-                longitude=input.longitude,
+                latitude=input.config.latitude,
+                longitude=input.config.longitude,
             )
         )
 
@@ -54,8 +54,8 @@ class GetCameraRatesController:
             self.logger.debug(DebugArgs(LogStatus.STARTED))
             SchemaValidatorClient(schema=GET_CAMERA_RATES_SCHEMA).validate(
                 {
-                    "latitude": self.input.latitude,
-                    "longitude": self.input.longitude,
+                    "latitude": self.input.config.latitude,
+                    "longitude": self.input.config.longitude,
                 }
             )
             await self._connect_clients()
@@ -80,9 +80,16 @@ class GetCameraRatesController:
         except ValidationError as error:
             self.logger.debug(DebugArgs(LogStatus.ALERT))
             return GetCameraRatesControllerOutput(
-                message="Invalid input data.",
+                message=(
+                    "The latitude and longitude provided are not valid."
+                    "Check the values in the API configuration"
+                ),
                 status=HTTPStatus.BAD_REQUEST.value,
-                metadata={"error": error.__str__()},
+                # Z: status identification used when lat and lon are invalid
+                metadata={
+                    "error": error.__str__(),
+                    "status": "Z",
+                },
             )
         except ConnectionError as error:
             self.logger.debug(DebugArgs(LogStatus.ALERT))

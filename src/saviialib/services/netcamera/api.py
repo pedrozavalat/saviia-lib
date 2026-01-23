@@ -12,23 +12,17 @@ class SaviiaNetcameraAPI:
     def __init__(self, config: SaviiaNetcameraConfig):
         self.config = config
 
-    async def get_camera_rates(
-        self, latitude: float, longitude: float
-    ) -> Dict[str, Any]:
+    async def get_camera_rates(self) -> Dict[str, Any]:
         """Returns the records a photos rates for any network camera installed at the station.
 
         The capturation is defined using meteorologic metrics from OpenMeteo Client,
         and they are: precipitation and precipitation probability.
 
-        Args:
-            - latitude (float): The latitude of the station location.
-            - longitude (float): The longitude of the station location.
-
         Returns:
             dict: A dictionary containing the camera rates information.
         """
         controller = GetCameraRatesController(
-            GetCameraRatesControllerInput(self.config, latitude, longitude)
+            GetCameraRatesControllerInput(self.config)
         )
         response = await controller.execute()
         return response.__dict__
