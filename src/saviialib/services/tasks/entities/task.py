@@ -1,14 +1,14 @@
 from dataclasses import dataclass
 
-@dataclass 
+
+@dataclass
 class SaviiaTask:
-    name: str
-    description: str
-    due_date: str
+    tid: str  # Task ID
+    title: str
+    deadline: str
     priority: int
+    description: str
+    periodicity: str
     assignee: str
     category: str
-    images: list
-    completed: bool = False
-    
-    
+    completed: bool

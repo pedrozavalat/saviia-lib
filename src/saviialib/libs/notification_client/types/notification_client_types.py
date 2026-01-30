@@ -3,8 +3,9 @@ from dataclasses import dataclass, field
 
 @dataclass
 class NotificationClientInitArgs:
-    api_key: str
-    channel_id: str
+    api_key: str = ""
+    channel_id: str = ""
+    webhook_url: str = ""
     client_name: str = "discord_client"
 
 
@@ -28,14 +29,19 @@ class ReactArgs:
 
 @dataclass
 class FindNotificationArgs:
-    content: str
+    notification_id: str
     reactions: list = field(default_factory=list)
 
 
 @dataclass
 class UpdateNotificationArgs:
-    notification_title: str
+    notification_id: str
     new_content: str
+
+
+@dataclass
+class DeleteNotificationArgs:
+    notification_id: str
 
 
 @dataclass

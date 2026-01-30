@@ -11,8 +11,12 @@ class UpdateTaskUseCaseInput:
 
 @dataclass
 class UpdateTaskUseCaseOutput:
-    content: str 
-    description: str 
+    tid: str
+    title: str
+    deadline: str
     priority: int
-    due_date: str
-    completed: bool
+    description: str | None
+    periodicity: str | None
+    assignee: str | None
+    category: str | None
+    completed: bool | None

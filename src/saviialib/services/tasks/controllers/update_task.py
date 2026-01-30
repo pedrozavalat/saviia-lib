@@ -17,68 +17,134 @@ from saviialib.libs.notification_client import (
     NotificationClient,
     NotificationClientInitArgs,
 )
+from saviialib.libs.log_client import (
+    LogClient,
+    LogClientArgs,
+    LogStatus,
+    DebugArgs,
+    ErrorArgs,
+)
 
 
 class UpdateTaskController:
+    FIELDS = [
+        "tid",
+        "title",
+        "deadline",
+        "priority",
+        "description",
+        "periodicity",
+        "assignee",
+        "category",
+    ]
+
     def __init__(self, input: UpdateTaskControllerInput) -> None:
         self.input = input
         self.notification_client = NotificationClient(
             NotificationClientInitArgs(
                 client_name="discord_client",
-                api_key=self.input.config.notification_client_api_key,
-                channel_id=self.input.channel_id,
+                webhook_url=self.input.webhook_url,
+            )
+        )
+        self.log_client = LogClient(
+            LogClientArgs(
+                client_name="logging",
+                service_name="tasks",
+                class_name="update_task_controller",
             )
         )
 
     async def _connect_clients(self) -> None:
+        self.log_client.method_name = "_connect_clients"
+        self.log_client.debug(DebugArgs(LogStatus.STARTED))
+
         await self.notification_client.connect()
 
+        self.log_client.debug(DebugArgs(LogStatus.SUCCESSFUL))
+
     async def _close_clients(self) -> None:
+        self.log_client.method_name = "_close_clients"
+        self.log_client.debug(DebugArgs(LogStatus.STARTED))
+
         await self.notification_client.close()
 
+        self.log_client.debug(DebugArgs(LogStatus.SUCCESSFUL))
+
     async def execute(self) -> UpdateTaskControllerOutput:
+        self.log_client.method_name = "execute"
+        self.log_client.debug(DebugArgs(LogStatus.STARTED))
         try:
             SchemaValidatorClient(schema=UPDATE_TASK_SCHEMA).validate(
                 {
-                    "task": self.input.task,
-                    "config": {
-                        "notification_client_api_key": self.input.config.notification_client_api_key
-                    },
-                    "channel_id": self.input.channel_id,
+                    "tid": self.input.task.get("tid", ""),
+                    "title": self.input.task.get("title", ""),
+                    "deadline": self.input.task.get("deadline", ""),
+                    "priority": self.input.task.get("priority", ""),
+                    "description": self.input.task.get("description", ""),
+                    "periodicity": self.input.task.get("periodicity", ""),
+                    "category": self.input.task.get("category", ""),
+                    "assignee": self.input.task.get("assignee", ""),
+                    "webhook_url": self.input.webhook_url,
                     "completed": self.input.completed,
+                    "channel_id": self.input.channel_id,
                 }
             )
             await self._connect_clients()
             use_case = UpdateTaskUseCase(
                 UpdateTaskUseCaseInput(
                     task=SaviiaTask(
-                        name=self.input.task["name"],
-                        description=self.input.task["description"],
-                        due_date=self.input.task["due_date"],
-                        priority=self.input.task["priority"],
-                        assignee=self.input.task["assignee"],
-                        category=self.input.task["category"],
-                        images=self.input.task.get("images", []),
+                        tid=self.input.task.get("tid", ""),
+                        title=self.input.task.get("title", ""),
+                        deadline=self.input.task.get("deadline", ""),
+                        priority=self.input.task.get("priority", ""),
+                        description=self.input.task.get("description", ""),
+                        periodicity=self.input.task.get("periodicity", ""),
+                        assignee=self.input.task.get("assignee", ""),
+                        category=self.input.task.get("category", ""),
                         completed=self.input.completed,
                     ),
                     notification_client=self.notification_client,
                 )
             )
+            if (
+                any(
+                    self.input.task.get(field) is None
+                    for field in UpdateTaskController.FIELDS
+                )
+                is True
+            ):
+                return UpdateTaskControllerOutput(
+                    message="All the fields must be provided.",
+                    status=HTTPStatus.BAD_REQUEST.value,
+                    metadata={
+                        "fields": UpdateTaskController.FIELDS  # type: ignore
+                    },
+                )
             output = await use_case.execute()
+            self.log_client.debug(DebugArgs(LogStatus.SUCCESSFUL))
             return UpdateTaskControllerOutput(
                 message="Task updated successfully!",
                 status=HTTPStatus.OK.value,
                 metadata=output.__dict__,
             )
         except ConnectionError as error:
+            self.log_client.error(ErrorArgs(LogStatus.ERROR, {"msg": error.__str__()}))
             return UpdateTaskControllerOutput(
                 message="An unexpected error ocurred during Discord client connection.",
                 status=HTTPStatus.INTERNAL_SERVER_ERROR.value,
                 metadata={"error": error.__str__()},  # type:ignore
             )
-        except (ValidationError, KeyError) as error:
+        except NotImplementedError as error:
+            self.log_client.error(ErrorArgs(LogStatus.ERROR, {"msg": error.__str__()}))
             return UpdateTaskControllerOutput(
-                message="Invalid input data for creating a task.",
+                message="The requested operation is not implemented.",
+                status=HTTPStatus.NOT_IMPLEMENTED.value,
+                metadata={"error": error.__str__()},  # type: ignore
+            )
+        except ValidationError as error:
+            self.log_client.error(ErrorArgs(LogStatus.ERROR, {"msg": error.__str__()}))
+            return UpdateTaskControllerOutput(
+                message="Invalid input data for updating a task.",
                 status=HTTPStatus.BAD_REQUEST.value,
                 metadata={"error": error.__str__()},  # type: ignore
             )
