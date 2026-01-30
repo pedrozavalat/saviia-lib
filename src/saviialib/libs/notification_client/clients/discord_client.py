@@ -9,6 +9,7 @@ from saviialib.libs.notification_client.types.notification_client_types import (
     ReactArgs,
     FindNotificationArgs,
     DeleteReactionArgs,
+    DeleteNotificationArgs,
 )
 from saviialib.libs.directory_client import DirectoryClient, DirectoryClientArgs
 from saviialib.libs.files_client import FilesClient, FilesClientInitArgs, ReadArgs
@@ -17,7 +18,6 @@ from aiohttp import ClientError, ClientSession, TCPConnector, FormData
 import ssl
 import certifi
 import json
-import re
 
 ssl_context = ssl.create_default_context(cafile=certifi.where())
 
@@ -34,6 +34,8 @@ class DiscordClient(NotificationClientContract):
                 service_name="notification_client", class_name="discord_client"
             )
         )
+        self.webhook_url = args.webhook_url
+        self.is_bot = True if self.webhook_url == "" else False
 
     async def connect(self) -> None:
         if self.session:
@@ -41,7 +43,6 @@ class DiscordClient(NotificationClientContract):
 
         headers = {
             "Authorization": f"Bot {self.api_key}",
-            
         }
         if self.api_key is None:
             raise ConnectionError("API key is not set")
@@ -49,7 +50,6 @@ class DiscordClient(NotificationClientContract):
             raise ConnectionError("Channel ID is not set")
         self.session = ClientSession(
             headers=headers,
-            base_url="https://discord.com",
             connector=TCPConnector(ssl=ssl_context),
         )
 
@@ -61,8 +61,12 @@ class DiscordClient(NotificationClientContract):
     async def list_notifications(self) -> List[Dict[str, str]]:
         self.logger.method_name = "list_notifications"
         self.logger.debug(DebugArgs(LogStatus.STARTED))
+        if not self.is_bot:
+            raise NotImplementedError(
+                "list_notifications is only implemented for Webhook clients."
+            )
         try:
-            url = f"/api/v10/channels/{self.channel_id}/messages"
+            url = f"https://discord.com/api/v10/channels/{self.channel_id}/messages"
             response = await self.session.get(url)  # type: ignore
             response.raise_for_status()
             self.logger.debug(DebugArgs(LogStatus.SUCCESSFUL))
@@ -82,23 +86,17 @@ class DiscordClient(NotificationClientContract):
         """
         self.logger.method_name = "find_notification"
         self.logger.debug(DebugArgs(LogStatus.STARTED))
+        url = (
+            f"https://discord.com/api/v10/channels/{self.channel_id}/messages/{args.notification_id}"
+            if self.is_bot
+            else f"{self.webhook_url}/messages/{args.notification_id}"
+        )
         try:
-            notifications = await self.list_notifications()
-            matches = []
-            for notification in notifications:
-                if args.content in notification["content"]:  
-                    reactions = notification.get("reactions", [])
-                    if not args.reactions:
-                        matches.append(notification)
-                    else:
-                        if any(
-                            reaction["emoji"]["name"] in args.reactions
-                            for reaction in reactions  # type: ignore
-                        ):
-                            matches.append(notification)
+            response = await self.session.get(url)  # type: ignore
+            response.raise_for_status()
+            notification = await response.json()
             self.logger.debug(DebugArgs(LogStatus.SUCCESSFUL))
-            return matches[0] if matches else {}
-
+            return notification
         except ClientError as error:
             self.logger.debug(
                 DebugArgs(LogStatus.ALERT, metadata={"error": str(error)})
@@ -110,15 +108,18 @@ class DiscordClient(NotificationClientContract):
         self.logger.debug(DebugArgs(LogStatus.STARTED))
         try:
             notification = await self.find_notification(
-                FindNotificationArgs(content=args.notification_title)
+                FindNotificationArgs(notification_id=args.notification_id)
             )
             if not notification:
                 raise ClientError(
-                    f"Notification with content '{args.notification_title}' doesn't exist."
+                    f"Notification with content '{args.notification_id}' doesn't exist."
                 )
-
             nid = notification["id"]
-            url = f"/api/v10/channels/{self.channel_id}/messages/{nid}"
+            url = (
+                f"https://discord.com/api/v10/channels/{self.channel_id}/messages/{nid}"
+                if self.is_bot
+                else f"{self.webhook_url}/messages/{nid}"
+            )
             payload = {"content": args.new_content}
             response = await self.session.patch(url, json=payload)  # type: ignore
             response.raise_for_status()
@@ -130,9 +131,37 @@ class DiscordClient(NotificationClientContract):
             )
             raise ConnectionError(error)
 
+    async def delete_notification(self, args: DeleteNotificationArgs) -> None:
+        self.logger.method_name = "delete_notification"
+        self.logger.debug(DebugArgs(LogStatus.STARTED))
+        try:
+            notification = await self.find_notification(
+                FindNotificationArgs(notification_id=args.notification_id)
+            )
+            if not notification:
+                raise ClientError(
+                    f"Notification with id '{args.notification_id}' doesn't exist."
+                )
+            nid = notification["id"]
+            url = (
+                f"https://discord.com/api/v10/channels/{self.channel_id}/messages/{nid}"
+                if self.is_bot
+                else f"{self.webhook_url}/messages/{nid}"
+            )
+            response = await self.session.delete(url)  # type: ignore
+            response.raise_for_status()
+            self.logger.debug(DebugArgs(LogStatus.SUCCESSFUL))
+        except ClientError as error:
+            self.logger.debug(
+                DebugArgs(LogStatus.ALERT, metadata={"error": str(error)})
+            )
+            raise ConnectionError(error)
+
     async def notify(self, args: NotifyArgs) -> dict:
         self.logger.method_name = "notify"
         self.logger.debug(DebugArgs(LogStatus.STARTED))
+        if not self.is_bot:
+            raise NotImplementedError("notify is only implemented for Webhook clients.")
         try:
             url = f"/api/v10/channels/{self.channel_id}/messages"
             payload = {
@@ -189,6 +218,8 @@ class DiscordClient(NotificationClientContract):
     async def react(self, args: ReactArgs) -> dict:
         self.logger.method_name = "react"
         self.logger.debug(DebugArgs(LogStatus.STARTED))
+        if not self.is_bot:
+            raise NotImplementedError("react is only implemented for Webhook clients.")
         try:
             url = f"/api/v10/channels/{self.channel_id}/messages/{args.notification_id}/reactions/{args.emoji}/@me"
             response = await self.session.put(url)  # type: ignore
@@ -202,6 +233,10 @@ class DiscordClient(NotificationClientContract):
             raise ConnectionError(error)
 
     async def delete_reaction(self, args: DeleteReactionArgs) -> dict:
+        if not self.is_bot:
+            raise NotImplementedError(
+                "delete_reaction is only implemented for Webhook clients."
+            )
         self.logger.method_name = "react"
         self.logger.debug(DebugArgs(LogStatus.STARTED))
         try:

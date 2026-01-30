@@ -3,62 +3,35 @@ UPDATE_TASK_SCHEMA = {
     "description": "Schema for validating input data when updating a task in Saviia",
     "type": "object",
     "properties": {
-        "task": {
-            "type": "object",
-            "properties": {
-                "name": {"type": "string"},
-                "description": {"type": "string"},
-                "due_date": {
-                    "type": "string",
-                    "format": "date-time",
-                },
-                "priority": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 4,
-                },
-                "assignee": {"type": "string"},
-                "category": {"type": "string"},
-                "images": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "name": {"type": "string"},
-                            "type": {"type": "string"},
-                            "data": {"type": "string"},
-                        },
-                        "required": ["name", "type", "data"],
-                        "additionalProperties": False,
-                    },
-                },
-            },
-            "required": [
-                "name",
-                "description",
-                "due_date",
-                "priority",
-                "assignee",
-                "category",
-            ],
-            "additionalProperties": False,
-        },
-        "config": {
-            "type": "object",
-            "properties": {
-                "notification_client_api_key": {"type": "string"},
-            },
-            "required": ["notification_client_api_key"],
-            "additionalProperties": False,
-        },
-        "channel_id": {
+        "tid": {"type": "string"},
+        "title": {"type": "string"},
+        "description": {"type": "string"},
+        "deadline": {
             "type": "string",
+            "format": "date-time",
         },
-        "completed": {
-            "type": "boolean",
-            "default": False,
+        "priority": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4,
         },
+        "assignee": {"type": "string"},
+        "category": {"type": "string"},
+        "periodicity": {"type": "string"},
+        "webhook_url": {"type": "string"},
+        "completed": {"type": "boolean"},
+        "channel_id": {"type": "string"},
     },
-    "required": ["task", "config", "channel_id"],
+    "required": [
+        "webhook_url",
+        "tid",
+        "title",
+        "deadline",
+        "priority",
+        "assignee",
+        "category",
+        "description",
+        "completed",
+    ],
     "additionalProperties": False,
 }

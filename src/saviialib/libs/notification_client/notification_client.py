@@ -9,7 +9,8 @@ from .types.notification_client_types import (
     NotifyArgs,
     NotificationClientInitArgs,
     UpdateNotificationArgs,
-    DeleteReactionArgs
+    DeleteReactionArgs,
+    DeleteNotificationArgs,
 )
 from .clients.discord_client import DiscordClient
 
@@ -45,6 +46,9 @@ class NotificationClient(NotificationClientContract):
 
     async def update_notification(self, args: UpdateNotificationArgs) -> dict:
         return await self.client_obj.update_notification(args)
+
+    async def delete_notification(self, args: DeleteNotificationArgs) -> None:
+        return await self.client_obj.delete_notification(args)
 
     async def delete_reaction(self, args: DeleteReactionArgs) -> dict:
         return await self.client_obj.delete_reaction(args)

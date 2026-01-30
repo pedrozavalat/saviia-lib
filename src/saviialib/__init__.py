@@ -14,6 +14,7 @@ from saviialib.services import (
     SaviiaBackupConfig,
     SaviiaNetcameraAPI,
     SaviiaNetcameraConfig,
+    SaviiaTasksAPI,
 )
 
 __all__ = ["SaviiaAPI", "SaviiaAPIConfig"]
@@ -24,6 +25,7 @@ class SaviiaAPI:
         "thies": SaviiaThiesAPI,
         "backup": SaviiaBackupAPI,
         "netcamera": SaviiaNetcameraAPI,
+        "tasks": SaviiaTasksAPI,
     }
 
     @overload
@@ -32,7 +34,8 @@ class SaviiaAPI:
     def get(self, name: Literal["backup"]) -> SaviiaBackupAPI: ...
     @overload
     def get(self, name: Literal["netcamera"]) -> SaviiaNetcameraAPI: ...
-
+    @overload
+    def get(self, name: Literal["tasks"]) -> SaviiaTasksAPI: ...
     def __init__(self, config: SaviiaAPIConfig):
         """
         Receive a dictionary of configurations, with the same key
@@ -45,6 +48,7 @@ class SaviiaAPI:
                 "thies": SaviiaThiesConfig(...),
                 "backup": SaviiaBackupConfig(...),
                 "netcamera": SaviiaNetcameraConfig(...),
+                "tasks": SaviiaTasksConfig(...),
             }
         """
         self._instances: Dict[str, Any] = {}
@@ -78,9 +82,12 @@ class SaviiaAPI:
                     longitude=config.longitude,
                 )
 
-            self._instances[name] = api_class(service_config)
+            if name == "tasks":
+                self._instances[name] = api_class()
+            else:
+                self._instances[name] = api_class(service_config)
 
-    def get(self, name: Literal["thies", "backup", "netcamera"]) -> Any:
+    def get(self, name: Literal["thies", "backup", "netcamera", "tasks"]) -> Any:
         """Returns the API instance associated with the given name."""
         try:
             return self._instances[name]

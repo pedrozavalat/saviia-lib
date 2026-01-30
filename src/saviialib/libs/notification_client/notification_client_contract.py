@@ -5,7 +5,8 @@ from .types.notification_client_types import (
     ReactArgs,
     FindNotificationArgs,
     UpdateNotificationArgs,
-    DeleteReactionArgs
+    DeleteReactionArgs,
+    DeleteNotificationArgs,
 )
 
 
@@ -29,11 +30,14 @@ class NotificationClientContract(ABC):
     @abstractmethod
     async def update_notification(self, args: UpdateNotificationArgs) -> dict:
         pass
-    
+
+    @abstractmethod
+    async def delete_notification(self, args: DeleteNotificationArgs) -> None:
+        pass
+
     @abstractmethod
     async def delete_reaction(self, args: DeleteReactionArgs) -> dict:
         pass
-    
 
     @abstractmethod
     async def connect(self) -> None:
