@@ -6,7 +6,7 @@ from .types.notification_client_types import (
     FindNotificationArgs,
     UpdateNotificationArgs,
     DeleteReactionArgs,
-    DeleteNotificationArgs
+    DeleteNotificationArgs,
 )
 
 __all__ = [
@@ -16,7 +16,6 @@ __all__ = [
     "NotifyArgs",
     "FindNotificationArgs",
     "UpdateNotificationArgs",
-    "DeleteReactionArgs"
+    "DeleteReactionArgs",
     "DeleteNotificationArgs",
-    
 ]

@@ -38,9 +38,11 @@ class UpdateNotificationArgs:
     notification_id: str
     new_content: str
 
+
 @dataclass
 class DeleteNotificationArgs:
     notification_id: str
+
 
 @dataclass
 class DeleteReactionArgs:

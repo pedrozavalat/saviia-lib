@@ -1,10 +1,3 @@
-from saviialib.services.tasks.entities.task import SaviiaTask
-from saviialib.libs.zero_dependency.utils.datetime_utils import (
-    is_within_date_range,
-    str_to_timestamp,
-)
-
-
 class TaskNotificationPresenter:
     @classmethod
     def to_dict(cls, content: str) -> dict[str, str]:
@@ -27,7 +20,6 @@ class TaskNotificationPresenter:
             elif "__Persona asignada__" in line:
                 result["assignee"] = line.split(":")[1].strip()
         return result
-
 
     @classmethod
     def to_markdown(cls, task: dict[str, str]) -> str:

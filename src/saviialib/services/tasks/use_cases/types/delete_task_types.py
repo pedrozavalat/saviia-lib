@@ -11,4 +11,3 @@ class DeleteTaskUseCaseInput:
 @dataclass
 class DeleteTaskUseCaseOutput:
     task_id: str
-    
