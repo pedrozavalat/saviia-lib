@@ -59,6 +59,7 @@ class TaskNotificationPresenter:
                 lambda task: {
                     **cls.to_dict(task["content"]),
                     "task_id": task["id"],
+                    "embeds": list(map(lambda e: e['image']['url'], task["embeds"])),
                     "completed": cls._format_complete_status(task["reactions"]),
                 },
                 filter(
