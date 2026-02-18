@@ -3,6 +3,8 @@ from saviialib.libs.log_client import LogClient, LogClientArgs, LogStatus, Debug
 from saviialib.libs.notification_client import (
     UpdateNotificationArgs,
     FindNotificationArgs,
+    ReactArgs,
+    DeleteReactionArgs,
 )
 from saviialib.services.tasks.presenters import TaskNotificationPresenter
 
@@ -68,6 +70,17 @@ class UpdateTaskUseCase:
                 new_content=content_markdown,
             )
         )
+        if self.new_task.completed:
+            await self.notification_client.react(ReactArgs(self.new_task.tid, "✅"))
+            await self.notification_client.delete_reaction(
+                DeleteReactionArgs(self.new_task.tid, "📌")
+            )
+        else:
+            await self.notification_client.react(ReactArgs(self.new_task.tid, "📌"))
+            await self.notification_client.delete_reaction(
+                DeleteReactionArgs(self.new_task.tid, "✅")
+            )
+
         self.logger.debug(DebugArgs(LogStatus.SUCCESSFUL))
         return UpdateTaskUseCaseOutput(
             tid=self.new_task.tid,

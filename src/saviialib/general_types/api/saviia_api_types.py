@@ -32,6 +32,8 @@ class SaviiaAPIConfig:
     logger: Logger
     latitude: float = -91
     longitude: float = -181
+    tasks_channel_id: str = ""
+    bot_token: str = ""
 
 
 @dataclass
