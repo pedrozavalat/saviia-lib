@@ -94,7 +94,7 @@ class CreateTaskController:
             output = await use_case.execute()
             self.log_client.debug(DebugArgs(LogStatus.SUCCESSFUL))
             return CreateTaskControllerOutput(
-                message="Task deleted successfully!",
+                message="Task created successfully!",
                 status=HTTPStatus.OK.value,
                 metadata=output.__dict__,
             )
