@@ -9,6 +9,7 @@ class TaskNotificationPresenter:
     def to_dict(cls, content: str) -> dict[str, str]:
         lines = [line.strip() for line in content.strip().split("\n") if line.strip()]
         result = {}
+        result["title"] = lines[0].lstrip("#").strip()
         for line in lines[2:]:
             if "__Estado__" in line:
                 status = line.split(":")[1].strip()
