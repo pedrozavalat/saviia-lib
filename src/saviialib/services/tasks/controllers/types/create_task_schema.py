@@ -1,9 +1,8 @@
-UPDATE_TASK_SCHEMA = {
-    "title": "Controller input schema for updating a task",
-    "description": "Schema for validating input data when updating a task in Saviia",
+CREATE_TASK_SCHEMA = {
+    "title": "Controller input schema for creating a task",
+    "description": "Schema for validating input data when creating a task in Saviia",
     "type": "object",
     "properties": {
-        "tid": {"type": "string"},
         "title": {"type": "string"},
         "description": {"type": "string"},
         "deadline": {
@@ -19,20 +18,29 @@ UPDATE_TASK_SCHEMA = {
         "category": {"type": "string"},
         "periodicity": {"type": "string"},
         "bot_token": {"type": "string"},
-        "completed": {"type": "boolean"},
         "task_channel_id": {"type": "string"},
+        "images": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string"},
+                    "type": {"type": "string"},
+                    "data": {"type": "string"},
+                },
+                "required": ["name", "type", "data"],
+                "additionalProperties": False,
+            },
+            "maxItems": 10,
+        },
     },
     "required": [
         "bot_token",
-        "tid",
+        "task_channel_id",
         "title",
         "deadline",
         "priority",
         "assignee",
-        "category",
-        "description",
-        "completed",
-        "task_channel_id",
     ],
     "additionalProperties": False,
 }

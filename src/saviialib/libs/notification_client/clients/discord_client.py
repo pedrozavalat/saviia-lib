@@ -163,7 +163,7 @@ class DiscordClient(NotificationClientContract):
         if not self.is_bot:
             raise NotImplementedError("notify is only implemented for Webhook clients.")
         try:
-            url = f"/api/v10/channels/{self.channel_id}/messages"
+            url = f"https://discord.com/api/v10/channels/{self.channel_id}/messages"
             payload = {
                 "content": args.content,
             }
@@ -221,7 +221,7 @@ class DiscordClient(NotificationClientContract):
         if not self.is_bot:
             raise NotImplementedError("react is only implemented for Webhook clients.")
         try:
-            url = f"/api/v10/channels/{self.channel_id}/messages/{args.notification_id}/reactions/{args.emoji}/@me"
+            url = f"https://discord.com/api/v10/channels/{self.channel_id}/messages/{args.notification_id}/reactions/{args.emoji}/@me"
             response = await self.session.put(url)  # type: ignore
             response.raise_for_status()
             self.logger.debug(DebugArgs(LogStatus.SUCCESSFUL))
@@ -240,7 +240,7 @@ class DiscordClient(NotificationClientContract):
         self.logger.method_name = "react"
         self.logger.debug(DebugArgs(LogStatus.STARTED))
         try:
-            url = f"/api/v10/channels/{self.channel_id}/messages/{args.notification_id}/reactions/{args.emoji}/@me"
+            url = f"https://discord.com/api/v10/channels/{self.channel_id}/messages/{args.notification_id}/reactions/{args.emoji}/@me"
             response = await self.session.delete(url)  # type: ignore
             response.raise_for_status()
             self.logger.debug(DebugArgs(LogStatus.SUCCESSFUL))

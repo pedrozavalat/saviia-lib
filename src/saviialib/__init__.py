@@ -15,6 +15,7 @@ from saviialib.services import (
     SaviiaNetcameraAPI,
     SaviiaNetcameraConfig,
     SaviiaTasksAPI,
+    SaviiaTasksConfig,
 )
 
 __all__ = ["SaviiaAPI", "SaviiaAPIConfig"]
@@ -82,10 +83,13 @@ class SaviiaAPI:
                     longitude=config.longitude,
                 )
 
-            if name == "tasks":
-                self._instances[name] = api_class()
-            else:
-                self._instances[name] = api_class(service_config)
+            elif name == "tasks":
+                service_config = SaviiaTasksConfig(
+                    bot_token=config.bot_token,
+                    task_channel_id=config.tasks_channel_id
+                )
+            
+            self._instances[name] = api_class(service_config)
 
     def get(self, name: Literal["thies", "backup", "netcamera", "tasks"]) -> Any:
         """Returns the API instance associated with the given name."""

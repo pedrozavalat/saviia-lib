@@ -31,7 +31,8 @@ class DeleteTaskController:
         self.notification_client = NotificationClient(
             NotificationClientInitArgs(
                 client_name="discord_client",
-                webhook_url=self.input.webhook_url,
+                api_key=self.input.config.bot_token,
+                channel_id=self.input.config.task_channel_id,
             )
         )
         self.log_client = LogClient(
@@ -65,7 +66,8 @@ class DeleteTaskController:
             SchemaValidatorClient(schema=DELETE_TASK_SCHEMA).validate(
                 {
                     "task_id": self.input.task_id,
-                    "webhook_url": self.input.webhook_url,
+                    "bot_token": self.input.config.bot_token,
+                    "task_channel_id": self.input.config.task_channel_id,
                 }
             )
             await self._connect_clients()

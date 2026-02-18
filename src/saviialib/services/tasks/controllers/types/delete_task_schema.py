@@ -4,12 +4,9 @@ DELETE_TASK_SCHEMA = {
     "type": "object",
     "properties": {
         "task_id": {"type": "string"},
-        "webhook_url": {"type": "string"},
-        "channel_id": {"type": "string"},
+        "bot_token": {"type": "string"},
+        "task_channel_id": {"type": "string"},
     },
-    "required": [
-        "webhook_url",
-        "task_id",
-    ],
+    "required": ["bot_token", "task_id", "task_channel_id"],
     "additionalProperties": False,
 }
