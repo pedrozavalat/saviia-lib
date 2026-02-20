@@ -62,4 +62,6 @@ class GetCameraRatesUseCase:
             status,
             photo_rate=c.CAPTURE_TIMES[status]["photo"],
             video_rate=c.CAPTURE_TIMES[status]["video"],
+            precipitation_probability=curr_prob,
+            precipitation=curr_prec,
         )

@@ -12,3 +12,5 @@ class GetCameraRatesUseCaseOutput:
     status: str
     photo_rate: int
     video_rate: int
+    precipitation_probability: float
+    precipitation: float
