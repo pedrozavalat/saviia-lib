@@ -1,9 +1,12 @@
 from typing import Any, Dict, List
-
-from .controllers.types.update_thies_data_types import UpdateThiesDataControllerInput
-from .controllers.update_thies_data import UpdateThiesDataController
 from saviialib.general_types.api.saviia_thies_api_types import (
     SaviiaThiesConfig,
+)
+from .controllers import (
+    UpdateThiesDataControllerInput,
+    UpdateThiesDataController,
+    DetectFailuresController,
+    DetectFailuresControllerInput,
 )
 
 
@@ -36,6 +39,29 @@ class SaviiaThiesAPI:
                 sharepoint_folders_path,
                 ftp_server_folders_path,
                 local_backup_source_path,
+            )
+        )
+        response = await controller.execute()
+        return response.__dict__
+
+    async def detect_failures(
+        self,
+        local_backup_source_path: str,
+        db_driver: str = "",
+        db_host: str = "",
+        db_name: str = "",
+        user: str = "",
+        pwd: str = "",
+    ) -> Dict[str, Any]:
+        controller = DetectFailuresController(
+            DetectFailuresControllerInput(
+                self.config,
+                local_backup_source_path,
+                db_driver,
+                db_host,
+                db_name,
+                user,
+                pwd,
             )
         )
         response = await controller.execute()
