@@ -6,7 +6,7 @@ from .types.db_client_types import ExecuteArgs, FetchAllArgs, FetchOneArgs
 
 class DbClientContract(ABC):
     @abstractmethod
-    def connect(self) -> None:
+    async def connect(self) -> None:
         """Open the database connection.
 
         Returns:
@@ -15,7 +15,7 @@ class DbClientContract(ABC):
         pass
 
     @abstractmethod
-    def close(self) -> None:
+    async def close(self) -> None:
         """Close the active database connection.
 
         Returns:
@@ -24,7 +24,7 @@ class DbClientContract(ABC):
         pass
 
     @abstractmethod
-    def execute(self, args: ExecuteArgs) -> None:
+    async def execute(self, args: ExecuteArgs) -> None:
         """Execute a non-select SQL statement.
 
         Args:
@@ -38,7 +38,7 @@ class DbClientContract(ABC):
         pass
 
     @abstractmethod
-    def fetch_all(self, args: FetchAllArgs) -> List[Any]:
+    async def fetch_all(self, args: FetchAllArgs) -> List[Any]:
         """Execute a query and return all matching rows.
 
         Args:
@@ -52,7 +52,7 @@ class DbClientContract(ABC):
         pass
 
     @abstractmethod
-    def fetch_one(self, args: FetchOneArgs) -> Any:
+    async def fetch_one(self, args: FetchOneArgs) -> Any:
         """Execute a query and return a single row.
 
         Args:

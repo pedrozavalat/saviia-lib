@@ -16,7 +16,7 @@ class PyODBCClient(DbClientContract):
         self.connection: pyodbc.Connection | None = None
         self.cursor: pyodbc.Cursor | None = None
 
-    def connect(self) -> None:
+    async def connect(self) -> None:
         if self.connection:
             return
         try:
@@ -25,7 +25,7 @@ class PyODBCClient(DbClientContract):
         except pyodbc.Error as error:
             raise ConnectionError(f"Failed to connect to database: {error}") from error
 
-    def close(self) -> None:
+    async def close(self) -> None:
         if self.cursor:
             self.cursor.close()
             self.cursor = None
@@ -33,7 +33,7 @@ class PyODBCClient(DbClientContract):
             self.connection.close()
             self.connection = None
 
-    def execute(self, args: ExecuteArgs) -> None:
+    async def execute(self, args: ExecuteArgs) -> None:
         if not self.cursor:
             raise ConnectionError("Not connected to a database. Call connect() first.")
         try:
@@ -42,7 +42,7 @@ class PyODBCClient(DbClientContract):
         except pyodbc.Error as error:
             raise RuntimeError(f"Failed to execute query: {error}") from error
 
-    def fetch_all(self, args: FetchAllArgs) -> List[Any]:
+    async def fetch_all(self, args: FetchAllArgs) -> List[Any]:
         if not self.cursor:
             raise ConnectionError("Not connected to a database. Call connect() first.")
         try:
@@ -51,7 +51,7 @@ class PyODBCClient(DbClientContract):
         except pyodbc.Error as error:
             raise RuntimeError(f"Failed to fetch results: {error}") from error
 
-    def fetch_one(self, args: FetchOneArgs) -> Any:
+    async def fetch_one(self, args: FetchOneArgs) -> Any:
         if not self.cursor:
             raise ConnectionError("Not connected to a database. Call connect() first.")
         try:

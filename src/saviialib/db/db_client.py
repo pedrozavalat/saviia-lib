@@ -21,17 +21,17 @@ class DbClient(DbClientContract):
             self.client_obj = PyODBCClient(args)
         self.client_name = args.client_name
 
-    def connect(self) -> None:
-        return self.client_obj.connect()
+    async def connect(self) -> None:
+        return await self.client_obj.connect()
 
-    def close(self) -> None:
-        return self.client_obj.close()
+    async def close(self) -> None:
+        return await self.client_obj.close()
 
-    def execute(self, args: ExecuteArgs) -> None:
-        return self.client_obj.execute(args)
+    async def execute(self, args: ExecuteArgs) -> None:
+        return await self.client_obj.execute(args)
 
-    def fetch_all(self, args: FetchAllArgs) -> List[Any]:
-        return self.client_obj.fetch_all(args)
+    async def fetch_all(self, args: FetchAllArgs) -> List[Any]:
+        return await self.client_obj.fetch_all(args)
 
-    def fetch_one(self, args: FetchOneArgs) -> Any:
-        return self.client_obj.fetch_one(args)
+    async def fetch_one(self, args: FetchOneArgs) -> Any:
+        return await self.client_obj.fetch_one(args)

@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Literal
 
 
 @dataclass
@@ -11,7 +12,7 @@ class DbClientInitArgs:
     """
 
     connection_string: str
-    client_name: str = "pyodbc_client"
+    client_name: Literal["pyodbc_client"]
 
 
 @dataclass
