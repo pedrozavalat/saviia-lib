@@ -1,7 +1,13 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from saviialib.db import DbClient, DbClientInitArgs, ExecuteArgs, FetchAllArgs, FetchOneArgs
+from saviialib.db import (
+    DbClient,
+    DbClientInitArgs,
+    ExecuteArgs,
+    FetchAllArgs,
+    FetchOneArgs,
+)
 
 
 class TestDbClient(unittest.TestCase):
@@ -12,45 +18,57 @@ class TestDbClient(unittest.TestCase):
         )
 
     def test_should_raise_key_error_for_unsupported_client(self):
+        # Arrange
         args = DbClientInitArgs(
             connection_string="DRIVER={SQLite3};DATABASE=test.db",
             client_name="unsupported_client",
         )
+        # Act & Assert
         with self.assertRaises(KeyError):
             DbClient(args)
 
     @patch("saviialib.db.clients.pyodbc_client.pyodbc.connect")
     def test_should_connect_successfully(self, mock_connect):
+        # Arrange
         mock_connection = MagicMock()
         mock_connect.return_value = mock_connection
         client = DbClient(self.init_args)
+        # Act
         client.connect()
+        # Assert
         mock_connect.assert_called_once_with(self.init_args.connection_string)
 
     @patch("saviialib.db.clients.pyodbc_client.pyodbc.connect")
     def test_should_close_connection(self, mock_connect):
+        # Arrange
         mock_connection = MagicMock()
         mock_connect.return_value = mock_connection
         client = DbClient(self.init_args)
         client.connect()
+        # Act
         client.close()
+        # Assert
         mock_connection.cursor.return_value.close.assert_called_once()
         mock_connection.close.assert_called_once()
 
     @patch("saviialib.db.clients.pyodbc_client.pyodbc.connect")
     def test_should_execute_query(self, mock_connect):
+        # Arrange
         mock_connection = MagicMock()
         mock_connect.return_value = mock_connection
         client = DbClient(self.init_args)
         client.connect()
         args = ExecuteArgs(query="INSERT INTO table (col) VALUES (?)", params=["value"])
+        # Act
         client.execute(args)
+        # Assert
         mock_connection.cursor.return_value.execute.assert_called_once_with(
             args.query, args.params
         )
 
     @patch("saviialib.db.clients.pyodbc_client.pyodbc.connect")
     def test_should_fetch_all_rows(self, mock_connect):
+        # Arrange
         mock_connection = MagicMock()
         mock_cursor = mock_connection.cursor.return_value
         mock_cursor.fetchall.return_value = [("row1",), ("row2",)]
@@ -58,11 +76,14 @@ class TestDbClient(unittest.TestCase):
         client = DbClient(self.init_args)
         client.connect()
         args = FetchAllArgs(query="SELECT * FROM table")
+        # Act
         result = client.fetch_all(args)
+        # Assert
         self.assertEqual(result, [("row1",), ("row2",)])
 
     @patch("saviialib.db.clients.pyodbc_client.pyodbc.connect")
     def test_should_fetch_one_row(self, mock_connect):
+        # Arrange
         mock_connection = MagicMock()
         mock_cursor = mock_connection.cursor.return_value
         mock_cursor.fetchone.return_value = ("row1",)
@@ -70,23 +91,31 @@ class TestDbClient(unittest.TestCase):
         client = DbClient(self.init_args)
         client.connect()
         args = FetchOneArgs(query="SELECT * FROM table WHERE id = ?", params=[1])
+        # Act
         result = client.fetch_one(args)
+        # Assert
         self.assertEqual(result, ("row1",))
 
     def test_should_raise_connection_error_on_execute_without_connect(self):
+        # Arrange
         client = DbClient(self.init_args)
         args = ExecuteArgs(query="SELECT 1")
+        # Act & Assert
         with self.assertRaises(ConnectionError):
             client.execute(args)
 
     def test_should_raise_connection_error_on_fetch_all_without_connect(self):
+        # Arrange
         client = DbClient(self.init_args)
         args = FetchAllArgs(query="SELECT 1")
+        # Act & Assert
         with self.assertRaises(ConnectionError):
             client.fetch_all(args)
 
     def test_should_raise_connection_error_on_fetch_one_without_connect(self):
+        # Arrange
         client = DbClient(self.init_args)
         args = FetchOneArgs(query="SELECT 1")
+        # Act & Assert
         with self.assertRaises(ConnectionError):
             client.fetch_one(args)
