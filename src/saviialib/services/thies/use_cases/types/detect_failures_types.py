@@ -13,4 +13,4 @@ class DetectFailuresUseCaseInput:
 
 @dataclass
 class DetectFailuresUseCaseOutput:
-    result: dict
+    validation: dict

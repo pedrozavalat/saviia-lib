@@ -25,7 +25,8 @@ COLS_TO_KEEP = {
     "Time": (),
     "Pressure": ("MIN", "MAX"),
     "Precipitation": (),
-    "WS": ("MIN", "MAX gust"),
+    # "WS": ("MIN", "MAX gust"), # TODO: Search new API 
+    "WD": ("MIN", "MAX gust"),
     "Humidity": ("MIN", "MAX"),
     "Radiation": ("MIN", "MAX"),
     "PicoMoisture 1": ("MIN", "MAX"),
@@ -33,10 +34,11 @@ COLS_TO_KEEP = {
 }
 
 # Mapping from THIES original columns to Weather Client (Open Meteo) metrics name.
-MAP_COLUMNS = {
+METRIC_TO_WEATHER_PARAM = {
     "Pressure": WeatherMetric.PRESSURE,
     "Precipitation": WeatherMetric.PRECIPITATION,
-    "WS": WeatherMetric.WS,
+    # "WS": WeatherMetric.WS, # TODO: Search new API 
+    "WD": WeatherMetric.WD,
     "Humidity": WeatherMetric.HUMIDITY,
     "Radiation": WeatherMetric.RADIATION,
     "PicoMoisture 1": WeatherMetric.PICOMOISTURE1,
@@ -45,3 +47,15 @@ MAP_COLUMNS = {
 
 # Out of bound umbral for each day
 UMBRAL = 0.75
+
+# Sensor related for each metric.
+METRICS_TO_SENSORS = {
+    "Pressure": "Barometer",
+    "Precipitation": "Rain gauge",
+    "Humidity": "Thermo-hygrometer",
+    "WS": "Anemometer",
+    "WD": "Wind vane",
+    "Radiation": "Pyranometer",
+    "PicoMoisture 1": "Soil moisture and soil temperature sensor (PICO 1)",
+    "CO2": "CO2 sensor (NDIR)",
+}
