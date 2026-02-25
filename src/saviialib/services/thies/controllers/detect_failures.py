@@ -39,11 +39,11 @@ class DetectFailuresController:
 
     async def _connect_clients(self) -> None:
         await self.weather_client.connect()
-        await self.db_client.connect()
+        # await self.db_client.connect()
 
     async def _close_clients(self) -> None:
         await self.weather_client.close()
-        await self.db_client.close()
+        # await self.db_client.close()
 
     async def execute(self) -> DetectFailuresControllerOutput:
         try:
@@ -55,6 +55,7 @@ class DetectFailuresController:
                     "db_name": self.input.db_name,
                     "user": self.input.user,
                     "pwd": self.input.pwd,
+                    "n_days": self.input.n_days,
                 }
             )
             await self._connect_clients()
@@ -63,6 +64,7 @@ class DetectFailuresController:
                     local_backup_source_path=self.input.local_backup_source_path,
                     db_client=self.db_client,
                     weather_client=self.weather_client,
+                    n_days=self.input.n_days,
                 )
             )
             output = await use_case.execute()

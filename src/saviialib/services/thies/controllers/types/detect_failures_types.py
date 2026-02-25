@@ -7,6 +7,7 @@ from saviialib.general_types.api.saviia_thies_api_types import SaviiaThiesConfig
 class DetectFailuresControllerInput:
     config: SaviiaThiesConfig
     local_backup_source_path: str
+    n_days: int = 7
     db_driver: str = ""
     db_host: str = ""
     db_name: str = ""

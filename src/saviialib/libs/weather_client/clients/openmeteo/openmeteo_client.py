@@ -80,6 +80,7 @@ class OpenmeteoClient(WeatherClientContract):
                     params["daily"] += f"{metric['name']}_{aggr},"
             params["timezone"] = self._timezone if self._timezone else "auto"
             res = await self.session.get(url=metric["source"], params=params)  # type: ignore
+            res.raise_for_status()
             resjson = await res.json()
             self.logger.debug(DebugArgs(LogStatus.SUCCESSFUL))
             return {

@@ -47,6 +47,7 @@ class SaviiaThiesAPI:
     async def detect_failures(
         self,
         local_backup_source_path: str,
+        n_days: int = 7,
         db_driver: str = "",
         db_host: str = "",
         db_name: str = "",
@@ -57,6 +58,7 @@ class SaviiaThiesAPI:
             DetectFailuresControllerInput(
                 self.config,
                 local_backup_source_path,
+                n_days,
                 db_driver,
                 db_host,
                 db_name,
