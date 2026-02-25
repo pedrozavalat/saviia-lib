@@ -67,6 +67,8 @@ class SaviiaAPI:
                     sharepoint_tenant_name=config.sharepoint_tenant_name,
                     sharepoint_site_name=config.sharepoint_site_name,
                     logger=config.logger,
+                    latitude=config.latitude,
+                    longitude=config.longitude,
                 )
             elif name == "backup":
                 service_config = SaviiaBackupConfig(
@@ -85,10 +87,9 @@ class SaviiaAPI:
 
             elif name == "tasks":
                 service_config = SaviiaTasksConfig(
-                    bot_token=config.bot_token,
-                    task_channel_id=config.tasks_channel_id
+                    bot_token=config.bot_token, task_channel_id=config.tasks_channel_id
                 )
-            
+
             self._instances[name] = api_class(service_config)
 
     def get(self, name: Literal["thies", "backup", "netcamera", "tasks"]) -> Any:

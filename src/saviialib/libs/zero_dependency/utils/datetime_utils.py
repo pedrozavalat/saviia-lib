@@ -1,6 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 from zoneinfo import ZoneInfo
+
 
 def today(timezone: str = "America/Santiago") -> datetime:
     """
@@ -24,6 +25,10 @@ def datetime_to_str(date: datetime, date_format: str = "%m/%d/%Y, %H:%M:%S") -> 
     """
     return date.strftime(date_format)
 
+
+def datetime_to_timestamp(date: datetime, date_format: str = "%m/%d/%Y, %H:%M:%S") -> float:
+    return str_to_timestamp(datetime_to_str(date, date_format), date_format)
+
 def str_to_datetime(date: str, date_format: str = "%m/%d/%Y, %H:%M:%S") -> datetime:
     """
     Convert a string to a datetime object in the specified format.
@@ -35,10 +40,15 @@ def str_to_datetime(date: str, date_format: str = "%m/%d/%Y, %H:%M:%S") -> datet
     """
     return datetime.strptime(date, date_format)
 
-def str_to_timestamp(date: str, date_format: str = "%m/%d/%Y, %H:%M:%S", timezone: str = "America/Santiago") -> float:
+
+def str_to_timestamp(
+    date: str,
+    date_format: str = "%m/%d/%Y, %H:%M:%S",
+    timezone: str = "America/Santiago",
+) -> float:
     """
     Docstring para str_to_timestamp
-    
+
     :param date: Datetime in YYYY-MM-DD format
     :type date: str
     :param date_format: yyyy-mm-dd by default
@@ -51,10 +61,16 @@ def str_to_timestamp(date: str, date_format: str = "%m/%d/%Y, %H:%M:%S", timezon
     return datetime.strptime(date, date_format).timestamp()
 
 
-def is_within_date_range(date: str, after: Optional[int] = None, before: Optional[int] = None) -> bool:
+def is_within_date_range(
+    date: str, after: Optional[int] = None, before: Optional[int] = None
+) -> bool:
     date_ts = str_to_timestamp(date)
     if after and date_ts < after:
         return False
     if before and date_ts > before:
         return False
     return True
+
+
+def difference(date: datetime, n: int) -> datetime:
+    return date - timedelta(days=n)
