@@ -37,5 +37,5 @@ class WeatherQuery:
 @dataclass
 class ForecastArgs:
     query: WeatherQuery
-    start_date: Optional[int | str]
-    end_date: Optional[int | str]
+    start_date: Optional[int | str | float]
+    end_date: Optional[int | str | float]
