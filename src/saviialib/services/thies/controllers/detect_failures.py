@@ -68,6 +68,12 @@ class DetectFailuresController:
                 )
             )
             output = await use_case.execute()
+            if output.validation == {}:
+                return DetectFailuresControllerOutput(
+                    message="The /thies folder was empty.",
+                    status=HTTPStatus.NO_CONTENT.value,
+                    metadata=output.__dict__,
+                )
             return DetectFailuresControllerOutput(
                 message="The validation was successful.",
                 status=HTTPStatus.OK.value,

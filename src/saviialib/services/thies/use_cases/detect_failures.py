@@ -56,8 +56,13 @@ class DetectFailuresUseCase:
             for f in await self.dir_client.listdir(file_spath)
             if self._file_in_range(f)
         }
-        self.logger.debug(DebugArgs(LogStatus.STARTED, {"msg": filtered_files}))
         data = pd.DataFrame()
+        if len(filtered_files) == 0:
+            self.logger.debug(
+                DebugArgs(LogStatus.EARLY_RETURN, {"msg": filtered_files})
+            )
+            return data, filtered_files
+        self.logger.debug(DebugArgs(LogStatus.STARTED, {"msg": filtered_files}))
         for file in filtered_files:
             merged_df = pd.DataFrame()
             for prefix in ["AVG", "EXT"]:
@@ -209,6 +214,11 @@ class DetectFailuresUseCase:
         self.logger.method_name = "execute"
         self.logger.debug(DebugArgs(LogStatus.STARTED))
         data, last_dates = await self._download_last_files_info()
+        if len(last_dates) == 0:
+            self.logger.debug(
+                DebugArgs(LogStatus.EARLY_RETURN, {"msg": "No files available."})
+            )
+            return DetectFailuresUseCaseOutput({})
         saviia_val = await self._validate_threshold_against_saviia(data, last_dates)
         weather_val = await self._validate_threshold_against_weather_client(
             data, last_dates
