@@ -12,10 +12,9 @@ from saviialib.libs.zero_dependency.utils.datetime_utils import (
     datetime_to_str,
 )
 import saviialib.services.thies.constants.detect_failures_constants as const
-from saviialib.libs.files_client import ReadArgs, FilesClientInitArgs, FilesClient
+from saviialib.libs.files_client import FilesClientInitArgs, FilesClient
 from saviialib.libs.directory_client import DirectoryClient, DirectoryClientArgs
-from saviialib.libs.weather_client import WeatherMetric, WeatherQuery, ForecastArgs
-import math
+from saviialib.libs.weather_client import WeatherQuery, ForecastArgs
 
 
 class DetectFailuresUseCase:
@@ -113,7 +112,9 @@ class DetectFailuresUseCase:
                 high = values[date]
             elif "min" in aggr:
                 low = values[date]
-        self.logger.debug(DebugArgs(LogStatus.SUCCESSFUL, {'msg': f'Min: {low}, Max: {high}'}))
+        self.logger.debug(
+            DebugArgs(LogStatus.SUCCESSFUL, {"msg": f"Min: {low}, Max: {high}"})
+        )
         return low, high
 
     async def _validate_threshold_against_weather_client(
@@ -165,8 +166,6 @@ class DetectFailuresUseCase:
                         (daily_data < low)  # under the lowest
                         | (daily_data > high)  # or above the highest
                     ]
-                if attr == "WS": 
-                    pass
                 violations = out_of_bound.count() / daily_data.count()
                 # Validate is all the values are zero.
                 all_zeros = (daily_data == 0).all()
@@ -182,9 +181,7 @@ class DetectFailuresUseCase:
             self.logger.debug(
                 DebugArgs(
                     LogStatus.SUCCESSFUL,
-                    {
-                        "msg": f"Sensor related to {attr} failed?: {exceeds_majority}"
-                    },
+                    {"msg": f"Sensor related to {attr} failed?: {exceeds_majority}"},
                 )
             )
             validation[attr] = {

@@ -25,7 +25,7 @@ COLS_TO_KEEP = {
     "Time": (),
     "Pressure": ("MIN", "MAX"),
     "Precipitation": (),
-    # "WS": ("MIN", "MAX gust"), # TODO: Search new API 
+    # "WS": ("MIN", "MAX gust"), # TODO: Search new API
     "WD": ("MIN", "MAX gust"),
     "Humidity": ("MIN", "MAX"),
     "Radiation": ("MIN", "MAX"),
@@ -37,7 +37,7 @@ COLS_TO_KEEP = {
 METRIC_TO_WEATHER_PARAM = {
     "Pressure": WeatherMetric.PRESSURE,
     "Precipitation": WeatherMetric.PRECIPITATION,
-    # "WS": WeatherMetric.WS, # TODO: Search new API 
+    # "WS": WeatherMetric.WS, # TODO: Search new API
     "WD": WeatherMetric.WD,
     "Humidity": WeatherMetric.HUMIDITY,
     "Radiation": WeatherMetric.RADIATION,
