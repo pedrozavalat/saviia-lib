@@ -15,4 +15,4 @@ flake8
 pyflakes
 pylint
 certifi
-pyodbc
+
