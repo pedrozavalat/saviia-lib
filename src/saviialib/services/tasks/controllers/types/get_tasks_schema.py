@@ -19,12 +19,19 @@ GET_TASKS_SCHEMA = {
                     "type": "array",
                     "items": {
                         "type": "string",
-                        "enum": ["title", "due_date", "priority", "description"],
+                        "enum": [
+                            "title",
+                            "deadline",
+                            "priority",
+                            "description",
+                            "periodicity",
+                            "assignee",
+                        ],
                     },
                     "uniqueItems": True,
                     "allOf": [
                         {"contains": {"const": "title"}},
-                        {"contains": {"const": "due_date"}},
+                        {"contains": {"const": "deadline"}},
                     ],
                     "description": "Specific fields to include in the response",
                 },
