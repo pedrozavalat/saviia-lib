@@ -6,7 +6,7 @@ from typing import Dict, List
 @dataclass
 class GetTasksUseCaseInput:
     notification_client: NotificationClient
-    params: Dict[str, str] = field(default_factory=dict)
+    params: Dict[str, str | bool | dict | list] = field(default_factory=dict)
 
 
 @dataclass

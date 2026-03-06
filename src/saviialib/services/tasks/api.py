@@ -9,6 +9,8 @@ from .controllers import (
     DeleteTaskControllerInput,
     GetTasksController,
     GetTasksControllerInput,
+    GetPendingTasksController,
+    GetPendingTasksControllerInput,
 )
 
 
@@ -84,5 +86,23 @@ class SaviiaTasksAPI:
         :return: A dictionary representation of the tasks response containing task data
         """
         controller = GetTasksController(GetTasksControllerInput(self.config, params))
+        response = await controller.execute()
+        return response.__dict__
+
+    async def get_pending_tasks(self) -> Dict[str, Any]:
+        """
+        Retrieves pending tasks organized by deadline status and sorted by priority.
+
+        Returns uncompleted tasks categorized as either on-time or overdue, with results
+        sorted by periodicity and priority. Deadline categorization takes precedence over
+        other sorting criteria.
+
+        :param self: The instance of the API service class
+        :return: A dictionary representation of the pending tasks response
+        :rtype: Dict[str, Any]
+        """
+        controller = GetPendingTasksController(
+            GetPendingTasksControllerInput(self.config)
+        )
         response = await controller.execute()
         return response.__dict__

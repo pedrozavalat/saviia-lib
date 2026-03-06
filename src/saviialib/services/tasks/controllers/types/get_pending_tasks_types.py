@@ -4,13 +4,12 @@ from saviialib.general_types.api.saviia_tasks_api_types import SaviiaTasksConfig
 
 
 @dataclass
-class GetTasksControllerInput:
+class GetPendingTasksControllerInput:
     config: SaviiaTasksConfig
-    params: Dict[str, str | bool | dict | list] = field(default_factory=dict)
 
 
 @dataclass
-class GetTasksControllerOutput:
+class GetPendingTasksControllerOutput:
     message: str
     status: int
     metadata: Dict[str, str] = field(default_factory=dict)

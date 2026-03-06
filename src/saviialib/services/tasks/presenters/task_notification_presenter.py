@@ -75,25 +75,19 @@ class TaskNotificationPresenter:
             )
         )
 
-        if params.get("completed"):
+        if any(param == "completed" for param in params.keys()):
             tasks = list(filter(lambda t: t["completed"] == params["completed"], tasks))
 
-        if params.get("fields"):
+        if any(param == "fields" for param in params.keys()):
             allowed_fields = params["fields"]
             tasks = list(
                 map(
-                    lambda t: {
-                        "task": {
-                            k: v for k, v in t["task"].items() if k in allowed_fields
-                        },
-                        "discord_id": t["discord_id"],
-                        "completed": t["completed"],
-                    },
+                    lambda t: {k: v for k, v in t.items() if k in allowed_fields},
                     tasks,
                 )
             )
 
-        if params.get("after") or params.get("before"):
+        if any(param == "after" or param == "before" for param in params.keys()):
             tasks = list(
                 map(
                     lambda t: is_within_date_range(
@@ -102,7 +96,7 @@ class TaskNotificationPresenter:
                     tasks,
                 )
             )
-        if params.get("sort"):
+        if any(param == "sort" for param in params.keys()):
             reverse = params["sort"] == "desc"
             tasks.sort(
                 key=lambda t: str_to_timestamp(
