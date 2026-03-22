@@ -1,6 +1,4 @@
 from saviialib.libs.schema_validator_client import SchemaValidatorClient
-from saviialib.services.tasks.controllers.types.create_task_schema import CREATE_TASK_SCHEMA
-from saviialib.services.tasks.controllers.types.create_task_types import CreateTaskControllerInput
 from saviialib.services.tasks.controllers.types.update_task_schema import (
     UPDATE_TASK_SCHEMA,
 )
@@ -31,26 +29,26 @@ class UpdateTaskValidator:
         self.log_client.method_name = "_validate_controller_input"
         self.log_client.debug(DebugArgs(LogStatus.STARTED))
         SchemaValidatorClient(schema=UPDATE_TASK_SCHEMA).validate(
-                {
-                    "tid": self.input.task.get("tid", ""),
-                    "title": self.input.task.get("title", ""),
-                    "deadline": self.input.task.get("deadline", ""),
-                    "creation": self.input.task.get("creation", ""),
-                    "execution": self.input.task.get("execution", ""),
-                    "priority": self.input.task.get("priority", ""),
-                    "description": self.input.task.get("description", ""),
-                    "periodicity": self.input.task.get("periodicity", ""),
-                    "category": self.input.task.get("category", ""),
-                    "assignee": self.input.task.get("assignee", ""),
-                    "assignee_email": self.input.task.get("assignee_email", ""),
-                    "assignee_discord_username": self.input.task.get(
-                        "assignee_discord_username", ""
-                    ),
-                    "bot_token": self.input.config.bot_token,
-                    "completed": self.input.completed,
-                    "task_channel_id": self.input.config.task_channel_id,
-                }
-            )
+            {
+                "tid": self.input.task.get("tid", ""),
+                "title": self.input.task.get("title", ""),
+                "deadline": self.input.task.get("deadline", ""),
+                "creation": self.input.task.get("creation", ""),
+                "execution": self.input.task.get("execution", ""),
+                "priority": self.input.task.get("priority", ""),
+                "description": self.input.task.get("description", ""),
+                "periodicity": self.input.task.get("periodicity", ""),
+                "category": self.input.task.get("category", ""),
+                "assignee": self.input.task.get("assignee", ""),
+                "assignee_email": self.input.task.get("assignee_email", ""),
+                "assignee_discord_username": self.input.task.get(
+                    "assignee_discord_username", ""
+                ),
+                "bot_token": self.input.config.bot_token,
+                "completed": self.input.completed,
+                "task_channel_id": self.input.config.task_channel_id,
+            }
+        )
         self.log_client.debug(DebugArgs(LogStatus.SUCCESSFUL))
 
     def _validate_date_ordering(self):

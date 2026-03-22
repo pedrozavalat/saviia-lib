@@ -11,8 +11,6 @@ from saviialib.services.tasks.use_cases.update_task import UpdateTaskUseCase
 from saviialib.services.tasks.use_cases.types.update_task_types import (
     UpdateTaskUseCaseInput,
 )
-from .types.update_task_schema import UPDATE_TASK_SCHEMA
-from saviialib.libs.schema_validator_client import SchemaValidatorClient
 from .validators.update_task_validator import UpdateTaskValidator
 from saviialib.libs.notification_client import (
     NotificationClient,

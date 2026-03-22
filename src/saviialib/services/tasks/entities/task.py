@@ -9,7 +9,7 @@ class SaviiaTask:
         tid: Task ID
         title: Task title
         deadline: Deadline date for the task. The user should have completed the task by this date.
-        creation: Creation date of the task. 
+        creation: Creation date of the task.
         execution: The date on which the user indicated the task had been completed.
         priority: Task priority level
         description: Optional task details
