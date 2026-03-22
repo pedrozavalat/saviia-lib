@@ -14,6 +14,7 @@ class UpdateTaskUseCaseOutput:
     tid: str
     title: str
     deadline: str
+    creation: str
     priority: int
     description: str | None
     periodicity: str | None

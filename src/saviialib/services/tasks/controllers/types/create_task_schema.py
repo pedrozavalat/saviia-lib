@@ -3,9 +3,22 @@ CREATE_TASK_SCHEMA = {
     "description": "Schema for validating input data when creating a task in Saviia",
     "type": "object",
     "properties": {
-        "title": {"type": "string"},
+        "title": {
+            "type": "string",
+            "minLength": 1,
+        },
         "description": {"type": "string"},
         "deadline": {
+            "type": "string",
+            "format": "date-time",
+            "minLength": 1,
+        },
+        "creation": {
+            "type": "string",
+            "format": "date-time",
+            "minLength": 1,
+        },
+        "execution": {
             "type": "string",
             "format": "date-time",
         },
@@ -13,8 +26,14 @@ CREATE_TASK_SCHEMA = {
             "type": "integer",
             "minimum": 1,
             "maximum": 4,
+            "minLength": 1,
         },
-        "assignee": {"type": "string"},
+        "assignee": {
+            "type": "string",
+            "minLength": 1,
+        },
+        "assignee_email": {"type": "string", "format": "email"},
+        "assignee_discord_username": {"type": "string"},
         "category": {"type": "string"},
         "periodicity": {"type": "string"},
         "bot_token": {"type": "string"},
@@ -39,6 +58,7 @@ CREATE_TASK_SCHEMA = {
         "task_channel_id",
         "title",
         "deadline",
+        "creation",
         "priority",
         "assignee",
     ],

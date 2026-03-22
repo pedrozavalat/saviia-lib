@@ -10,9 +10,7 @@ from saviialib.services.tasks.use_cases.create_task import CreateTaskUseCase
 from saviialib.services.tasks.use_cases.types.create_task_types import (
     CreateTaskUseCaseInput,
 )
-from .types.create_task_schema import CREATE_TASK_SCHEMA
 from saviialib.services.tasks.entities.task import SaviiaTask
-from saviialib.libs.schema_validator_client import SchemaValidatorClient
 from saviialib.libs.notification_client import (
     NotificationClient,
     NotificationClientInitArgs,
@@ -24,6 +22,7 @@ from saviialib.libs.log_client import (
     DebugArgs,
     ErrorArgs,
 )
+from .validators.create_task_validator import CreateTaskValidator
 
 
 class CreateTaskController:
@@ -40,9 +39,10 @@ class CreateTaskController:
             LogClientArgs(
                 client_name="logging",
                 service_name="tasks",
-                class_name="delete_task_controller",
+                class_name="create_task_controller",
             )
         )
+        self.validator = CreateTaskValidator(input)
 
     async def _connect_clients(self) -> None:
         self.log_client.method_name = "_connect_clients"
@@ -60,30 +60,23 @@ class CreateTaskController:
         self.log_client.method_name = "execute"
         self.log_client.debug(DebugArgs(LogStatus.STARTED))
         try:
-            SchemaValidatorClient(schema=CREATE_TASK_SCHEMA).validate(
-                {
-                    "title": self.input.task.get("title", ""),
-                    "deadline": self.input.task.get("deadline", ""),
-                    "priority": self.input.task.get("priority", ""),
-                    "description": self.input.task.get("description", ""),
-                    "periodicity": self.input.task.get("periodicity", ""),
-                    "category": self.input.task.get("category", ""),
-                    "assignee": self.input.task.get("assignee", ""),
-                    "bot_token": self.input.config.bot_token,
-                    "task_channel_id": self.input.config.task_channel_id,
-                    "images": self.input.images,
-                }
-            )
+            self.validator.validate()
             await self._connect_clients()
             use_case = CreateTaskUseCase(
                 CreateTaskUseCaseInput(
                     task=SaviiaTask(
                         title=self.input.task.get("title", ""),
                         deadline=self.input.task.get("deadline", ""),
+                        creation=self.input.task.get("creation", ""),
+                        execution=self.input.task.get("execution", ""),
                         priority=self.input.task.get("priority", ""),
                         description=self.input.task.get("description", ""),
                         periodicity=self.input.task.get("periodicity", ""),
                         assignee=self.input.task.get("assignee", ""),
+                        assignee_email=self.input.task.get("assignee_email", ""),
+                        assignee_discord_username=self.input.task.get(
+                            "assignee_discord_username", ""
+                        ),
                         category=self.input.task.get("category", ""),
                         completed=False,  # By default, the task isn't completed...
                         images=self.input.images,
@@ -112,10 +105,10 @@ class CreateTaskController:
                 status=HTTPStatus.NOT_IMPLEMENTED.value,
                 metadata={"error": error.__str__()},
             )
-        except ValidationError as error:
+        except (ValidationError, ValueError) as error:
             self.log_client.error(ErrorArgs(LogStatus.ERROR, {"msg": error.__str__()}))
             return CreateTaskControllerOutput(
-                message="Invalid input data for deleting a task.",
+                message="Invalid input data for creating a task.",
                 status=HTTPStatus.BAD_REQUEST.value,
                 metadata={"error": error.__str__()},
             )
@@ -126,5 +119,6 @@ class CreateTaskController:
                 status=HTTPStatus.INTERNAL_SERVER_ERROR.value,
                 metadata={"error": error.__str__()},
             )
+
         finally:
             await self._close_clients()
