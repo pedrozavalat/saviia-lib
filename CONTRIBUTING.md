@@ -42,37 +42,29 @@ If you are proposing a feature:
 
 Ready to contribute? Here's how to set up `saviialib` for local development.
 
-1. Download a copy of `saviialib` locally.
-
-2. Create and activate a conda environment for `saviialib`:
+1. Install `saviialib` using `pip` or `pip3`:
 
     ```console
-    $ conda create -n saviialib python=3.10
-    $ conda activate saviialib
+    pip install saviialib==LAST_VERSION
     ```
-
-3. Install `saviialib` using `poetry`:
-
-    ```console
-    $ poetry install
-    ```
-
-4. Use `git` (or similar) to create a branch for local development and make your changes:
+* `LAST_VERSION`:  To find out the latest version of Saviialib, check out PyPi: https://pypi.org/project/saviialib/.
+2. Use `git`to create a branch for local development and make your changes:
 
     ```console
     $ git checkout -b name-of-your-bugfix-or-feature
     ```
 
-5. When you're done making changes, check that your changes conform to any code formatting requirements and pass any tests.
+3. When you're done making changes, check that your changes conform to any code formatting requirements and pass any tests.
+  **Before uploading your changes, you must run the `make test` and `make lint` commands**.
 
-6. Commit your changes and open a pull request.
+4. Commit your changes and open a pull request.
 
 ## Pull Request Guidelines
 
 Before you submit a pull request, check that it meets these guidelines:
 
 1. The pull request should include additional tests if appropriate.
-2. If the pull request adds functionality, the docs should be updated.
+2. If the pull request adds functionality, the docs (README.md and changelog.md) should be updated.
 3. The pull request should work for all currently supported operating systems and versions of Python.
 
 ## Code of Conduct
