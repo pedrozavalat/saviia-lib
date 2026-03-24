@@ -11,8 +11,7 @@ from saviialib.services.tasks.use_cases.update_task import UpdateTaskUseCase
 from saviialib.services.tasks.use_cases.types.update_task_types import (
     UpdateTaskUseCaseInput,
 )
-from .types.update_task_schema import UPDATE_TASK_SCHEMA
-from saviialib.libs.schema_validator_client import SchemaValidatorClient
+from .validators.update_task_validator import UpdateTaskValidator
 from saviialib.libs.notification_client import (
     NotificationClient,
     NotificationClientInitArgs,
@@ -31,6 +30,7 @@ class UpdateTaskController:
         "tid",
         "title",
         "deadline",
+        "creation",
         "priority",
         "description",
         "periodicity",
@@ -54,6 +54,7 @@ class UpdateTaskController:
                 class_name="update_task_controller",
             )
         )
+        self.validator = UpdateTaskValidator(input)
 
     async def _connect_clients(self) -> None:
         self.log_client.method_name = "_connect_clients"
@@ -75,21 +76,7 @@ class UpdateTaskController:
         self.log_client.method_name = "execute"
         self.log_client.debug(DebugArgs(LogStatus.STARTED))
         try:
-            SchemaValidatorClient(schema=UPDATE_TASK_SCHEMA).validate(
-                {
-                    "tid": self.input.task.get("tid", ""),
-                    "title": self.input.task.get("title", ""),
-                    "deadline": self.input.task.get("deadline", ""),
-                    "priority": self.input.task.get("priority", ""),
-                    "description": self.input.task.get("description", ""),
-                    "periodicity": self.input.task.get("periodicity", ""),
-                    "category": self.input.task.get("category", ""),
-                    "assignee": self.input.task.get("assignee", ""),
-                    "bot_token": self.input.config.bot_token,
-                    "completed": self.input.completed,
-                    "task_channel_id": self.input.config.task_channel_id,
-                }
-            )
+            self.validator.validate()
             await self._connect_clients()
             use_case = UpdateTaskUseCase(
                 UpdateTaskUseCaseInput(
@@ -97,10 +84,16 @@ class UpdateTaskController:
                         tid=self.input.task.get("tid", ""),
                         title=self.input.task.get("title", ""),
                         deadline=self.input.task.get("deadline", ""),
+                        creation=self.input.task.get("creation", ""),
+                        execution=self.input.task.get("execution", ""),
                         priority=self.input.task.get("priority", ""),
                         description=self.input.task.get("description", ""),
                         periodicity=self.input.task.get("periodicity", ""),
                         assignee=self.input.task.get("assignee", ""),
+                        assignee_email=self.input.task.get("assignee_email", ""),
+                        assignee_discord_username=self.input.task.get(
+                            "assignee_discord_username", ""
+                        ),
                         category=self.input.task.get("category", ""),
                         completed=self.input.completed,
                     ),
@@ -142,10 +135,10 @@ class UpdateTaskController:
                 status=HTTPStatus.NOT_IMPLEMENTED.value,
                 metadata={"error": error.__str__()},  # type: ignore
             )
-        except ValidationError as error:
+        except (ValueError, ValidationError) as error:
             self.log_client.error(ErrorArgs(LogStatus.ERROR, {"msg": error.__str__()}))
             return UpdateTaskControllerOutput(
-                message="Invalid input data for updating a task.",
+                message="Invalid value provided for task update.",
                 status=HTTPStatus.BAD_REQUEST.value,
                 metadata={"error": error.__str__()},  # type: ignore
             )

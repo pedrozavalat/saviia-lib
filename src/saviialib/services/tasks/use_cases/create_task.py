@@ -16,7 +16,7 @@ from saviialib.libs.directory_client import DirectoryClient, DirectoryClientArgs
 class CreateTaskUseCase:
     def __init__(self, input: CreateTaskUseCaseInput) -> None:
         self.logger = LogClient(
-            LogClientArgs(service_name="tasks", class_name="delete_task")
+            LogClientArgs(service_name="tasks", class_name="create_task_usecase")
         )
         self.dir_client = DirectoryClient(DirectoryClientArgs("os_client"))
         self.files_client = FilesClient(FilesClientInitArgs("aiofiles_client"))

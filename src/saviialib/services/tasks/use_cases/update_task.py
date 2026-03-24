@@ -37,6 +37,16 @@ class UpdateTaskUseCase:
             if self.new_task.deadline is not None
             else old_task_dict.get("deadline", "")
         )
+        new_task_dict["creation"] = (
+            self.new_task.creation
+            if self.new_task.creation is not None
+            else old_task_dict.get("creation", "")
+        )
+        new_task_dict["execution"] = (
+            self.new_task.execution
+            if self.new_task.execution is not None
+            else old_task_dict.get("execution", "")
+        )
         new_task_dict["priority"] = (
             str(self.new_task.priority)
             if self.new_task.priority is not None
@@ -51,6 +61,16 @@ class UpdateTaskUseCase:
             self.new_task.assignee
             if self.new_task.assignee is not None
             else old_task_dict.get("assignee", "")
+        )
+        new_task_dict["assignee_email"] = (
+            self.new_task.assignee_email
+            if self.new_task.assignee_email is not None
+            else old_task_dict.get("assignee_email", "")
+        )
+        new_task_dict["assignee_discord_username"] = (
+            self.new_task.assignee_discord_username
+            if self.new_task.assignee_discord_username is not None
+            else old_task_dict.get("assignee_discord_username", "")
         )
         new_task_dict["category"] = (
             self.new_task.category
@@ -86,6 +106,7 @@ class UpdateTaskUseCase:
             tid=self.new_task.tid,
             title=self.new_task.title,
             deadline=self.new_task.deadline,
+            creation=self.new_task.creation,
             priority=self.new_task.priority,
             description=self.new_task.description,
             periodicity=self.new_task.periodicity,
