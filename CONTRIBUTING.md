@@ -67,6 +67,30 @@ Before you submit a pull request, check that it meets these guidelines:
 2. If the pull request adds functionality, the docs (README.md and changelog.md) should be updated.
 3. The pull request should work for all currently supported operating systems and versions of Python.
 
+
+
+## Releasing to PyPI
+
+To build and publish a new release, it is **strongly recommended to use a clean Python virtual environment (`venv`)**.
+
+### Why?
+
+Packaging tools such as `build`, `setuptools`, and `poetry-core` are sensitive to environment inconsistencies.
+Avoid using Anaconda environments for packaging and releasing. Using environments like Anaconda may introduce incompatible or outdated dependencies.
+
+I recommend this workflow for publishing a new version of saviialib on PyPi:
+```bash
+# Create a clean virtual environment
+python3 -m venv .venv
+source .venv/bin/activate # Or simply activate it if you had already created it.
+
+# Install required tools
+pip install --upgrade build twine poetry-core
+
+# Build and upload
+make release
+```
+
 ## Code of Conduct
 
 Please note that the `saviialib` project is released with a
