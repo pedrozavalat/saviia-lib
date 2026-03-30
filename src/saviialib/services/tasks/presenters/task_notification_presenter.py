@@ -92,11 +92,11 @@ class TaskNotificationPresenter:
         """
 
     @classmethod
-    def tasks_to_email(cls, user: str, tasks: list[dict[str, str]]) -> str:
-        email_body = f"""
+    def tasks_to_email(cls, tasks: list[dict[str, str]]) -> str:
+        email_body = """
         <html>
             <body>
-            <h1>Hello! {user}</h1>
+            <h1>Hello!</h1>
             <p>Here is a summary of your pending tasks:</p>
             <ul>
         """
@@ -106,9 +106,8 @@ class TaskNotificationPresenter:
                     <strong>{task.get("title")}</strong><br>
                     Deadline: {task.get("deadline")}<br>
                     Priority: {task.get("priority")}<br>
-                    {f"Description: {task.get('description')}<br>" if task.get("description") else ""}
                     {f"Periodicity: {task.get('periodicity')}<br>" if task.get("periodicity") else ""}
-                    {f"Category: {task.get('category')}<br>" if task.get("category") else ""}
+                    {f"Description: {task.get('description')}<br>" if task.get("description") else ""}
                 </li>
             """
         email_body += """

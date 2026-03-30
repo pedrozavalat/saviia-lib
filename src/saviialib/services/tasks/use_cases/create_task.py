@@ -56,7 +56,7 @@ class CreateTaskUseCase:
                 SendEmailArgs(
                     recipient=self.task.assignee_email,
                     subject="[SAVIIA] New task assigned for you",
-                    body=self.presenter.to_email(self.task.__dict__),
+                    body=self.presenter.task_to_email(self.task.__dict__),
                     content_type="html",
                 )
             )

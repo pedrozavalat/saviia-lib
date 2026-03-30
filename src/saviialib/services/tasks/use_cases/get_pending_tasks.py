@@ -124,26 +124,30 @@ class GetPendingTasksUseCase:
         # First we group by user and the tasks assigned to them
         user_tasks = {}
         for task in tasks:
-            assignee = task["assignee"]
-            if assignee not in user_tasks:
-                user_tasks[assignee] = []
-            user_tasks[assignee].append(task)
-        # Then we send an email to each user with their assigned tasks
-        for user, tasks in user_tasks.items():
-            email_content = self.presenter.tasks_to_email(user, tasks)
-            if not tasks[0].get("assignee_email"):
+            assignee_email = task.get("assignee_email")
+            if not assignee_email:
+                assignee = task.get("assignee")
                 self.logger.debug(
                     DebugArgs(
                         LogStatus.EARLY_RETURN,
                         metadata={
-                            "msg": f"User {user} does not have an email address assigned. Skipping email notification."
+                            "msg": (
+                                f"Skipping email notification for {assignee}."
+                                " Does not have an email address assigned."
+                            )
                         },
                     )
                 )
                 continue
+            if assignee_email not in user_tasks:
+                user_tasks[assignee_email] = []
+            user_tasks[assignee_email].append(task)
+        # Then we send an email to each user with their assigned tasks
+        for assignee_email, tasks in user_tasks.items():
+            email_content = self.presenter.tasks_to_email(tasks)
             await self.email_client.send_email(
                 SendEmailArgs(
-                    recipient=tasks[0].get("assignee_email"),
+                    recipient=assignee_email,
                     subject="[SAVIIA] Summary of your pending tasks",
                     body=email_content,
                     content_type="html",
@@ -165,6 +169,8 @@ class GetPendingTasksUseCase:
                         "priority",
                         "periodicity",
                         "assignee",
+                        "assignee_email",
+                        "description"
                     ],
                 },
             )
