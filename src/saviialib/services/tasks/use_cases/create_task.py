@@ -11,6 +11,7 @@ from saviialib.libs.files_client import (
     WriteArgs,
 )
 from saviialib.libs.directory_client import DirectoryClient, DirectoryClientArgs
+from saviialib.libs.email_client import SendEmailArgs
 
 
 class CreateTaskUseCase:
@@ -23,6 +24,7 @@ class CreateTaskUseCase:
         self.task = input.task
         self.notification_client = input.notification_client
         self.presenter = TaskNotificationPresenter()
+        self.email_client = input.email_client
 
     async def execute(self) -> CreateTaskUseCaseOutput:
         self.logger.method_name = "execute"
@@ -48,6 +50,16 @@ class CreateTaskUseCase:
             NotifyArgs(content=content, embeds=embeds, files=files)
         )
         await self.notification_client.react(ReactArgs(new_task["id"], "📌"))
+        # Send email to the assignee if email is provided
+        if self.task.assignee_email:
+            await self.email_client.send_email(
+                SendEmailArgs(
+                    recipient=self.task.assignee_email,
+                    subject="[SAVIIA] New task assigned for you",
+                    body=self.presenter.to_email(self.task.__dict__),
+                    content_type="html",
+                )
+            )
         # Remove the tmp dir
         await self.dir_client.removedirs("tmp")
         self.logger.debug(DebugArgs(LogStatus.SUCCESSFUL))

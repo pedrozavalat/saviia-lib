@@ -5,7 +5,7 @@ from typing import Literal
 @dataclass
 class EmailClientInitArgs:
     """Initialization arguments for EmailClient."""
-
+    client_name: Literal["smtplib"]
     email_address: str
     email_password: str
     smtp_server: str = "smtp.gmail.com"

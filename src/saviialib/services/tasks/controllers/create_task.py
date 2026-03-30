@@ -23,6 +23,7 @@ from saviialib.libs.log_client import (
     ErrorArgs,
 )
 from .validators.create_task_validator import CreateTaskValidator
+from saviialib.libs.email_client import EmailClient, EmailClientInitArgs
 
 
 class CreateTaskController:
@@ -43,6 +44,15 @@ class CreateTaskController:
             )
         )
         self.validator = CreateTaskValidator(input)
+        self.email_client = EmailClient(
+            EmailClientInitArgs(
+                client_name="smtplib",
+                email_address=input.config.email_address,
+                email_password=input.config.email_password,
+                smtp_server="smtp.gmail.com",
+                smtp_port=587,
+            )
+        )
 
     async def _connect_clients(self) -> None:
         self.log_client.method_name = "_connect_clients"
@@ -82,6 +92,7 @@ class CreateTaskController:
                         images=self.input.images,
                     ),
                     notification_client=self.notification_client,
+                    email_client=self.email_client,
                 )
             )
             output = await use_case.execute()

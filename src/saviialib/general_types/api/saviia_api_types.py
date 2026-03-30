@@ -34,6 +34,8 @@ class SaviiaAPIConfig:
     longitude: float = -181
     tasks_channel_id: str = ""
     bot_token: str = ""
+    email_address: str = ""
+    email_password: str = ""
 
 
 @dataclass
