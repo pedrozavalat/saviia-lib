@@ -30,7 +30,7 @@ jobs:
         run: poetry run pytest tests --cov=saviialib --cov-report=xml
 
       - name: Use Codecov to track coverage
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml   # coverage report
