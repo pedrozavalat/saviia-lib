@@ -9,6 +9,7 @@ from saviialib.libs.email_client.clients.smtplib_client import SmtpLibClient
 class TestSmtpLibClientSendEmail(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.init_args = EmailClientInitArgs(
+            client_name="smtplib",
             email_address="sender@example.com",
             email_password="secret",
             smtp_server="smtp.gmail.com",
@@ -84,6 +85,7 @@ class TestEmailClientSendEmail(unittest.IsolatedAsyncioTestCase):
         self.init_args = EmailClientInitArgs(
             email_address="sender@example.com",
             email_password="secret",
+            client_name="smtplib",
         )
         self.send_args = SendEmailArgs(
             recipient="recipient@example.com",
@@ -117,6 +119,7 @@ class TestEmailClientSendEmail(unittest.IsolatedAsyncioTestCase):
     def test_should_use_default_smtp_server_and_port(self):
         # Arrange
         args = EmailClientInitArgs(
+            client_name="smtplib",
             email_address="a@b.com",
             email_password="pw",
         )

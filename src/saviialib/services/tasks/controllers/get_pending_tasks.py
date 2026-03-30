@@ -16,6 +16,7 @@ from .types.get_pending_tasks_types import (
     GetPendingTasksControllerInput,
     GetPendingTasksControllerOutput,
 )
+from saviialib.libs.email_client import EmailClient, EmailClientInitArgs
 
 
 class GetPendingTasksController:
@@ -27,6 +28,15 @@ class GetPendingTasksController:
                 client_name="discord_client",
                 api_key=self.input.config.bot_token,
                 channel_id=self.input.config.task_channel_id,
+            )
+        )
+        self.email_client = EmailClient(
+            EmailClientInitArgs(
+                client_name="smtplib",
+                email_address=input.config.email_address,
+                email_password=input.config.email_password,
+                smtp_server="smtp.gmail.com",
+                smtp_port=587,
             )
         )
 
@@ -48,6 +58,7 @@ class GetPendingTasksController:
             use_case = GetPendingTasksUseCase(
                 GetPendingTasksUseCaseInput(
                     notification_client=self.notification_client,
+                    email_client=self.email_client,
                 )
             )
             output = await use_case.execute()
