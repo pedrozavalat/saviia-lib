@@ -59,9 +59,7 @@ class SmtpLibClient(EmailClientContract):
         with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
             server.starttls()
             server.login(self.email_address, self.email_password)
-            server.sendmail(
-                self.email_address, args.recipient, message.as_string()
-            )
+            server.sendmail(self.email_address, args.recipient, message.as_string())
 
         return {
             "recipient": args.recipient,

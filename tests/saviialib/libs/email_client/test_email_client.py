@@ -96,9 +96,7 @@ class TestEmailClientSendEmail(unittest.IsolatedAsyncioTestCase):
         "saviialib.libs.email_client.email_client.SmtpLibClient.send_email",
         new_callable=AsyncMock,
     )
-    async def test_should_delegate_send_email_to_smtplib_client(
-        self, mock_send_email
-    ):
+    async def test_should_delegate_send_email_to_smtplib_client(self, mock_send_email):
         # Arrange
         expected = {
             "recipient": "recipient@example.com",
