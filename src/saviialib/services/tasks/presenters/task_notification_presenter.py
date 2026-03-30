@@ -69,7 +69,7 @@ class TaskNotificationPresenter:
         return False
 
     @classmethod
-    def to_email(cls, task: dict[str, str]) -> str:
+    def task_to_email(cls, task: dict[str, str]) -> str:
         return f"""
         <html>
             <body>
@@ -90,6 +90,36 @@ class TaskNotificationPresenter:
             </body>
         </html>
         """
+
+    @classmethod
+    def tasks_to_email(cls, user: str, tasks: list[dict[str, str]]) -> str:
+        email_body = f"""
+        <html>
+            <body>
+            <h1>Hello! {user}</h1>
+            <p>Here is a summary of your pending tasks:</p>
+            <ul>
+        """
+        for task in tasks:
+            email_body += f"""
+                <li>
+                    <strong>{task.get("title")}</strong><br>
+                    Deadline: {task.get("deadline")}<br>
+                    Priority: {task.get("priority")}<br>
+                    {f"Description: {task.get('description')}<br>" if task.get("description") else ""}
+                    {f"Periodicity: {task.get('periodicity')}<br>" if task.get("periodicity") else ""}
+                    {f"Category: {task.get('category')}<br>" if task.get("category") else ""}
+                </li>
+            """
+        email_body += """
+            </ul>
+            <p>Please check your task dashboard for more details and to mark the tasks as completed once done.</p>
+            <p>Regards,</p>
+            <p><strong>SAVIIA Team</strong></p>
+            </body>
+        </html>
+        """
+        return email_body
 
     @classmethod
     def to_task_notifications(

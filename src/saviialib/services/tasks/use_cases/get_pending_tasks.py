@@ -13,6 +13,7 @@ from saviialib.libs.zero_dependency.utils.datetime_utils import (
     datetime_to_timestamp,
     str_to_datetime,
 )
+from saviialib.libs.email_client import SendEmailArgs
 
 
 class GetPendingTasksUseCase:
@@ -24,6 +25,7 @@ class GetPendingTasksUseCase:
         self.notification_client = input.notification_client
         self.date_format = "%Y-%m-%d"
         self.today = datetime_to_timestamp(today(), self.date_format)
+        self.email_client = input.email_client
 
     def _set_date_state(self, date_tmp: float):
         """If self.today > date_tmp, then the date_tmp is overdue (1). Otherwise, is on-time (0)"""
@@ -118,6 +120,36 @@ class GetPendingTasksUseCase:
             -t["priority"],  # higher numeric priority first
         )
 
+    async def _send_emails_to_assigned_users(self, tasks: list) -> None:
+        # First we group by user and the tasks assigned to them
+        user_tasks = {}
+        for task in tasks:
+            assignee = task["assignee"]
+            if assignee not in user_tasks:
+                user_tasks[assignee] = []
+            user_tasks[assignee].append(task)
+        # Then we send an email to each user with their assigned tasks
+        for user, tasks in user_tasks.items():
+            email_content = self.presenter.tasks_to_email(user, tasks)
+            if not tasks[0].get("assignee_email"):
+                self.logger.debug(
+                    DebugArgs(
+                        LogStatus.EARLY_RETURN,
+                        metadata={
+                            "msg": f"User {user} does not have an email address assigned. Skipping email notification."
+                        },
+                    )
+                )
+                continue
+            await self.email_client.send_email(
+                SendEmailArgs(
+                    recipient=tasks[0].get("assignee_email"),
+                    subject="[SAVIIA] Summary of your pending tasks",
+                    body=email_content,
+                    content_type="html",
+                )
+            )
+
     async def execute(self) -> GetPendingTasksUseCaseOutput:
         self.logger.method_name = "execute"
         self.logger.debug(DebugArgs(LogStatus.STARTED))
@@ -141,6 +173,7 @@ class GetPendingTasksUseCase:
         preprocessed_tasks = self._preprocess_tasks(uncompleted_tasks.tasks)
         sorted_tasks = sorted(preprocessed_tasks, key=self._compare_by_attr)
         overdue, ontime = self._split_task_arrays(sorted_tasks)
+        await self._send_emails_to_assigned_users(uncompleted_tasks.tasks)
 
         self.logger.debug(DebugArgs(LogStatus.SUCCESSFUL))
         return GetPendingTasksUseCaseOutput(overdue, ontime)
