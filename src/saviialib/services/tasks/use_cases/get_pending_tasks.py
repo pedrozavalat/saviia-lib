@@ -170,7 +170,7 @@ class GetPendingTasksUseCase:
                         "periodicity",
                         "assignee",
                         "assignee_email",
-                        "description"
+                        "description",
                     ],
                 },
             )
