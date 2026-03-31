@@ -13,7 +13,6 @@ class GetPendingTasksUseCaseInput:
     local_backup_path: str = ""
     download: bool = False
     notify: bool = False
-    
 
 
 @dataclass

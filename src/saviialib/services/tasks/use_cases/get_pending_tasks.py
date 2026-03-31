@@ -197,7 +197,14 @@ class GetPendingTasksUseCase:
             await self.dir_client.touch(pass_file_path)
         filename = datetime_to_str(today(), date_format="%Y%m%d") + "_tasks.xlsx"
         df = pd.DataFrame(tasks)
-        df = df.drop(columns=["assignee_email", "periodicity_freq", "periodicity_categ", "deadline_categ"])
+        df = df.drop(
+            columns=[
+                "assignee_email",
+                "periodicity_freq",
+                "periodicity_categ",
+                "deadline_categ",
+            ]
+        )
         excel_file_path = self.dir_client.join_paths(tasks_dir, filename)
         df.to_excel(excel_file_path, index=False)
         self.logger.debug(DebugArgs(LogStatus.SUCCESSFUL))
