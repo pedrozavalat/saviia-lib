@@ -12,11 +12,15 @@ from saviialib.libs.zero_dependency.utils.datetime_utils import (
     today,
     datetime_to_timestamp,
     str_to_datetime,
+    datetime_to_str,
 )
+import pandas as pd
 from saviialib.libs.email_client import SendEmailArgs
 
 
 class GetPendingTasksUseCase:
+    TASKS_DIRNAME = "saviia-tasks"
+
     def __init__(self, input: GetPendingTasksUseCaseInput) -> None:
         self.logger = LogClient(
             LogClientArgs(service_name="tasks", class_name="get_pending_tasks")
@@ -26,6 +30,10 @@ class GetPendingTasksUseCase:
         self.date_format = "%Y-%m-%d"
         self.today = datetime_to_timestamp(today(), self.date_format)
         self.email_client = input.email_client
+        self.local_backup_path = input.local_backup_path
+        self.dir_client = input.dir_client
+        self.download = input.download
+        self.notify = input.notify
 
     def _set_date_state(self, date_tmp: float):
         """If self.today > date_tmp, then the date_tmp is overdue (1). Otherwise, is on-time (0)"""
@@ -65,9 +73,13 @@ class GetPendingTasksUseCase:
             map(
                 lambda t: {
                     "title": t["title"],
+                    "creation": t.get("creation", ""),
                     "deadline": t["deadline"],
+                    "execution": t.get("execution", ""),
+                    "description": t.get("description", ""),
                     "priority": int(t["priority"]),
                     "assignee": t["assignee"],
+                    "assignee_email": t.get("assignee_email", ""),
                     "deadline_categ": self._set_date_state(
                         datetime_to_timestamp(
                             str_to_datetime(t["deadline"], self.date_format),
@@ -154,10 +166,46 @@ class GetPendingTasksUseCase:
                 )
             )
 
+    async def _save_tasks(self, tasks: list[dict[str, str | bool | dict]]) -> None:
+        self.logger.method_name = "_save_tasks"
+        self.logger.debug(DebugArgs(LogStatus.STARTED))
+        if not await self.dir_client.path_exists(self.local_backup_path):
+            self.logger.debug(
+                DebugArgs(
+                    LogStatus.EARLY_RETURN,
+                    metadata={
+                        "msg": f"The directory {self.local_backup_path} doesn't exist."
+                    },
+                )
+            )
+            return
+        # First time access
+        tasks_dir = self.dir_client.join_paths(
+            self.local_backup_path, self.TASKS_DIRNAME
+        )
+        if not await self.dir_client.path_exists(tasks_dir):
+            self.logger.debug(
+                DebugArgs(
+                    LogStatus.ALERT,
+                    metadata={
+                        "msg": f"The directory {self.TASKS_DIRNAME} doesn't exist. Creating..."
+                    },
+                )
+            )
+            await self.dir_client.makedirs(tasks_dir)
+            pass_file_path = self.dir_client.join_paths(tasks_dir, ".PASS.txt")
+            await self.dir_client.touch(pass_file_path)
+        filename = datetime_to_str(today(), date_format="%Y%m%d") + "_tasks.xlsx"
+        df = pd.DataFrame(tasks)
+        df = df.drop(columns=["assignee_email", "periodicity_freq", "periodicity_categ", "deadline_categ"])
+        excel_file_path = self.dir_client.join_paths(tasks_dir, filename)
+        df.to_excel(excel_file_path, index=False)
+        self.logger.debug(DebugArgs(LogStatus.SUCCESSFUL))
+        self.logger.method_name = "execute"
+
     async def execute(self) -> GetPendingTasksUseCaseOutput:
         self.logger.method_name = "execute"
         self.logger.debug(DebugArgs(LogStatus.STARTED))
-
         uncompleted_tasks = await GetTasksUseCase(
             GetTasksUseCaseInput(
                 self.notification_client,
@@ -165,7 +213,9 @@ class GetPendingTasksUseCase:
                     "completed": False,
                     "fields": [
                         "title",
+                        "creation",
                         "deadline",
+                        "execution",
                         "priority",
                         "periodicity",
                         "assignee",
@@ -175,11 +225,22 @@ class GetPendingTasksUseCase:
                 },
             )
         ).execute()
-
         preprocessed_tasks = self._preprocess_tasks(uncompleted_tasks.tasks)
         sorted_tasks = sorted(preprocessed_tasks, key=self._compare_by_attr)
         overdue, ontime = self._split_task_arrays(sorted_tasks)
-        await self._send_emails_to_assigned_users(uncompleted_tasks.tasks)
+        self.logger.debug(
+            DebugArgs(LogStatus.ALERT, {"msg": f"send email?: {self.notify}"})
+        )
+        if self.notify:
+            await self._send_emails_to_assigned_users(sorted_tasks)
+        self.logger.debug(
+            DebugArgs(
+                LogStatus.ALERT,
+                {"msg": f"download not completed tasks?: {self.download}"},
+            )
+        )
+        if self.download:
+            await self._save_tasks(sorted_tasks)
 
         self.logger.debug(DebugArgs(LogStatus.SUCCESSFUL))
         return GetPendingTasksUseCaseOutput(overdue, ontime)

@@ -5,6 +5,8 @@ GET_PENDING_TASKS_SCHEMA = {
     "properties": {
         "bot_token": {"type": "string"},
         "task_channel_id": {"type": "string"},
+        "download": {"type": "boolean"},
+        "notify": {"type": "boolean"},
     },
     "required": ["bot_token", "task_channel_id"],
     "additionalProperties": False,
