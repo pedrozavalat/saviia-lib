@@ -65,3 +65,11 @@ class OsClient(DirectoryClientContract):
     @staticmethod
     def get_basename(path: str):
         return os.path.basename(path)
+
+    @staticmethod
+    async def touch(path: str):
+        def _touch(path):
+            with os.fdopen(os.open(path, os.O_WRONLY | os.O_CREAT), "w"):
+                pass
+            os.utime(path, None)
+        await asyncio.to_thread(_touch, path)

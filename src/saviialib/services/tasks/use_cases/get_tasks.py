@@ -6,7 +6,7 @@ from saviialib.services.tasks.presenters import TaskNotificationPresenter
 class GetTasksUseCase:
     def __init__(self, input: GetTasksUseCaseInput) -> None:
         self.logger = LogClient(
-            LogClientArgs(service_name="tasks", class_name="update_tasks")
+            LogClientArgs(service_name="tasks", class_name="get_tasks")
         )
         self.params = input.params
         self.notification_client = input.notification_client

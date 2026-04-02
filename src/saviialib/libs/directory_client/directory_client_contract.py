@@ -42,3 +42,7 @@ class DirectoryClientContract(ABC):
     @abstractmethod
     def get_basename(self, path: str):
         pass
+    
+    @abstractmethod
+    async def touch(self, path: str):
+        pass
