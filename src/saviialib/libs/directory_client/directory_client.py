@@ -30,7 +30,7 @@ class DirectoryClient(DirectoryClientContract):
 
     async def makedirs(self, path: str) -> None:
         return await self.client_obj.makedirs(path)
-    
+
     async def removedirs(self, path: str) -> None:
         return await self.client_obj.removedirs(path)
 
@@ -39,6 +39,9 @@ class DirectoryClient(DirectoryClientContract):
 
     async def walk(self, path: str) -> Iterator:
         return await self.client_obj.walk(path)
+
+    async def touch(self, path: str) -> None:
+        return await self.client_obj.touch(path)
 
     def relative_path(self, full_path: str, base_folder: str):
         return self.client_obj.relative_path(full_path, base_folder)

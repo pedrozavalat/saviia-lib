@@ -16,6 +16,8 @@ from .types.get_pending_tasks_types import (
     GetPendingTasksControllerInput,
     GetPendingTasksControllerOutput,
 )
+from saviialib.libs.email_client import EmailClient, EmailClientInitArgs
+from saviialib.libs.directory_client import DirectoryClient, DirectoryClientArgs
 
 
 class GetPendingTasksController:
@@ -29,6 +31,16 @@ class GetPendingTasksController:
                 channel_id=self.input.config.task_channel_id,
             )
         )
+        self.email_client = EmailClient(
+            EmailClientInitArgs(
+                client_name="smtplib",
+                email_address=input.config.email_address,
+                email_password=input.config.email_password,
+                smtp_server="smtp.gmail.com",
+                smtp_port=587,
+            )
+        )
+        self.dir_client = DirectoryClient(DirectoryClientArgs(client_name="os_client"))
 
     async def _connect_clients(self) -> None:
         await self.notification_client.connect()
@@ -42,12 +54,19 @@ class GetPendingTasksController:
                 {
                     "bot_token": self.input.config.bot_token,
                     "task_channel_id": self.input.config.task_channel_id,
+                    "download": self.input.download,
+                    "notify": self.input.notify,
                 }
             )
             await self._connect_clients()
             use_case = GetPendingTasksUseCase(
                 GetPendingTasksUseCaseInput(
                     notification_client=self.notification_client,
+                    email_client=self.email_client,
+                    dir_client=self.dir_client,
+                    local_backup_path=self.input.config.local_backup_path,
+                    download=self.input.download,
+                    notify=self.input.notify,
                 )
             )
             output = await use_case.execute()

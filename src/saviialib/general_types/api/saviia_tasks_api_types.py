@@ -13,3 +13,7 @@ class SaviiaTasksConfig:
 
     bot_token: str = ""
     task_channel_id: str = ""
+    email_address: str = ""
+    email_password: str = ""
+    local_backup_path: str = ""
+    

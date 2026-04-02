@@ -69,6 +69,58 @@ class TaskNotificationPresenter:
         return False
 
     @classmethod
+    def task_to_email(cls, task: dict[str, str]) -> str:
+        return f"""
+        <html>
+            <body>
+            <h1>Hello {task.get("assignee", "there")}!</h1>
+            <p>You have been assigned a new task: <strong>{task.get("title")}</strong>.</p>
+            Some details about the task:
+            <ul>
+                <li><strong>Creation:</strong> {task.get("creation", "Is not mentioned.")}</li>
+                <li><strong>Deadline:</strong> {task.get("deadline")}</li>
+                <li><strong>Priority:</strong> {task.get("priority")}</li>
+                {f"<li><strong>Description:</strong> {task.get('description')}</li>" if task.get("description") else ""}
+                {f"<li><strong>Periodicity:</strong> {task.get('periodicity')}</li>" if task.get("periodicity") else ""}
+                {f"<li><strong>Category:</strong> {task.get('category')}</li>" if task.get("category") else ""}
+            </ul>
+            <p>Please check your task dashboard for more details and to mark the task as completed once
+            <p>Regards,</p>
+            <p><strong>SAVIIA Team</strong></p>
+            </body>
+        </html>
+        """
+
+    @classmethod
+    def tasks_to_email(cls, tasks: list[dict[str, str]]) -> str:
+        email_body = """
+        <html>
+            <body>
+            <h1>Hello!</h1>
+            <p>Here is a summary of your pending tasks:</p>
+            <ul>
+        """
+        for task in tasks:
+            email_body += f"""
+                <li>
+                    <strong>{task.get("title")}</strong><br>
+                    Deadline: {task.get("deadline")}<br>
+                    Priority: {task.get("priority")}<br>
+                    {f"Periodicity: {task.get('periodicity')}<br>" if task.get("periodicity") else ""}
+                    {f"Description: {task.get('description')}<br>" if task.get("description") else ""}
+                </li>
+            """
+        email_body += """
+            </ul>
+            <p>Please check your task dashboard for more details and to mark the tasks as completed once done.</p>
+            <p>Regards,</p>
+            <p><strong>SAVIIA Team</strong></p>
+            </body>
+        </html>
+        """
+        return email_body
+
+    @classmethod
     def to_task_notifications(
         cls, tasks: list, params: dict = {}
     ) -> list[dict[str, str | bool | dict]]:

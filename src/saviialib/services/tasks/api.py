@@ -89,7 +89,9 @@ class SaviiaTasksAPI:
         response = await controller.execute()
         return response.__dict__
 
-    async def get_pending_tasks(self) -> Dict[str, Any]:
+    async def get_pending_tasks(
+        self, download: bool = False, notify: bool = False
+    ) -> Dict[str, Any]:
         """
         Retrieves pending tasks organized by deadline status and sorted by priority.
 
@@ -102,7 +104,7 @@ class SaviiaTasksAPI:
         :rtype: Dict[str, Any]
         """
         controller = GetPendingTasksController(
-            GetPendingTasksControllerInput(self.config)
+            GetPendingTasksControllerInput(self.config, download, notify)
         )
         response = await controller.execute()
         return response.__dict__

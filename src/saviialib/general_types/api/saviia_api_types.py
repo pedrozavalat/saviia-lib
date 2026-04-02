@@ -30,10 +30,13 @@ class SaviiaAPIConfig:
     sharepoint_tenant_name: str
     sharepoint_site_name: str
     logger: Logger
+    local_backup_path: str
     latitude: float = -91
     longitude: float = -181
     tasks_channel_id: str = ""
     bot_token: str = ""
+    email_address: str = ""
+    email_password: str = ""
 
 
 @dataclass

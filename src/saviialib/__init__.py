@@ -87,7 +87,11 @@ class SaviiaAPI:
 
             elif name == "tasks":
                 service_config = SaviiaTasksConfig(
-                    bot_token=config.bot_token, task_channel_id=config.tasks_channel_id
+                    bot_token=config.bot_token,
+                    task_channel_id=config.tasks_channel_id,
+                    email_address=config.email_address,
+                    email_password=config.email_password,
+                    local_backup_path=config.local_backup_path
                 )
 
             self._instances[name] = api_class(service_config)
