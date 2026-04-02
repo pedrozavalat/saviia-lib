@@ -17,6 +17,7 @@ class TestSaviiaAPI(unittest.TestCase):
             sharepoint_tenant_name="tenant_name_123",
             sharepoint_site_name="site_name_123",
             logger=Mock(),
+            local_backup_path="/share/G"
         )
 
     def test_should_initialize_saviia_api_with_both_services(self):

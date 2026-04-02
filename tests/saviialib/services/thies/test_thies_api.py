@@ -19,6 +19,7 @@ class TestEpiiAPIUpdateThiesData(unittest.IsolatedAsyncioTestCase):
             sharepoint_tenant_id="tenant_id_123",
             sharepoint_tenant_name="tenant_name_123",
             logger=Mock(),
+            local_backup_path="/share/G"
         )
         self.sharepoint_folders_path = [
             "Shared%20Documents/General/Test_Raspberry/THIES/AVG",
