@@ -73,20 +73,44 @@ class TaskNotificationPresenter:
         return f"""
         <html>
             <body>
-            <h1>Hello {task.get("assignee", "there")}!</h1>
-            <p>You have been assigned a new task: <strong>{task.get("title")}</strong>.</p>
-            Some details about the task:
+            <h1>Hola {task.get("assignee", "there")}!</h1>
+            <p>Has sido asignado a una nueva tarea: <strong>{task.get("title")}</strong>.</p>
+            Algunos detalles sobre la tarea:
             <ul>
-                <li><strong>Creation:</strong> {task.get("creation", "Is not mentioned.")}</li>
-                <li><strong>Deadline:</strong> {task.get("deadline")}</li>
-                <li><strong>Priority:</strong> {task.get("priority")}</li>
-                {f"<li><strong>Description:</strong> {task.get('description')}</li>" if task.get("description") else ""}
-                {f"<li><strong>Periodicity:</strong> {task.get('periodicity')}</li>" if task.get("periodicity") else ""}
-                {f"<li><strong>Category:</strong> {task.get('category')}</li>" if task.get("category") else ""}
+                <li><strong>Fecha de creación:</strong> {task.get("creation", "No mencionada.")}</li>
+                <li><strong>Fecha límite:</strong> {task.get("deadline")}</li>
+                <li><strong>Prioridad:</strong> {task.get("priority")}</li>
+                {f"<li><strong>Descripción:</strong> {task.get('description')}</li>" if task.get("description") else ""}
+                {f"<li><strong>Periodicidad:</strong> {task.get('periodicity')}</li>" if task.get("periodicity") else ""}
+                {f"<li><strong>Categoría:</strong> {task.get('category')}</li>" if task.get("category") else ""}
             </ul>
-            <p>Please check your task dashboard for more details and to mark the task as completed once
-            <p>Regards,</p>
-            <p><strong>SAVIIA Team</strong></p>
+            <p>Por favor, revisa tu panel de tareas para más detalles y para marcar la tarea como completada una vez terminada.</p>
+            <p>Saludos,</p>
+            <p><strong>Equipo SAVIIA</strong></p>
+            </body>
+        </html>
+        """
+
+    @classmethod
+    def completed_task_to_email(cls, task: dict[str, str]) -> str:
+        return f"""
+        <html>
+            <body>
+            <h1>Hola {task.get("assignee", "there")}!</h1>
+            <p>Te envío este correo para informarte que la tarea <strong>{task.get("title")}</strong> ha sido completada.</p>
+            <p>Algunos detalles sobre la tarea:</p>
+            <ul>
+                <li><strong>Fecha de creación:</strong> {task.get("creation", "No mencionada.")}</li>
+                <li><strong>Fecha límite:</strong> {task.get("deadline")}</li>
+                <li><strong>Fecha de ejecución:</strong> {task.get("execution", "No ingresada.")}</li>
+                <li><strong>Prioridad:</strong> {task.get("priority")}</li>
+                {f"<li><strong>Descripción:</strong> {task.get('description')}</li>" if task.get("description") else ""}
+                {f"<li><strong>Periodicidad:</strong> {task.get('periodicity')}</li>" if task.get("periodicity") else ""}
+                {f"<li><strong>Categoría:</strong> {task.get('category')}</li>" if task.get("category") else ""}
+            </ul>
+            <p>Gracias por completar esta tarea. Puedes revisar tu panel para más detalles.</p>
+            <p>Saludos,</p>
+            <p><strong>Equipo SAVIIA</strong></p>
             </body>
         </html>
         """
@@ -96,25 +120,25 @@ class TaskNotificationPresenter:
         email_body = """
         <html>
             <body>
-            <h1>Hello!</h1>
-            <p>Here is a summary of your pending tasks:</p>
+            <h1>Hola!</h1>
+            <p>Este es un resumen de tus tareas pendientes:</p>
             <ul>
         """
         for task in tasks:
             email_body += f"""
                 <li>
                     <strong>{task.get("title")}</strong><br>
-                    Deadline: {task.get("deadline")}<br>
-                    Priority: {task.get("priority")}<br>
-                    {f"Periodicity: {task.get('periodicity')}<br>" if task.get("periodicity") else ""}
-                    {f"Description: {task.get('description')}<br>" if task.get("description") else ""}
+                    Fecha límite: {task.get("deadline")}<br>
+                    Prioridad: {task.get("priority")}<br>
+                    {f"Periodicidad: {task.get('periodicity')}<br>" if task.get("periodicity") else ""}
+                    {f"Descripción: {task.get('description')}<br>" if task.get("description") else ""}
                 </li>
             """
         email_body += """
             </ul>
-            <p>Please check your task dashboard for more details and to mark the tasks as completed once done.</p>
-            <p>Regards,</p>
-            <p><strong>SAVIIA Team</strong></p>
+            <p>Por favor, revisa tu panel de tareas para más detalles y para marcar las tareas como completadas una vez terminadas.</p>
+            <p>Saludos,</p>
+            <p><strong>Equipo SAVIIA</strong></p>
             </body>
         </html>
         """

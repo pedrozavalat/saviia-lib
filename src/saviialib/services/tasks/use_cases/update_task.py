@@ -6,6 +6,7 @@ from saviialib.libs.notification_client import (
     ReactArgs,
     DeleteReactionArgs,
 )
+from saviialib.libs.email_client import SendEmailArgs
 from saviialib.services.tasks.presenters import TaskNotificationPresenter
 
 
@@ -15,6 +16,7 @@ class UpdateTaskUseCase:
             LogClientArgs(service_name="tasks", class_name="update_tasks")
         )
         self.notification_client = input.notification_client
+        self.email_client = input.email_client
         self.new_task = input.task
         self.presenter = TaskNotificationPresenter()
 
@@ -94,6 +96,14 @@ class UpdateTaskUseCase:
             await self.notification_client.react(ReactArgs(self.new_task.tid, "✅"))
             await self.notification_client.delete_reaction(
                 DeleteReactionArgs(self.new_task.tid, "📌")
+            )
+            await self.email_client.send_email(
+                SendEmailArgs(
+                    recipient=self.new_task.assignee_email,
+                    subject="[SAVIIA] ¡Felicidades! Completaste una nueva tarea :)",
+                    body=self.presenter.completed_task_to_email(self.new_task.__dict__),
+                    content_type="html",
+                )
             )
         else:
             await self.notification_client.react(ReactArgs(self.new_task.tid, "📌"))

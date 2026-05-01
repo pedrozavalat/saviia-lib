@@ -55,7 +55,7 @@ class CreateTaskUseCase:
             await self.email_client.send_email(
                 SendEmailArgs(
                     recipient=self.task.assignee_email,
-                    subject="[SAVIIA] New task assigned for you",
+                    subject="[SAVIIA] Se te ha asignado una nueva tarea",
                     body=self.presenter.task_to_email(self.task.__dict__),
                     content_type="html",
                 )
