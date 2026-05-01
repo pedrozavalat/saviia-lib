@@ -7,33 +7,56 @@ from saviialib.libs.zero_dependency.utils.datetime_utils import (
 class TaskNotificationPresenter:
     @classmethod
     def to_dict(cls, content: str) -> dict[str, str]:
-        lines = [line.strip() for line in content.strip().split("\n") if line.strip()]
+        lines = [line.rstrip() for line in content.strip().splitlines()]
         result = {}
-        result["title"] = lines[0].lstrip("#").strip()
-        for line in lines[2:]:
+        current_field = None
+
+        for index, raw_line in enumerate(lines):
+            line = raw_line.strip()
+
+            if not line:
+                continue
+
+            if index == 0 and line.startswith("#"):
+                result["title"] = line.lstrip("#").strip()
+                continue
+
             if "__Estado__" in line:
-                status = line.split(":")[1].strip()
+                status = line.split(":", 1)[1].strip()
                 result["completed"] = False if "Pendiente" in status else True
+                current_field = None
             elif "__Fecha limite__" in line:
-                result["deadline"] = line.split(":")[1].strip()
+                result["deadline"] = line.split(":", 1)[1].strip()
+                current_field = None
             elif "__Fecha creación__" in line:
-                result["creation"] = line.split(":")[1].strip()
+                result["creation"] = line.split(":", 1)[1].strip()
+                current_field = None
             elif "__Fecha de ejecución__" in line:
-                result["execution"] = line.split(":")[1].strip()
+                result["execution"] = line.split(":", 1)[1].strip()
+                current_field = None
             elif "__Descripcion__" in line:
-                result["description"] = line.split(":")[1].strip()
+                result["description"] = line.split(":", 1)[1].strip()
+                current_field = "description"
             elif "__Periodicidad__" in line:
-                result["periodicity"] = line.split(":")[1].strip()
+                result["periodicity"] = line.split(":", 1)[1].strip()
+                current_field = None
             elif "__Prioridad__" in line:
-                result["priority"] = line.split(":")[1].strip()
+                result["priority"] = line.split(":", 1)[1].strip()
+                current_field = None
             elif "__Categoría__" in line:
-                result["category"] = line.split(":")[1].strip()
+                result["category"] = line.split(":", 1)[1].strip()
+                current_field = None
             elif "__Persona asignada__" in line:
-                result["assignee"] = line.split(":")[1].strip()
+                result["assignee"] = line.split(":", 1)[1].strip()
+                current_field = None
             elif "__Email de la persona asignada__" in line:
-                result["assignee_email"] = line.split(":")[1].strip()
+                result["assignee_email"] = line.split(":", 1)[1].strip()
+                current_field = None
             elif "__Discord username de la persona asignada__" in line:
-                result["assignee_discord_username"] = line.split(":")[1].strip()
+                result["assignee_discord_username"] = line.split(":", 1)[1].strip()
+                current_field = None
+            elif current_field == "description":
+                result["description"] = f"{result.get('description', '')}\n{line}".strip()
         return result
 
     @classmethod
