@@ -160,7 +160,7 @@ class GetPendingTasksUseCase:
             await self.email_client.send_email(
                 SendEmailArgs(
                     recipient=assignee_email,
-                    subject="[SAVIIA] Summary of your pending tasks",
+                    subject="[SAVIIA] Resumen de tus tareas pendientes",
                     body=email_content,
                     content_type="html",
                 )

@@ -23,6 +23,10 @@ from saviialib.libs.log_client import (
     DebugArgs,
     ErrorArgs,
 )
+from saviialib.libs.email_client import (
+    EmailClient,
+    EmailClientInitArgs,
+)
 
 
 class UpdateTaskController:
@@ -52,6 +56,15 @@ class UpdateTaskController:
                 client_name="logging",
                 service_name="tasks",
                 class_name="update_task_controller",
+            )
+        )
+        self.email_client = EmailClient(
+            EmailClientInitArgs(
+                client_name="smtplib",
+                email_address=input.config.email_address,
+                email_password=input.config.email_password,
+                smtp_server="smtp.gmail.com",
+                smtp_port=587,
             )
         )
         self.validator = UpdateTaskValidator(input)
@@ -98,6 +111,7 @@ class UpdateTaskController:
                         completed=self.input.completed,
                     ),
                     notification_client=self.notification_client,
+                    email_client=self.email_client,
                 )
             )
             if (
