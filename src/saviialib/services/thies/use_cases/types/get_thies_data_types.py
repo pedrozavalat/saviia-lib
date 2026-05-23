@@ -1,6 +1,4 @@
 from dataclasses import dataclass
-from typing import Set
-
 from saviialib.libs.directory_client import DirectoryClient
 from saviialib.libs.ftp_client import FTPClient
 from saviialib.libs.sharepoint_client import SharepointClient
@@ -15,11 +13,12 @@ class GetThiesDataUseCaseInput:
     directory_client: DirectoryClient
 
     local_backup_path: str
+    sharepoint_destination_path: str = ""
 
 
 @dataclass
 class GetThiesDataUseCaseOutput:
     need_to_sync: bool
     need_to_backup: bool
-    unbacked_files: Set[str]
-    unsynchronised_files: Set[str]
+    total_to_backup: int
+    total_to_sync: int

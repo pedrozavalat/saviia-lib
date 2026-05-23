@@ -10,6 +10,7 @@ class GetThiesDataControllerInput:
     ftp_port: int
     ftp_user: str
     ftp_password: str
+    sharepoint_destination_path: str = ""
 
 
 @dataclass

@@ -12,11 +12,20 @@ from .controllers import (
     PostThiesDataController,
     PostThiesDataControllerInput,
 )
+from saviialib.libs.log_client import (
+    LogClient,
+    LogClientArgs,
+    LogStatus,
+    DebugArgs,
+)
 
 
 class SaviiaThiesAPI:
     def __init__(self, config: SaviiaThiesConfig) -> None:
         self.config = config
+        self.logger = LogClient(
+            LogClientArgs("logging", service_name="thies", class_name="api")
+        )
 
     async def get_thies_data(
         self,
@@ -24,6 +33,7 @@ class SaviiaThiesAPI:
         ftp_host: str,
         ftp_user: str,
         ftp_password: str,
+        sharepoint_destination_path: str,
     ):
         """Get the status of synchronization and backup needs for a THIES Data Logger.
         :param ftp_host: FTP server hostname or IP address where the THIES Data Logger data is stored.
@@ -42,6 +52,7 @@ class SaviiaThiesAPI:
                 ftp_port,
                 ftp_user,
                 ftp_password,
+                sharepoint_destination_path,
             )
         )
         response = await controller.execute()
@@ -114,6 +125,15 @@ class SaviiaThiesAPI:
         :return: A dictionary representation of the API response.
         :rtype: dict
         """
+        self.logger.method_name = "post_thies_data"
+        self.logger.debug(
+            DebugArgs(
+                status=LogStatus.STARTED,
+                metadata={
+                    "msg": f"need_to_backup={need_to_backup}, need_to_sync={need_to_sync}"
+                },
+            )
+        )
         controller = PostThiesDataController(
             PostThiesDataControllerInput(
                 self.config,
@@ -129,6 +149,12 @@ class SaviiaThiesAPI:
             )
         )
         response = await controller.execute()
+        self.logger.debug(
+            DebugArgs(
+                status=LogStatus.SUCCESSFUL,
+                metadata={"msg": f"status={response.status}"},
+            )
+        )
         return response.__dict__
 
     async def detect_failures(

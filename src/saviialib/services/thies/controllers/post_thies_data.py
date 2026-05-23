@@ -36,11 +36,24 @@ from saviialib.services.thies.use_cases.types.post_thies_data_types import (
     PostThiesDataUseCaseInput,
 )
 from saviialib.libs.schema_validator_client import SchemaValidatorClient
+from saviialib.libs.log_client import (
+    LogClient,
+    LogClientArgs,
+    LogStatus,
+    DebugArgs,
+    ErrorArgs,
+    WarningArgs,
+)
 
 
 class PostThiesDataController:
     def __init__(self, input: PostThiesDataControllerInput):
         self.input = input
+        self.logger = LogClient(
+            LogClientArgs(
+                "logging", service_name="thies", class_name="post_thies_data_controller"
+            )
+        )
         self.sharepoint_client = SharepointClient(
             SharepointClientInitArgs(
                 SharepointConfig(
@@ -84,6 +97,8 @@ class PostThiesDataController:
         )
 
     async def execute(self) -> PostThiesDataControllerOutput:
+        self.logger.method_name = "execute"
+        self.logger.debug(DebugArgs(status=LogStatus.STARTED))
         try:
             SchemaValidatorClient(schema=POST_THIES_DATA_SCHEMA).validate(
                 {
@@ -113,70 +128,112 @@ class PostThiesDataController:
                 msg = "THIES data was synced successfully"
             else:
                 msg = "No operation was requested"
+            self.logger.debug(
+                DebugArgs(
+                    status=LogStatus.SUCCESSFUL,
+                    metadata={"msg": msg},
+                )
+            )
             return PostThiesDataControllerOutput(
                 message=msg,
                 status=HTTPStatus.OK.value,
                 metadata={"data": data},  # type: ignore
             )
         except ValidationError as error:
+            self.logger.error(
+                ErrorArgs(status=LogStatus.ERROR, metadata={"msg": error.__str__()})
+            )
             return PostThiesDataControllerOutput(
                 message="Invalid input data for posting THIES data.",
                 status=HTTPStatus.BAD_REQUEST.value,
                 metadata={"error": error.__str__()},
             )
         except EmptyDataError:
+            self.logger.warning(
+                WarningArgs(
+                    status=LogStatus.FAILED,
+                    metadata={"msg": "No files to upload"},
+                )
+            )
             return PostThiesDataControllerOutput(
                 message="No files to upload", status=HTTPStatus.NO_CONTENT.value
             )
         except (AttributeError, NameError, ValueError) as error:
+            self.logger.error(
+                ErrorArgs(status=LogStatus.ERROR, metadata={"msg": error.__str__()})
+            )
             return PostThiesDataControllerOutput(
                 message="An unexpected error occurred during use case initialization.",
                 status=HTTPStatus.BAD_REQUEST.value,
                 metadata={"error": error.__str__()},
             )
         except FtpClientError as error:
+            self.logger.error(
+                ErrorArgs(status=LogStatus.ERROR, metadata={"msg": error.__str__()})
+            )
             return PostThiesDataControllerOutput(
                 message="Ftp Client initialization fails.",
                 status=HTTPStatus.BAD_REQUEST.value,
                 metadata={"error": error.__str__()},
             )
         except SharepointClientError as error:
+            self.logger.error(
+                ErrorArgs(status=LogStatus.ERROR, metadata={"msg": error.__str__()})
+            )
             return PostThiesDataControllerOutput(
                 message="Sharepoint Client initialization fails.",
                 status=HTTPStatus.INTERNAL_SERVER_ERROR.value,
                 metadata={"error": error.__str__()},
             )
         except SharePointFetchingError as error:
+            self.logger.error(
+                ErrorArgs(status=LogStatus.ERROR, metadata={"msg": error.__str__()})
+            )
             return PostThiesDataControllerOutput(
                 message="An error occurred while retrieving file names from Microsoft SharePoint",
                 status=HTTPStatus.BAD_REQUEST.value,
                 metadata={"error": error.__str__()},
             )
         except SharePointUploadError as error:
+            self.logger.error(
+                ErrorArgs(status=LogStatus.ERROR, metadata={"msg": error.__str__()})
+            )
             return PostThiesDataControllerOutput(
                 message="An error ocurred while uploading files to RCER Cloud",
                 status=HTTPStatus.BAD_REQUEST.value,
                 metadata={"error": error.__str__()},
             )
         except SharePointDirectoryError as error:
+            self.logger.error(
+                ErrorArgs(status=LogStatus.ERROR, metadata={"msg": error.__str__()})
+            )
             return PostThiesDataControllerOutput(
                 message="An error ocurred while extracting folders from Microsoft Sharepoint",
                 status=HTTPStatus.BAD_REQUEST.value,
                 metadata={"error": error.__str__()},
             )
         except ThiesFetchingError as error:
+            self.logger.error(
+                ErrorArgs(status=LogStatus.ERROR, metadata={"msg": error.__str__()})
+            )
             return PostThiesDataControllerOutput(
                 message="An error ocurred while retrieving file names from THIES FTP Server.",
                 status=HTTPStatus.NO_CONTENT.value,
                 metadata={"error": error.__str__()},
             )
         except ThiesConnectionError as error:
+            self.logger.error(
+                ErrorArgs(status=LogStatus.ERROR, metadata={"msg": error.__str__()})
+            )
             return PostThiesDataControllerOutput(
                 message="Unable to connect to THIES Data Logger FTP Server.",
                 status=HTTPStatus.INTERNAL_SERVER_ERROR.value,
                 metadata={"error": error.__str__()},
             )
         except BackupSourcePathError as error:
+            self.logger.error(
+                ErrorArgs(status=LogStatus.ERROR, metadata={"msg": error.__str__()})
+            )
             return PostThiesDataControllerOutput(
                 message="The specified local backup source path does not exist.",
                 status=HTTPStatus.NOT_FOUND.value,

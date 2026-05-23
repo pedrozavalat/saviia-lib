@@ -6,14 +6,6 @@ import types
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock
 
-from saviialib.general_types.error_types.api.saviia_api_error_types import (
-    BackupSourcePathError,
-    SharePointFetchingError,
-    SharePointUploadError,
-    ThiesConnectionError,
-)
-from saviialib.general_types.error_types.common import EmptyDataError
-
 if "pandas" not in sys.modules:
     pandas_stub = types.ModuleType("pandas")
     setattr(pandas_stub, "DataFrame", type("DataFrame", (), {}))
@@ -22,6 +14,14 @@ if "pandas" not in sys.modules:
     sys.modules["pandas"] = pandas_stub
 if "numpy" not in sys.modules:
     sys.modules["numpy"] = types.ModuleType("numpy")
+
+from saviialib.general_types.error_types.api.saviia_api_error_types import (
+    BackupSourcePathError,
+    SharePointFetchingError,
+    SharePointUploadError,
+    ThiesConnectionError,
+)
+from saviialib.general_types.error_types.common import EmptyDataError
 
 from saviialib.services.thies.use_cases.post_thies_data import PostThiesDataUseCase
 from saviialib.services.thies.use_cases.types.post_thies_data_types import (
@@ -41,6 +41,7 @@ class TestPostThiesDataUseCase(unittest.IsolatedAsyncioTestCase):
         self.directory_client.path_exists = AsyncMock(return_value=True)
         self.directory_client.makedirs = AsyncMock()
         self.directory_client.listdir = AsyncMock(side_effect=self._fake_listdir)
+        self.directory_client.isdir = AsyncMock(return_value=False)
         self.files_client = MagicMock()
         self.files_client.read = AsyncMock()
         self.files_client.write = AsyncMock(side_effect=self._fake_write)

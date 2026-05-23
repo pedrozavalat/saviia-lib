@@ -34,10 +34,6 @@ class TestEpiiAPIUpdateThiesData(unittest.IsolatedAsyncioTestCase):
         self.ftp_password = "password123"
         self.ftp_user = "user123"
         self.config = SaviiaAPIConfig(
-            ftp_host=self.ftp_host,
-            ftp_port=self.ftp_port,
-            ftp_user=self.ftp_user,
-            ftp_password=self.ftp_password,
             sharepoint_client_id="client_id_123",
             sharepoint_client_secret="client_secret_123",
             sharepoint_site_name="site_name_123",
@@ -105,10 +101,11 @@ class TestEpiiAPIUpdateThiesData(unittest.IsolatedAsyncioTestCase):
         )
 
         response = await self.thies_service.get_thies_data(
-            ftp_port=self.config.ftp_port,
-            ftp_host=self.config.ftp_host,
-            ftp_user=self.config.ftp_user,
-            ftp_password=self.config.ftp_password,
+            ftp_port=self.ftp_port,
+            ftp_host=self.ftp_host,
+            ftp_user=self.ftp_user,
+            ftp_password=self.ftp_password,
+            sharepoint_destination_path="Shared%20Documents/General/Test_Raspberry",
         )
 
         self.assertEqual(response, expected_response.__dict__)
@@ -131,10 +128,10 @@ class TestEpiiAPIUpdateThiesData(unittest.IsolatedAsyncioTestCase):
         )
 
         response = await self.thies_service.post_thies_data(
-            ftp_port=self.config.ftp_port,
-            ftp_host=self.config.ftp_host,
-            ftp_user=self.config.ftp_user,
-            ftp_password=self.config.ftp_password,
+            ftp_port=self.ftp_port,
+            ftp_host=self.ftp_host,
+            ftp_user=self.ftp_user,
+            ftp_password=self.ftp_password,
             need_to_sync=True,
             need_to_backup=True,
             sharepoint_destination_path="Shared%20Documents/General/Test_Raspberry",

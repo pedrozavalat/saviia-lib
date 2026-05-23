@@ -1,6 +1,7 @@
 from http import HTTPStatus
 
 from saviialib.general_types.error_types.api.saviia_api_error_types import (
+    ThiesFetchingError,
     ValidationError,
 )
 from saviialib.general_types.error_types.api.saviia_api_error_types import (
@@ -76,6 +77,7 @@ class GetThiesDataController:
                 ftp_client=self.thies_ftp_client,
                 sharepoint_client=self.sharepoint_client,
                 local_backup_path=input.config.local_backup_path,
+                sharepoint_destination_path=input.sharepoint_destination_path,
                 files_client=self.files_client,
                 directory_client=self.dir_client,
             )
@@ -91,6 +93,7 @@ class GetThiesDataController:
                     "sharepoint_tenant_name": self.input.config.sharepoint_tenant_name,
                     "sharepoint_site_name": self.input.config.sharepoint_site_name,
                     "local_backup_path": self.input.config.local_backup_path,
+                    "sharepoint_destination_path": self.input.sharepoint_destination_path,
                     "ftp_host": self.input.ftp_host,
                     "ftp_port": self.input.ftp_port,
                     "ftp_user": self.input.ftp_user,
@@ -134,6 +137,13 @@ class GetThiesDataController:
         except (FtpClientError, SharepointClientError) as error:
             return GetThiesDataControllerOutput(
                 message="An error occurred while initializing FTP or SharePoint client.",
+                status=HTTPStatus.INTERNAL_SERVER_ERROR.value,
+                metadata={"error": error.__str__()},
+            )
+            
+        except ThiesFetchingError as error:
+            return GetThiesDataControllerOutput(
+                message="An error occurred while fetching THIES data.",
                 status=HTTPStatus.INTERNAL_SERVER_ERROR.value,
                 metadata={"error": error.__str__()},
             )

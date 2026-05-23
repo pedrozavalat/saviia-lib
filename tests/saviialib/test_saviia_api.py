@@ -7,10 +7,6 @@ from saviialib import SaviiaAPI, SaviiaAPIConfig
 class TestSaviiaAPI(unittest.TestCase):
     def setUp(self):
         self.config = SaviiaAPIConfig(
-            ftp_host="ftp.example.com",
-            ftp_port=21,
-            ftp_user="user123",
-            ftp_password="password123",
             sharepoint_client_id="client_id_123",
             sharepoint_client_secret="client_secret_123",
             sharepoint_tenant_id="tenant_id_123",

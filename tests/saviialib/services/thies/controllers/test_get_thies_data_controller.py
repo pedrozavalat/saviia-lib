@@ -65,8 +65,8 @@ class TestGetThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
                     return_value=GetThiesDataUseCaseOutput(
                         need_to_backup=need_to_backup,
                         need_to_sync=need_to_sync,
-                        unbacked_files=set(),
-                        unsynchronised_files=set(),
+                        total_to_backup=0,
+                        total_to_sync=0,
                     )
                 )
                 controller = GetThiesDataController(
