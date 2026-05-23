@@ -26,7 +26,11 @@ class DetectFailuresUseCase:
         )
         self.dir_client = DirectoryClient(DirectoryClientArgs(client_name="os_client"))
         self.logger = LogClient(
-            LogClientArgs(service_name="tasks", class_name="delete_task")
+            LogClientArgs(
+                service_name="thies",
+                class_name="detect_failures",
+                logger=input.logger,
+            )
         )
         self.start_date = difference(today(), input.n_days)
         self.end_date = today()

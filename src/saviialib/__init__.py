@@ -57,10 +57,7 @@ class SaviiaAPI:
         for name, api_class in SaviiaAPI.API_REGISTRY.items():
             if name == "thies":
                 service_config = SaviiaThiesConfig(
-                    ftp_host=config.ftp_host,
-                    ftp_port=config.ftp_port,
-                    ftp_user=config.ftp_user,
-                    ftp_password=config.ftp_password,
+                    local_backup_path=config.local_backup_path,
                     sharepoint_client_id=config.sharepoint_client_id,
                     sharepoint_client_secret=config.sharepoint_client_secret,
                     sharepoint_tenant_id=config.sharepoint_tenant_id,

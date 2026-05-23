@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from saviialib.libs.log_client import LogClient, LogClientArgs
 from saviialib.services.thies.controllers.types.detect_failures_types import (
     DetectFailuresControllerInput,
     DetectFailuresControllerOutput,
@@ -17,6 +18,14 @@ from saviialib.libs.weather_client import WeatherClient, WeatherClientInitArgs
 class DetectFailuresController:
     def __init__(self, input: DetectFailuresControllerInput):
         self.input = input
+        self.logger = LogClient(
+            LogClientArgs(
+                "logging",
+                service_name="thies",
+                class_name="detect_failures_controller",
+                logger=input.config.logger,
+            )
+        )
         self.weather_client = WeatherClient(
             WeatherClientInitArgs(
                 client_name="open_meteo",
@@ -65,6 +74,7 @@ class DetectFailuresController:
                     db_client=self.db_client,
                     weather_client=self.weather_client,
                     n_days=self.input.n_days,
+                    logger=self.input.config.logger,
                 )
             )
             output = await use_case.execute()

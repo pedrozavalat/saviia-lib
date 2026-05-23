@@ -20,10 +20,6 @@ class SaviiaAPIConfig:
         notification_client_api_key (str): API Key for Notification Client (Discord)
     """
 
-    ftp_host: str
-    ftp_port: int
-    ftp_user: str
-    ftp_password: str
     sharepoint_client_id: str
     sharepoint_client_secret: str
     sharepoint_tenant_id: str

@@ -1,5 +1,16 @@
 import unittest
+import sys
+import types
 from unittest.mock import AsyncMock, patch, MagicMock
+
+if "pandas" not in sys.modules:
+    pandas_stub = types.ModuleType("pandas")
+    setattr(pandas_stub, "DataFrame", type("DataFrame", (), {}))
+    setattr(pandas_stub, "Series", type("Series", (), {}))
+    setattr(pandas_stub, "read_csv", lambda *args, **kwargs: None)
+    sys.modules["pandas"] = pandas_stub
+if "numpy" not in sys.modules:
+    sys.modules["numpy"] = types.ModuleType("numpy")
 
 from saviialib.general_types.error_types.api.saviia_api_error_types import (
     SharePointFetchingError,
@@ -20,16 +31,17 @@ from saviialib.general_types.api.saviia_thies_api_types import SaviiaThiesConfig
 
 class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
+        self.ftp_host = "localhost"
+        self.ftp_port = 21
+        self.ftp_user = "john_doe"
+        self.ftp_password = "password"
         self.config = SaviiaThiesConfig(
-            ftp_host="localhost",
-            ftp_port=21,
-            ftp_user="john_doe",
-            ftp_password="password",
             sharepoint_client_id="valid_client_id",
             sharepoint_client_secret="valid_client_secret",
             sharepoint_site_name="valid_site_name",
             sharepoint_tenant_id="valid_tenant_id",
             sharepoint_tenant_name="valid_tenant_name",
+            local_backup_path="saviia-local-backup",
             logger=MagicMock(),
         )
         self.sharepoint_folders_path = [
@@ -52,6 +64,10 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         controller = UpdateThiesDataController(
             UpdateThiesDataControllerInput(
                 self.config,
+                self.ftp_host,
+                self.ftp_port,
+                self.ftp_user,
+                self.ftp_password,
                 self.sharepoint_folders_path,
                 self.ftp_server_folders_path,
                 self.local_backup_source_path,
@@ -74,6 +90,10 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         controller = UpdateThiesDataController(
             UpdateThiesDataControllerInput(
                 self.config,
+                self.ftp_host,
+                self.ftp_port,
+                self.ftp_user,
+                self.ftp_password,
                 self.sharepoint_folders_path,
                 self.ftp_server_folders_path,
                 self.local_backup_source_path,
@@ -96,6 +116,10 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         controller = UpdateThiesDataController(
             UpdateThiesDataControllerInput(
                 self.config,
+                self.ftp_host,
+                self.ftp_port,
+                self.ftp_user,
+                self.ftp_password,
                 self.sharepoint_folders_path,
                 self.ftp_server_folders_path,
                 self.local_backup_source_path,
@@ -120,6 +144,10 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         controller = UpdateThiesDataController(
             UpdateThiesDataControllerInput(
                 self.config,
+                self.ftp_host,
+                self.ftp_port,
+                self.ftp_user,
+                self.ftp_password,
                 self.sharepoint_folders_path,
                 self.ftp_server_folders_path,
                 self.local_backup_source_path,
@@ -144,6 +172,10 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         controller = UpdateThiesDataController(
             UpdateThiesDataControllerInput(
                 self.config,
+                self.ftp_host,
+                self.ftp_port,
+                self.ftp_user,
+                self.ftp_password,
                 self.sharepoint_folders_path,
                 self.ftp_server_folders_path,
                 self.local_backup_source_path,
@@ -165,6 +197,10 @@ class TestUpdateThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         controller = UpdateThiesDataController(
             UpdateThiesDataControllerInput(
                 self.config,
+                self.ftp_host,
+                self.ftp_port,
+                self.ftp_user,
+                self.ftp_password,
                 self.sharepoint_folders_path,
                 self.ftp_server_folders_path,
                 self.local_backup_source_path,

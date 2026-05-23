@@ -18,11 +18,13 @@ from saviialib.libs.zero_dependency.utils.datetime_utils import today, datetime_
 class LoggingClient(LogClientContract):
     def __init__(self, args: LogClientArgs):
         log_format = "{message}"
-        logging.basicConfig(format=log_format, level=logging.INFO, style="{")
         self.class_name = args.class_name
         self.method_name = args.method_name
         self.active_record = args.active_record
+        self.logger = args.logger or logging.getLogger()
         self.log_history = []
+        if args.logger is None:
+            logging.basicConfig(format=log_format, level=logging.INFO, style="{")
 
     def _save_to_history(self, meta: dict):
         self.log_history.append(
@@ -32,7 +34,7 @@ class LoggingClient(LogClientContract):
     def info(self, args: InfoArgs) -> None:
         if self.active_record:
             self._save_to_history(args.metadata)
-        return logging.info(
+        return self.logger.info(
             format_message(
                 self.class_name,
                 self.method_name,
@@ -44,7 +46,7 @@ class LoggingClient(LogClientContract):
     def error(self, args: ErrorArgs) -> None:
         if self.active_record:
             self._save_to_history(args.metadata)
-        return logging.error(
+        return self.logger.error(
             format_message(
                 self.class_name,
                 self.method_name,
@@ -56,7 +58,7 @@ class LoggingClient(LogClientContract):
     def debug(self, args: DebugArgs) -> None:
         if self.active_record:
             self._save_to_history(args.metadata)
-        return logging.debug(
+        return self.logger.debug(
             format_message(
                 self.class_name,
                 self.method_name,
@@ -68,7 +70,7 @@ class LoggingClient(LogClientContract):
     def warning(self, args: WarningArgs) -> None:
         if self.active_record:
             self._save_to_history(args.metadata)
-        return logging.warning(
+        return self.logger.warning(
             format_message(
                 self.class_name,
                 self.method_name,

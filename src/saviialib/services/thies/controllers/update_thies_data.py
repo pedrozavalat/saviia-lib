@@ -31,10 +31,10 @@ class UpdateThiesDataController:
         self.use_case = UpdateThiesDataUseCase(
             UpdateThiesDataUseCaseInput(
                 ftp_config=FtpClientConfig(
-                    ftp_host=input.config.ftp_host,
-                    ftp_password=input.config.ftp_password,
-                    ftp_port=input.config.ftp_port,
-                    ftp_user=input.config.ftp_user,
+                    ftp_host=input.ftp_host,
+                    ftp_password=input.ftp_password,
+                    ftp_port=input.ftp_port,
+                    ftp_user=input.ftp_user,
                 ),
                 sharepoint_config=SharepointConfig(
                     sharepoint_client_id=input.config.sharepoint_client_id,
