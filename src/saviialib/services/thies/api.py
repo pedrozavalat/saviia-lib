@@ -7,12 +7,43 @@ from .controllers import (
     UpdateThiesDataController,
     DetectFailuresController,
     DetectFailuresControllerInput,
+    GetThiesDataController,
+    GetThiesDataControllerInput,
 )
 
 
 class SaviiaThiesAPI:
     def __init__(self, config: SaviiaThiesConfig) -> None:
         self.config = config
+
+    async def get_thies_data(
+        self,
+        ftp_port: int,
+        ftp_host: str,
+        ftp_user: str,
+        ftp_password: str,
+    ):
+        """Get the status of synchronization and backup needs for a THIES Data Logger.
+        :param ftp_host: FTP server hostname or IP address where the THIES Data Logger data is stored.
+        :param ftp_port: FTP server port number where the THIES Data Logger data is stored.
+        :param ftp_user: FTP server username for authentication to access the THIES Data Logger data.
+        :param ftp_password: FTP server password for authentication to access the THIES Data Logger data.
+
+        :return: A dictionary representation of the API response, where status indicators included are:
+            `need_to_sync`, whether new data needs to be synchronized to SharePoint;
+            `need_to_backup`, whether a backup is needed for the local data.
+        :rtype: dict"""
+        controller = GetThiesDataController(
+            GetThiesDataControllerInput(
+                self.config,
+                ftp_host,
+                ftp_port,
+                ftp_user,
+                ftp_password,
+            )
+        )
+        response = await controller.execute()
+        return response.__dict__
 
     async def update_thies_data(
         self,
