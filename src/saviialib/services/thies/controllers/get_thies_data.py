@@ -14,12 +14,10 @@ from saviialib.services.thies.controllers.types.get_thies_data_types import (
 from saviialib.libs.sharepoint_client import (
     SharepointClient,
     SharepointClientInitArgs,
-    SpListFilesArgs,
 )
 from saviialib.libs.ftp_client import (
     FTPClient,
     FtpClientInitArgs,
-    FtpListFilesArgs,
 )
 from saviialib.libs.files_client import (
     FilesClient,
