@@ -21,7 +21,11 @@ from saviialib.general_types.error_types.api.saviia_api_error_types import (
     ThiesConnectionError,
     ThiesFetchingError,
 )
-from saviialib.general_types.error_types.common import EmptyDataError, FtpClientError, SharepointClientError
+from saviialib.general_types.error_types.common import (
+    EmptyDataError,
+    FtpClientError,
+    SharepointClientError,
+)
 from saviialib.services.thies.controllers.post_thies_data import PostThiesDataController
 from saviialib.services.thies.controllers.types.post_thies_data_types import (
     PostThiesDataControllerInput,
@@ -87,9 +91,17 @@ class TestPostThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
     async def test_should_handle_expected_errors(self, mock_use_case_class):
         scenarios = [
             (EmptyDataError(reason="empty"), "No files to upload", 204),
-            (BackupSourcePathError(reason="missing"), "The specified local backup source path does not exist.", 404),
+            (
+                BackupSourcePathError(reason="missing"),
+                "The specified local backup source path does not exist.",
+                404,
+            ),
             (FtpClientError("ftp"), "Ftp Client initialization fails.", 400),
-            (SharepointClientError("sharepoint"), "Sharepoint Client initialization fails.", 500),
+            (
+                SharepointClientError("sharepoint"),
+                "Sharepoint Client initialization fails.",
+                500,
+            ),
             (
                 SharePointFetchingError(
                     reason=Exception('fetch,{"error_description": "fetch"}')
@@ -97,11 +109,31 @@ class TestPostThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
                 "An error occurred while retrieving file names from Microsoft SharePoint",
                 400,
             ),
-            (SharePointUploadError(reason="upload"), "An error ocurred while uploading files to RCER Cloud", 400),
-            (SharePointDirectoryError(reason="dir"), "An error ocurred while extracting folders from Microsoft Sharepoint", 400),
-            (ThiesFetchingError(reason="thies"), "An error ocurred while retrieving file names from THIES FTP Server.", 204),
-            (ThiesConnectionError(reason="conn"), "Unable to connect to THIES Data Logger FTP Server.", 500),
-            (ValueError("boom"), "An unexpected error occurred during use case initialization.", 400),
+            (
+                SharePointUploadError(reason="upload"),
+                "An error ocurred while uploading files to RCER Cloud",
+                400,
+            ),
+            (
+                SharePointDirectoryError(reason="dir"),
+                "An error ocurred while extracting folders from Microsoft Sharepoint",
+                400,
+            ),
+            (
+                ThiesFetchingError(reason="thies"),
+                "An error ocurred while retrieving file names from THIES FTP Server.",
+                204,
+            ),
+            (
+                ThiesConnectionError(reason="conn"),
+                "Unable to connect to THIES Data Logger FTP Server.",
+                500,
+            ),
+            (
+                ValueError("boom"),
+                "An unexpected error occurred during use case initialization.",
+                400,
+            ),
         ]
 
         for error, expected_message, expected_status in scenarios:
@@ -127,3 +159,25 @@ class TestPostThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(result.status, expected_status)
                 if not isinstance(error, EmptyDataError):
                     self.assertIn("error", result.metadata)
+
+    async def test_should_reject_invalid_schema_input(self):
+        controller = PostThiesDataController(
+            PostThiesDataControllerInput(
+                self.config,
+                self.ftp_host,
+                self.ftp_port,
+                self.ftp_user,
+                self.ftp_password,
+                "yes",
+                True,
+                self.sharepoint_destination_path,
+                self.ftp_server_folders_path,
+                self.local_backup_source_path,
+            )
+        )
+
+        result = await controller.execute()
+
+        self.assertEqual(result.status, 400)
+        self.assertEqual(result.message, "Invalid input data for posting THIES data.")
+        self.assertIn("error", result.metadata)

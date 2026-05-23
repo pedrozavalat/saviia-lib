@@ -49,7 +49,9 @@ class TestPostThiesDataUseCase(unittest.IsolatedAsyncioTestCase):
         self.ftp_client.read_file = AsyncMock(side_effect=self._fake_ftp_read_file)
         self.sharepoint_client = MagicMock()
         self.sharepoint_client.site_name = "site_name_123"
-        self.sharepoint_client.__aenter__ = AsyncMock(return_value=self.sharepoint_client)
+        self.sharepoint_client.__aenter__ = AsyncMock(
+            return_value=self.sharepoint_client
+        )
         self.sharepoint_client.__aexit__ = AsyncMock(return_value=None)
         self.sharepoint_client.create_folder = AsyncMock(return_value=None)
         self.sharepoint_client.list_files = AsyncMock()
@@ -60,7 +62,9 @@ class TestPostThiesDataUseCase(unittest.IsolatedAsyncioTestCase):
 
     def _ensure_local_backup_structure(self):
         for folder in ("AVG", "EXT"):
-            Path(self.local_backup_path, "thies", folder).mkdir(parents=True, exist_ok=True)
+            Path(self.local_backup_path, "thies", folder).mkdir(
+                parents=True, exist_ok=True
+            )
 
     async def _fake_ftp_read_file(self, args):
         return f"content:{args.file_path}".encode()
@@ -70,7 +74,9 @@ class TestPostThiesDataUseCase(unittest.IsolatedAsyncioTestCase):
         for name in os.listdir(path):
             full_path = Path(path, name)
             if more_info:
-                entries.append((name, full_path.stat().st_size if full_path.is_file() else 0))
+                entries.append(
+                    (name, full_path.stat().st_size if full_path.is_file() else 0)
+                )
             else:
                 entries.append(name)
         return entries
@@ -123,7 +129,10 @@ class TestPostThiesDataUseCase(unittest.IsolatedAsyncioTestCase):
 
         await use_case._validate_sharepoint_destination()
 
-        folder_urls = [call.args[0].folder_relative_url for call in self.sharepoint_client.create_folder.await_args_list]
+        folder_urls = [
+            call.args[0].folder_relative_url
+            for call in self.sharepoint_client.create_folder.await_args_list
+        ]
         self.assertCountEqual(
             folder_urls,
             [
@@ -143,7 +152,10 @@ class TestPostThiesDataUseCase(unittest.IsolatedAsyncioTestCase):
             }
         )
 
-        upload_urls = [call.args[0].folder_relative_url for call in self.sharepoint_client.upload_file.await_args_list]
+        upload_urls = [
+            call.args[0].folder_relative_url
+            for call in self.sharepoint_client.upload_file.await_args_list
+        ]
         self.assertEqual(
             upload_urls,
             [
@@ -218,7 +230,10 @@ class TestPostThiesDataUseCase(unittest.IsolatedAsyncioTestCase):
 
         content_files = await use_case.fetch_local_backup_file_content()
 
-        self.assertEqual(content_files, {"AVG_sensor_a.BIN": b"content-a", "EXT_sensor_b.BIN": b"content-b"})
+        self.assertEqual(
+            content_files,
+            {"AVG_sensor_a.BIN": b"content-a", "EXT_sensor_b.BIN": b"content-b"},
+        )
 
     async def test_should_raise_sharepoint_upload_error_when_upload_fails(self):
         self.sharepoint_client.upload_file = AsyncMock(
@@ -231,7 +246,9 @@ class TestPostThiesDataUseCase(unittest.IsolatedAsyncioTestCase):
                 {"AVG_sensor_a.BIN": b"content-a"}
             )
 
-    async def test_should_raise_backup_source_path_error_when_local_backup_validation_fails(self):
+    async def test_should_raise_backup_source_path_error_when_local_backup_validation_fails(
+        self,
+    ):
         self.directory_client.path_exists = AsyncMock(side_effect=OSError("boom"))
         use_case = self._build_use_case(need_to_sync=False, need_to_backup=True)
 

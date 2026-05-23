@@ -1,6 +1,9 @@
 from http import HTTPStatus
 
 from saviialib.general_types.error_types.api.saviia_api_error_types import (
+    ValidationError,
+)
+from saviialib.general_types.error_types.api.saviia_api_error_types import (
     BackupSourcePathError,
     SharePointDirectoryError,
     SharePointFetchingError,
@@ -25,16 +28,19 @@ from saviialib.services.thies.controllers.types.post_thies_data_types import (
     PostThiesDataControllerInput,
     PostThiesDataControllerOutput,
 )
+from .types.post_thies_data_schema import POST_THIES_DATA_SCHEMA
 from saviialib.services.thies.use_cases.post_thies_data import (
     PostThiesDataUseCase,
 )
 from saviialib.services.thies.use_cases.types.post_thies_data_types import (
     PostThiesDataUseCaseInput,
 )
+from saviialib.libs.schema_validator_client import SchemaValidatorClient
 
 
 class PostThiesDataController:
     def __init__(self, input: PostThiesDataControllerInput):
+        self.input = input
         self.sharepoint_client = SharepointClient(
             SharepointClientInitArgs(
                 SharepointConfig(
@@ -79,6 +85,25 @@ class PostThiesDataController:
 
     async def execute(self) -> PostThiesDataControllerOutput:
         try:
+            SchemaValidatorClient(schema=POST_THIES_DATA_SCHEMA).validate(
+                {
+                    "sharepoint_client_id": self.input.config.sharepoint_client_id,
+                    "sharepoint_client_secret": self.input.config.sharepoint_client_secret,
+                    "sharepoint_tenant_id": self.input.config.sharepoint_tenant_id,
+                    "sharepoint_tenant_name": self.input.config.sharepoint_tenant_name,
+                    "sharepoint_site_name": self.input.config.sharepoint_site_name,
+                    "local_backup_path": self.input.config.local_backup_path,
+                    "ftp_host": self.input.ftp_host,
+                    "ftp_port": self.input.ftp_port,
+                    "ftp_user": self.input.ftp_user,
+                    "ftp_password": self.input.ftp_password,
+                    "need_to_sync": self.input.need_to_sync,
+                    "need_to_backup": self.input.need_to_backup,
+                    "sharepoint_destination_path": self.input.sharepoint_destination_path,
+                    "ftp_server_folders_path": self.input.ftp_server_folders_path,
+                    "local_backup_source_path": self.input.local_backup_source_path,
+                }
+            )
             data = await self.use_case.execute()
             if self.use_case.need_to_backup and self.use_case.need_to_sync:
                 msg = "THIES data was backed up and synced successfully"
@@ -92,6 +117,12 @@ class PostThiesDataController:
                 message=msg,
                 status=HTTPStatus.OK.value,
                 metadata={"data": data},  # type: ignore
+            )
+        except ValidationError as error:
+            return PostThiesDataControllerOutput(
+                message="Invalid input data for posting THIES data.",
+                status=HTTPStatus.BAD_REQUEST.value,
+                metadata={"error": error.__str__()},
             )
         except EmptyDataError:
             return PostThiesDataControllerOutput(

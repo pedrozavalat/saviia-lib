@@ -16,7 +16,10 @@ from saviialib.general_types.api.saviia_thies_api_types import SaviiaThiesConfig
 from saviialib.general_types.error_types.api.saviia_api_error_types import (
     BackupSourcePathError,
 )
-from saviialib.general_types.error_types.common import FtpClientError, SharepointClientError
+from saviialib.general_types.error_types.common import (
+    FtpClientError,
+    SharepointClientError,
+)
 from saviialib.services.thies.controllers.get_thies_data import GetThiesDataController
 from saviialib.services.thies.controllers.types.get_thies_data_types import (
     GetThiesDataControllerInput,
@@ -45,7 +48,11 @@ class TestGetThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
     @patch("saviialib.services.thies.controllers.get_thies_data.GetThiesDataUseCase")
     async def test_should_return_all_success_messages(self, mock_use_case_class):
         scenarios = [
-            (True, False, "Backup needed but no new data to sync to Microsoft SharePoint."),
+            (
+                True,
+                False,
+                "Backup needed but no new data to sync to Microsoft SharePoint.",
+            ),
             (False, True, "New data should be synced to Microsoft SharePoint."),
             (True, True, "New data synced to SharePoint and backup needed."),
             (False, False, "No new data to sync to Microsoft SharePoint."),
@@ -78,10 +85,26 @@ class TestGetThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
     @patch("saviialib.services.thies.controllers.get_thies_data.GetThiesDataUseCase")
     async def test_should_handle_expected_errors(self, mock_use_case_class):
         scenarios = [
-            (BackupSourcePathError(reason="missing"), "The specified local backup source path does not exist.", 404),
-            (FtpClientError("ftp"), "An error occurred while initializing FTP or SharePoint client.", 500),
-            (SharepointClientError("sharepoint"), "An error occurred while initializing FTP or SharePoint client.", 500),
-            (ValueError("boom"), "An unexpected error occurred during use case initialization.", 400),
+            (
+                BackupSourcePathError(reason="missing"),
+                "The specified local backup source path does not exist.",
+                404,
+            ),
+            (
+                FtpClientError("ftp"),
+                "An error occurred while initializing FTP or SharePoint client.",
+                500,
+            ),
+            (
+                SharepointClientError("sharepoint"),
+                "An error occurred while initializing FTP or SharePoint client.",
+                500,
+            ),
+            (
+                ValueError("boom"),
+                "An unexpected error occurred during use case initialization.",
+                400,
+            ),
         ]
 
         for error, expected_message, expected_status in scenarios:
@@ -101,3 +124,20 @@ class TestGetThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(result.message, expected_message)
                 self.assertEqual(result.status, expected_status)
                 self.assertIn("error", result.metadata)
+
+    async def test_should_reject_invalid_schema_input(self):
+        controller = GetThiesDataController(
+            GetThiesDataControllerInput(
+                self.config,
+                self.ftp_host,
+                "21",
+                self.ftp_user,
+                self.ftp_password,
+            )
+        )
+
+        result = await controller.execute()
+
+        self.assertEqual(result.status, 400)
+        self.assertEqual(result.message, "Invalid input data for getting THIES data.")
+        self.assertIn("error", result.metadata)

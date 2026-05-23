@@ -1,6 +1,9 @@
 from http import HTTPStatus
 
 from saviialib.general_types.error_types.api.saviia_api_error_types import (
+    ValidationError,
+)
+from saviialib.general_types.error_types.api.saviia_api_error_types import (
     BackupSourcePathError,
 )
 from saviialib.general_types.error_types.common.common_types import (
@@ -11,6 +14,7 @@ from saviialib.services.thies.controllers.types.get_thies_data_types import (
     GetThiesDataControllerInput,
     GetThiesDataControllerOutput,
 )
+from .types.get_thies_data_schema import GET_THIES_DATA_SCHEMA
 from saviialib.libs.sharepoint_client import (
     SharepointClient,
     SharepointClientInitArgs,
@@ -34,10 +38,12 @@ from saviialib.services.thies.use_cases.types.get_thies_data_types import (
     GetThiesDataUseCaseInput,
 )
 from saviialib.libs.directory_client import DirectoryClient, DirectoryClientArgs
+from saviialib.libs.schema_validator_client import SchemaValidatorClient
 
 
 class GetThiesDataController:
     def __init__(self, input: GetThiesDataControllerInput):
+        self.input = input
         self.sharepoint_client = SharepointClient(
             SharepointClientInitArgs(
                 SharepointConfig(
@@ -77,6 +83,20 @@ class GetThiesDataController:
 
     async def execute(self) -> GetThiesDataControllerOutput:
         try:
+            SchemaValidatorClient(schema=GET_THIES_DATA_SCHEMA).validate(
+                {
+                    "sharepoint_client_id": self.input.config.sharepoint_client_id,
+                    "sharepoint_client_secret": self.input.config.sharepoint_client_secret,
+                    "sharepoint_tenant_id": self.input.config.sharepoint_tenant_id,
+                    "sharepoint_tenant_name": self.input.config.sharepoint_tenant_name,
+                    "sharepoint_site_name": self.input.config.sharepoint_site_name,
+                    "local_backup_path": self.input.config.local_backup_path,
+                    "ftp_host": self.input.ftp_host,
+                    "ftp_port": self.input.ftp_port,
+                    "ftp_user": self.input.ftp_user,
+                    "ftp_password": self.input.ftp_password,
+                }
+            )
             output = await self.use_case.execute()
             if output.need_to_backup and not output.need_to_sync:
                 msg = "Backup needed but no new data to sync to Microsoft SharePoint."
@@ -92,6 +112,12 @@ class GetThiesDataController:
                 metadata={"data": output.__dict__},  # type: ignore
             )
 
+        except ValidationError as error:
+            return GetThiesDataControllerOutput(
+                message="Invalid input data for getting THIES data.",
+                status=HTTPStatus.BAD_REQUEST.value,
+                metadata={"error": error.__str__()},
+            )
         except BackupSourcePathError as error:
             return GetThiesDataControllerOutput(
                 message="The specified local backup source path does not exist.",

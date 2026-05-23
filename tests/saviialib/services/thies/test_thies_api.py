@@ -44,7 +44,7 @@ class TestEpiiAPIUpdateThiesData(unittest.IsolatedAsyncioTestCase):
             sharepoint_tenant_id="tenant_id_123",
             sharepoint_tenant_name="tenant_name_123",
             logger=Mock(),
-            local_backup_path="/share/G"
+            local_backup_path="/share/G",
         )
         self.sharepoint_folders_path = [
             "Shared%20Documents/General/Test_Raspberry/THIES/AVG",
@@ -89,13 +89,17 @@ class TestEpiiAPIUpdateThiesData(unittest.IsolatedAsyncioTestCase):
         mock_update_thies_data_controller_inst.execute.assert_called_once()
 
     @patch("saviialib.services.thies.api.GetThiesDataController")
-    async def test_should_get_thies_data_successfully(self, mock_get_thies_data_controller):
+    async def test_should_get_thies_data_successfully(
+        self, mock_get_thies_data_controller
+    ):
         expected_response = GetThiesDataControllerOutput(
             message="valid message",
             status=200,
             metadata={"data": "need_to_backup=True, need_to_sync=True"},
         )
-        mock_get_thies_data_controller_inst = mock_get_thies_data_controller.return_value
+        mock_get_thies_data_controller_inst = (
+            mock_get_thies_data_controller.return_value
+        )
         mock_get_thies_data_controller_inst.execute = AsyncMock(
             return_value=expected_response
         )
@@ -111,13 +115,17 @@ class TestEpiiAPIUpdateThiesData(unittest.IsolatedAsyncioTestCase):
         mock_get_thies_data_controller_inst.execute.assert_called_once()
 
     @patch("saviialib.services.thies.api.PostThiesDataController")
-    async def test_should_post_thies_data_successfully(self, mock_post_thies_data_controller):
+    async def test_should_post_thies_data_successfully(
+        self, mock_post_thies_data_controller
+    ):
         expected_response = PostThiesDataControllerOutput(
             message="valid message",
             status=200,
             metadata={"data": "backup={}, sync={}"},
         )
-        mock_post_thies_data_controller_inst = mock_post_thies_data_controller.return_value
+        mock_post_thies_data_controller_inst = (
+            mock_post_thies_data_controller.return_value
+        )
         mock_post_thies_data_controller_inst.execute = AsyncMock(
             return_value=expected_response
         )
@@ -138,13 +146,17 @@ class TestEpiiAPIUpdateThiesData(unittest.IsolatedAsyncioTestCase):
         mock_post_thies_data_controller_inst.execute.assert_called_once()
 
     @patch("saviialib.services.thies.api.DetectFailuresController")
-    async def test_should_detect_failures_successfully(self, mock_detect_failures_controller):
+    async def test_should_detect_failures_successfully(
+        self, mock_detect_failures_controller
+    ):
         expected_response = DetectFailuresControllerOutput(
             message="valid message",
             status=200,
             metadata={"validation": "ok"},
         )
-        mock_detect_failures_controller_inst = mock_detect_failures_controller.return_value
+        mock_detect_failures_controller_inst = (
+            mock_detect_failures_controller.return_value
+        )
         mock_detect_failures_controller_inst.execute = AsyncMock(
             return_value=expected_response
         )

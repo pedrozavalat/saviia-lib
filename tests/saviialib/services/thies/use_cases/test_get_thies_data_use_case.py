@@ -29,7 +29,9 @@ class TestGetThiesDataUseCaseExecute(unittest.IsolatedAsyncioTestCase):
         self.ftp_client.list_files = AsyncMock()
         self.sharepoint_client = MagicMock()
         self.sharepoint_client.site_name = "site_name_123"
-        self.sharepoint_client.__aenter__ = AsyncMock(return_value=self.sharepoint_client)
+        self.sharepoint_client.__aenter__ = AsyncMock(
+            return_value=self.sharepoint_client
+        )
         self.sharepoint_client.__aexit__ = AsyncMock(return_value=None)
         self.sharepoint_client.list_files = AsyncMock()
         self.files_client = MagicMock()
@@ -70,8 +72,12 @@ class TestGetThiesDataUseCaseExecute(unittest.IsolatedAsyncioTestCase):
         self.assertIn("EXT_remote.bin", result.unsynchronised_files)
 
     async def test_should_create_missing_backup_structure_and_list_files(self):
-        self.directory_client.path_exists = AsyncMock(side_effect=[True, False, False, False])
-        self.directory_client.listdir = AsyncMock(side_effect=[["AVG_a.bin"], ["EXT_b.bin"]])
+        self.directory_client.path_exists = AsyncMock(
+            side_effect=[True, False, False, False]
+        )
+        self.directory_client.listdir = AsyncMock(
+            side_effect=[["AVG_a.bin"], ["EXT_b.bin"]]
+        )
 
         backup_files = await self.use_case._fetch_local_backup_files()
 
