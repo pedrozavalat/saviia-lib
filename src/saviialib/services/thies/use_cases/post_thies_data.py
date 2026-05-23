@@ -60,7 +60,10 @@ class PostThiesDataUseCase:
         self.logger = input.logger
         self.log_client = LogClient(
             LogClientArgs(
-                "logging", service_name="thies", class_name="post_thies_data"
+                "logging",
+                service_name="thies",
+                class_name="post_thies_data",
+                logger=input.logger,
             )
         )
         self.thies_ftp_client = input.ftp_client
@@ -192,7 +195,12 @@ class PostThiesDataUseCase:
             if await self.os_client.isdir(file_path):
                 continue
             avg_entries.append(
-                (filename, entry_size if entry_size is not None else os.path.getsize(file_path))
+                (
+                    filename,
+                    entry_size
+                    if entry_size is not None
+                    else os.path.getsize(file_path),
+                )
             )
         ext_entries = []
         for entry in thies_ext_files:
@@ -201,7 +209,12 @@ class PostThiesDataUseCase:
             if await self.os_client.isdir(file_path):
                 continue
             ext_entries.append(
-                (filename, entry_size if entry_size is not None else os.path.getsize(file_path))
+                (
+                    filename,
+                    entry_size
+                    if entry_size is not None
+                    else os.path.getsize(file_path),
+                )
             )
         local_files = {
             *((f"AVG_{filename}", size) for filename, size in avg_entries),
@@ -234,7 +247,9 @@ class PostThiesDataUseCase:
                 self.log_client.debug(
                     DebugArgs(
                         status=LogStatus.SUCCESSFUL,
-                        metadata={"msg": f"Reading local file '{file}' from '{file_path}'"},
+                        metadata={
+                            "msg": f"Reading local file '{file}' from '{file_path}'"
+                        },
                     )
                 )
                 content_files[file] = content
@@ -282,7 +297,9 @@ class PostThiesDataUseCase:
                     self.log_client.debug(
                         DebugArgs(
                             status=LogStatus.STARTED,
-                            metadata={"msg": f"Resolved SharePoint URL: {relative_url}"},
+                            metadata={
+                                "msg": f"Resolved SharePoint URL: {relative_url}"
+                            },
                         )
                     )
                     await self.sharepoint_client.upload_file(
@@ -418,14 +435,18 @@ class PostThiesDataUseCase:
             file_path = self.os_client.join_paths(avg_folder_path, filename)
             if await self.os_client.isdir(file_path):
                 continue
-            local_avg_files[filename] = entry_size if entry_size is not None else os.path.getsize(file_path)
+            local_avg_files[filename] = (
+                entry_size if entry_size is not None else os.path.getsize(file_path)
+            )
         local_ext_files = {}
         for entry in await self.os_client.listdir(ext_folder_path):
             filename, entry_size = self._extract_local_entry(entry)
             file_path = self.os_client.join_paths(ext_folder_path, filename)
             if await self.os_client.isdir(file_path):
                 continue
-            local_ext_files[filename] = entry_size if entry_size is not None else os.path.getsize(file_path)
+            local_ext_files[filename] = (
+                entry_size if entry_size is not None else os.path.getsize(file_path)
+            )
         saved_files: Set[str] = set()
         try:
             for file, orig_size in thies_files:

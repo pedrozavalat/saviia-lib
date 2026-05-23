@@ -39,7 +39,12 @@ class GetThiesDataUseCase:
         self.files_client = input.files_client
         self.dir_client = input.directory_client
         self.logger = LogClient(
-            LogClientArgs("logging", service_name="thies", class_name="get_thies_data")
+            LogClientArgs(
+                "logging",
+                service_name="thies",
+                class_name="get_thies_data",
+                logger=input.logger,
+            )
         )
         # Configurations
 
@@ -49,7 +54,9 @@ class GetThiesDataUseCase:
         self.sync_error = False
         self.uploading = set()
 
-    async def _list_local_files_with_sizes(self, folder_path: str) -> list[tuple[str, int]]:
+    async def _list_local_files_with_sizes(
+        self, folder_path: str
+    ) -> list[tuple[str, int]]:
         filenames = await self.dir_client.listdir(folder_path)
         file_sizes: list[tuple[str, int]] = []
         for filename in filenames:
@@ -60,7 +67,9 @@ class GetThiesDataUseCase:
             file_sizes.append((filename, int(size)))
         return file_sizes
 
-    async def _fetch_local_backup_files(self) -> Dict[str, int | Set[str] | Dict[str, int]]:
+    async def _fetch_local_backup_files(
+        self,
+    ) -> Dict[str, int | Set[str] | Dict[str, int]]:
         backup_path_exists = await self.dir_client.path_exists(self.local_backup_path)
         if not backup_path_exists:
             raise BackupSourcePathError(
@@ -158,9 +167,7 @@ class GetThiesDataUseCase:
         need_to_backup = False
         thies_file_names = {name for name, _ in thies_files}
         backup_filenames = cast(Set[str], backup_files["filenames"])
-        backup_file_sizes = cast(
-            Dict[str, int], backup_files.get("file_sizes", {})
-        )
+        backup_file_sizes = cast(Dict[str, int], backup_files.get("file_sizes", {}))
         count_ext_files = cast(int, backup_files.get("count_ext_files", 0))
         count_avg_files = cast(int, backup_files.get("count_avg_files", 0))
         if count_ext_files != count_avg_files:
@@ -169,7 +176,10 @@ class GetThiesDataUseCase:
         if len(unbacked_files) > 0:
             need_to_backup = True
         for file_name, thies_size in thies_files_dict.items():
-            if file_name in backup_file_sizes and backup_file_sizes[file_name] != thies_size:
+            if (
+                file_name in backup_file_sizes
+                and backup_file_sizes[file_name] != thies_size
+            ):
                 need_to_backup = True
                 unbacked_files.add(file_name)
         # Check out whether it should consider a new synchronisation

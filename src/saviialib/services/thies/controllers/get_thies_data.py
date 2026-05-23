@@ -80,6 +80,7 @@ class GetThiesDataController:
                 sharepoint_destination_path=input.sharepoint_destination_path,
                 files_client=self.files_client,
                 directory_client=self.dir_client,
+                logger=input.config.logger,
             )
         )
 
@@ -140,7 +141,7 @@ class GetThiesDataController:
                 status=HTTPStatus.INTERNAL_SERVER_ERROR.value,
                 metadata={"error": error.__str__()},
             )
-            
+
         except ThiesFetchingError as error:
             return GetThiesDataControllerOutput(
                 message="An error occurred while fetching THIES data.",

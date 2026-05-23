@@ -24,7 +24,12 @@ class SaviiaThiesAPI:
     def __init__(self, config: SaviiaThiesConfig) -> None:
         self.config = config
         self.logger = LogClient(
-            LogClientArgs("logging", service_name="thies", class_name="api")
+            LogClientArgs(
+                "logging",
+                service_name="thies",
+                class_name="api",
+                logger=self.config.logger,
+            )
         )
 
     async def get_thies_data(

@@ -51,7 +51,10 @@ class PostThiesDataController:
         self.input = input
         self.logger = LogClient(
             LogClientArgs(
-                "logging", service_name="thies", class_name="post_thies_data_controller"
+                "logging",
+                service_name="thies",
+                class_name="post_thies_data_controller",
+                logger=input.config.logger,
             )
         )
         self.sharepoint_client = SharepointClient(
