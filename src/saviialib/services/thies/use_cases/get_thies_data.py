@@ -131,7 +131,8 @@ class GetThiesDataUseCase:
         # Check out if it is need to execute a new backup
         if backup_files["count_ext_files"] != backup_files["count_avg_files"]:
             need_to_backup = True
-        unbacked_files = thies_files.difference(backup_files["filenames"])  # type: ignore
+        thies_file_names = {name for name, _ in thies_files}
+        unbacked_files = thies_file_names.difference(backup_files["filenames"])  # type: ignore
         if len(unbacked_files) > 0:
             need_to_backup = True
         need_to_backup = True if len(unbacked_files) > 0 else False
@@ -197,6 +198,7 @@ class GetThiesDataUseCase:
             cloud_files = await self._fetch_cloud_total_files()
         except (RuntimeError, ConnectionError) as error:
             self.sync_error = True
+            cloud_files = set()
             self.logger.warning(
                 WarningArgs(status=LogStatus.FAILED, metadata={"msg": error.__str__()})
             )
