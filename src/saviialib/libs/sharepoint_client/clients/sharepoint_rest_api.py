@@ -14,6 +14,7 @@ from saviialib.libs.sharepoint_client.types.sharepoint_client_types import (
     SpUploadFileArgs,
     SpCreateFolderArgs,
     SharepointClientInitArgs,
+    SpGetCredentialsArgs
 )
 
 load_dotenv()
@@ -90,6 +91,44 @@ class SharepointRestAPI(SharepointClientContract):
         self, _exc_type: type[BaseException], _exc_val: BaseException, _exc_tb: Any
     ) -> None:
         await self.session.close()
+        
+    async def get_credentials(self, args: SpGetCredentialsArgs) -> dict:
+        try:
+            headers = {
+                "Content-Type": "application/x-www-form-urlencoded",
+            }
+            if args.version == "ACS":
+                resource_base = "00000003-0000-0ff1-ce00-000000000000"
+                url = f"https://accounts.accesscontrol.windows.net/{self.tenant_id}/tokens/OAuth/2"
+                resource = f"{resource_base}/{self.tenant_name}.sharepoint.com@{self.tenant_id}"
+                payload = {
+                    "grant_type": "client_credentials",
+                    "client_id": f"{self.client_id}@{self.tenant_id}",
+                    "client_secret": self.client_secret,
+                    "resource": resource,
+                }
+            elif args.version == "Azure_AD":
+                url = f"https://login.microsoftonline.com/{self.tenant_id}/oauth2/v2.0/token"
+                payload = {
+                    "client_id": self.client_id,
+                    "client_secret": self.client_secret,
+                    "grant_type": "client_credentials",
+                    "scope": "https://graph.microsoft.com/.default",
+                }
+            else:
+                raise ValueError(f"Unsupported credentials version: {args.version}")
+            async with ClientSession(connector=TCPConnector(ssl=ssl_context)) as session:
+                response = await session.post(url, data=payload, headers=headers)
+                if response.status != 200:
+                    raise ClientError(
+                        f"Failed to fetch credentials: {response.status}, {await response.text()}"
+                    )
+                response_json = await response.json()
+                return {
+                    "access_token": response_json["access_token"],
+                }
+        except ClientError as error:
+            raise ConnectionError(error) from error
 
     async def list_files(self, args: SpListFilesArgs) -> list:
         try:

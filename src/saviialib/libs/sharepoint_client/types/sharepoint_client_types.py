@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Literal
 
 
 @dataclass
@@ -28,3 +28,7 @@ class SpUploadFileArgs:
 @dataclass
 class SpCreateFolderArgs:
     folder_relative_url: str
+    
+@dataclass
+class SpGetCredentialsArgs:
+    version: Literal["ACS", "Azure_AD"]
