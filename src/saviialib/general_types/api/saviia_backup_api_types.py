@@ -22,3 +22,4 @@ class SaviiaBackupConfig:
     sharepoint_tenant_name: str
     sharepoint_site_name: str
     logger: Logger
+    local_backup_path: str

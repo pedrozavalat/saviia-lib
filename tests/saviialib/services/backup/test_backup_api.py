@@ -26,6 +26,7 @@ def backup_config() -> SaviiaBackupConfig:
         sharepoint_tenant_name="tenant-name",
         sharepoint_site_name="site-name",
         logger=MagicMock(),
+        local_backup_path="/tmp/backup",
     )
 
 
@@ -42,6 +43,23 @@ async def test_should_delegate_upload_backup_to_sharepoint(
     response = await api.upload_backup_to_sharepoint(
         local_backup_source_path="/tmp/local",
         sharepoint_destination_path="Shared%20Documents/backup",
+    )
+
+    assert response == expected_response.__dict__
+    mock_controller_instance.execute.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+@patch("saviialib.services.backup.api.ExportFilesController")
+async def test_should_delegate_export_files(mock_controller_class, backup_config):
+    expected_response = MagicMock(message="ok", status=200, metadata={"data": "x"})
+    mock_controller_instance = mock_controller_class.return_value
+    mock_controller_instance.execute = AsyncMock(return_value=expected_response)
+
+    api = SaviiaBackupAPI(backup_config)
+    response = await api.export_files(
+        local_folder_path="thies-daily-files",
+        sharepoint_destination_path="Shared%20Documents/General/Test",
     )
 
     assert response == expected_response.__dict__
