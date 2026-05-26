@@ -3,12 +3,23 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from saviialib.general_types.error_types.api.saviia_api_error_types import ValidationError
+from saviialib.general_types.error_types.api.saviia_api_error_types import (
+    ValidationError,
+)
 from saviialib.libs.directory_client.client.os_client import OsClient
 from saviialib.libs.log_client.logging_client.logging_client import LoggingClient
-from saviialib.libs.log_client.types.log_client_types import DebugArgs, ErrorArgs, InfoArgs, LogClientArgs, LogStatus, WarningArgs
+from saviialib.libs.log_client.types.log_client_types import (
+    DebugArgs,
+    ErrorArgs,
+    InfoArgs,
+    LogClientArgs,
+    LogStatus,
+    WarningArgs,
+)
 from saviialib.libs.log_client.utils.log_client_utils import format_message
-from saviialib.libs.schema_validator_client.clients.jsonschema.jsonschema_client import JsonschemaClient
+from saviialib.libs.schema_validator_client.clients.jsonschema.jsonschema_client import (
+    JsonschemaClient,
+)
 from saviialib.libs.zero_dependency.utils.booleans_utils import boolean_to_emoji
 from saviialib.libs.zero_dependency.utils.datetime_utils import (
     datetime_to_str,
@@ -62,7 +73,10 @@ def test_should_format_log_message():
 def test_should_validate_jsonschema_client_and_format_errors():
     schema = {
         "type": "object",
-        "properties": {"name": {"type": "string", "maxLength": 3}, "tags": {"type": "array", "maxItems": 1}},
+        "properties": {
+            "name": {"type": "string", "maxLength": 3},
+            "tags": {"type": "array", "maxItems": 1},
+        },
         "required": ["name"],
         "additionalProperties": False,
     }
@@ -104,7 +118,9 @@ async def test_should_operate_os_client_filesystem(tmp_path):
 def test_should_record_and_dispatch_logs_when_active_record_enabled():
     logger = MagicMock()
     client = LoggingClient(
-        LogClientArgs(class_name="klass", method_name="exec", active_record=True, logger=logger)
+        LogClientArgs(
+            class_name="klass", method_name="exec", active_record=True, logger=logger
+        )
     )
 
     client.info(InfoArgs(LogStatus.STARTED, {"msg": "i"}))
