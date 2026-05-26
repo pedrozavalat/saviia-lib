@@ -72,4 +72,5 @@ class OsClient(DirectoryClientContract):
             with os.fdopen(os.open(path, os.O_WRONLY | os.O_CREAT), "w"):
                 pass
             os.utime(path, None)
+
         await asyncio.to_thread(_touch, path)

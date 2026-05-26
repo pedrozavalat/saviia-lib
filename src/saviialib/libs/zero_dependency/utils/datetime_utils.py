@@ -26,8 +26,11 @@ def datetime_to_str(date: datetime, date_format: str = "%m/%d/%Y, %H:%M:%S") -> 
     return date.strftime(date_format)
 
 
-def datetime_to_timestamp(date: datetime, date_format: str = "%m/%d/%Y, %H:%M:%S") -> float:
+def datetime_to_timestamp(
+    date: datetime, date_format: str = "%m/%d/%Y, %H:%M:%S"
+) -> float:
     return str_to_timestamp(datetime_to_str(date, date_format), date_format)
+
 
 def str_to_datetime(date: str, date_format: str = "%m/%d/%Y, %H:%M:%S") -> datetime:
     """

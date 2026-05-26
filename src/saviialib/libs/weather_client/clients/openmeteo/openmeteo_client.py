@@ -86,7 +86,9 @@ class OpenmeteoClient(WeatherClientContract):
             return {
                 metric_name: {
                     time: value
-                    for time, value in zip(resjson["hourly"]["time"], resjson["hourly"][metric["name"]])
+                    for time, value in zip(
+                        resjson["hourly"]["time"], resjson["hourly"][metric["name"]]
+                    )
                 },
                 "aggregations": {
                     f"{metric['name']}_{aggr}": {

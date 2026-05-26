@@ -105,7 +105,9 @@ class TestGetThiesDataUseCaseExecute(unittest.IsolatedAsyncioTestCase):
         self.directory_client.path_exists = AsyncMock(
             side_effect=[True, False, False, False]
         )
-        self.directory_client.listdir = AsyncMock(side_effect=lambda path, more_info=False: os.listdir(path))
+        self.directory_client.listdir = AsyncMock(
+            side_effect=lambda path, more_info=False: os.listdir(path)
+        )
         Path(self.local_backup_path, "thies", "AVG", "a.bin").write_bytes(b"a" * 11)
         Path(self.local_backup_path, "thies", "EXT", "b.bin").write_bytes(b"b" * 22)
 

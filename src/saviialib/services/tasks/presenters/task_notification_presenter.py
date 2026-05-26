@@ -56,7 +56,9 @@ class TaskNotificationPresenter:
                 result["assignee_discord_username"] = line.split(":", 1)[1].strip()
                 current_field = None
             elif current_field == "description":
-                result["description"] = f"{result.get('description', '')}\n{line}".strip()
+                result["description"] = (
+                    f"{result.get('description', '')}\n{line}".strip()
+                )
         return result
 
     @classmethod
