@@ -1,0 +1,72 @@
+name-template: "v$RESOLVED_VERSION"
+tag-template: "v$RESOLVED_VERSION"
+change-template: "- $TITLE @$AUTHOR (#$NUMBER)"
+sort-direction: ascending
+
+categories:
+  - title: "✨ Features"
+    labels:
+      - "feat"
+  - title: "🐛 Fixes"
+    labels:
+      - "fix"
+  - title: "🧰 Maintenance"
+    collapse-after: 4
+    labels:
+      - "chore"
+      - "build"
+  - title: "📚 Documentation"
+    collapse-after: 4
+    labels:
+      - "documentation"
+
+version-resolver:
+  major:
+    labels:
+      - "breaking-change"
+  minor:
+    labels:
+      - "feat"
+  patch:
+    labels:
+      - "fix"
+      - "build"
+      - "chore"
+      - "ci"
+      - "docs"
+      - "documentation"
+      - "refactor"
+      - "perf"
+  default: patch
+
+exclude-contributors:
+  - sfstar
+
+template: |
+  ## Changes
+
+  $CHANGES
+
+  Special thanks to $CONTRIBUTORS for this release!
+
+autolabeler:
+  - label: "feat"
+    branch:
+      - '/^feat\/.+/'
+    title:
+      - '/^feat(\(.+\))?:/i'
+  - label: "fix"
+    branch:
+      - '/^fix\/.+/'
+    title:
+      - '/^fix(\(.+\))?:/i'
+  - label: "chore"
+    branch:
+      - '/^chore\/.+/'
+    title:
+      - '/^chore(\(.+\))?:/i'
+  - label: "build"
+    branch:
+      - '/^build\/.+/'
+    title:
+      - '/^build(\(.+\))?:/i'

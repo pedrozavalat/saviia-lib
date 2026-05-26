@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from logging import Logger
 from saviialib.db import DbClient
 from saviialib.libs.weather_client import WeatherClient
 
@@ -9,6 +10,7 @@ class DetectFailuresUseCaseInput:
     db_client: DbClient
     weather_client: WeatherClient
     n_days: int = 7
+    logger: Logger | None = None
 
 
 @dataclass

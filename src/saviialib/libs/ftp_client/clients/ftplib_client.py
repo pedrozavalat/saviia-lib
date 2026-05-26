@@ -38,17 +38,27 @@ class FtplibClient(FTPClientContract):
             EXCLUDED_NAMES = [".", ".."]
             await self._async_start()
             await asyncio.to_thread(self.client.cwd, args.path)
-            filenames = await asyncio.to_thread(self.client.nlst)
             files_with_sizes = []
-            
-            for filename in filenames:
-                if filename in EXCLUDED_NAMES:
-                    continue
-                try:
-                    size = await asyncio.to_thread(self.client.size, filename)
-                except Exception:
-                    size = 0
-                files_with_sizes.append((filename, int(size))) # type: ignore
+
+            try:
+                # Prefer MLSD because it exposes the file size directly in the facts.
+                entries = await asyncio.to_thread(lambda: list(self.client.mlsd()))
+                for filename, facts in entries:
+                    if filename in EXCLUDED_NAMES:
+                        continue
+                    size = int(facts.get("size", 0))
+                    files_with_sizes.append((filename, size))
+            except Exception:
+                # Fall back to NLST + SIZE for FTP servers without MLSD support.
+                filenames = await asyncio.to_thread(self.client.nlst)
+                for filename in filenames:
+                    if filename in EXCLUDED_NAMES:
+                        continue
+                    try:
+                        size = await asyncio.to_thread(self.client.size, filename)
+                    except Exception:
+                        size = 0
+                    files_with_sizes.append((filename, int(size)))  # type: ignore
 
             return files_with_sizes
         except Exception as error:

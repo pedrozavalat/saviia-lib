@@ -57,10 +57,7 @@ class SaviiaAPI:
         for name, api_class in SaviiaAPI.API_REGISTRY.items():
             if name == "thies":
                 service_config = SaviiaThiesConfig(
-                    ftp_host=config.ftp_host,
-                    ftp_port=config.ftp_port,
-                    ftp_user=config.ftp_user,
-                    ftp_password=config.ftp_password,
+                    local_backup_path=config.local_backup_path,
                     sharepoint_client_id=config.sharepoint_client_id,
                     sharepoint_client_secret=config.sharepoint_client_secret,
                     sharepoint_tenant_id=config.sharepoint_tenant_id,
@@ -78,6 +75,7 @@ class SaviiaAPI:
                     sharepoint_tenant_name=config.sharepoint_tenant_name,
                     sharepoint_site_name=config.sharepoint_site_name,
                     logger=config.logger,
+                    local_backup_path=config.local_backup_path,
                 )
             elif name == "netcamera":
                 service_config = SaviiaNetcameraConfig(
@@ -91,7 +89,7 @@ class SaviiaAPI:
                     task_channel_id=config.tasks_channel_id,
                     email_address=config.email_address,
                     email_password=config.email_password,
-                    local_backup_path=config.local_backup_path
+                    local_backup_path=config.local_backup_path,
                 )
 
             self._instances[name] = api_class(service_config)

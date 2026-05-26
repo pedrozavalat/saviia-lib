@@ -1,6 +1,7 @@
 from typing import Literal, Dict
 from enum import Enum
 from dataclasses import dataclass, field
+from logging import Logger
 
 
 class LogStatus(Enum):
@@ -19,6 +20,7 @@ class LogClientArgs:
     class_name: str = field(default="")
     method_name: str = field(default="")
     active_record: bool = False
+    logger: Logger | None = None
 
 
 @dataclass
