@@ -75,6 +75,7 @@ class SaviiaAPI:
                     sharepoint_tenant_name=config.sharepoint_tenant_name,
                     sharepoint_site_name=config.sharepoint_site_name,
                     logger=config.logger,
+                    local_backup_path=config.local_backup_path,
                 )
             elif name == "netcamera":
                 service_config = SaviiaNetcameraConfig(

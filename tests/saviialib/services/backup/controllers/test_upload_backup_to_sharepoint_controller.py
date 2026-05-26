@@ -31,6 +31,7 @@ def backup_config() -> SaviiaBackupConfig:
         sharepoint_tenant_name="tenant-name",
         sharepoint_site_name="site-name",
         logger=MagicMock(),
+        local_backup_path="/tmp/backup",
     )
 
 
