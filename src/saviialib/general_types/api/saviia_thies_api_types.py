@@ -16,6 +16,7 @@ class SaviiaThiesConfig:
         latitude (str): Latitude at which the station is located (optional).
         longitude (str): Longitude at which the station is located (optional).
     """
+
     sharepoint_client_id: str
     sharepoint_client_secret: str
     sharepoint_tenant_id: str
@@ -25,4 +26,3 @@ class SaviiaThiesConfig:
     logger: Logger
     latitude: float = -91
     longitude: float = -181
-    

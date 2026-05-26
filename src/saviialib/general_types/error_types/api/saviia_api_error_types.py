@@ -117,14 +117,15 @@ class ValidationError(Exception):
     def __init__(self, *args: object, reason: str) -> None:
         super().__init__(*args)
         self.reason = reason
-    
+
     def __str__(self) -> str:
         return f"Unexpected error while during JSON Validation: {self.reason}"
-    
+
+
 class ExistingNotificationError(Exception):
     def __init__(self, *args: object, reason: str) -> None:
         super().__init__(*args)
         self.reason = reason
-    
+
     def __str__(self) -> str:
         return f"Notification already exists: {self.reason}"

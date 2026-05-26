@@ -16,4 +16,3 @@ class SaviiaTasksConfig:
     email_address: str = ""
     email_password: str = ""
     local_backup_path: str = ""
-    

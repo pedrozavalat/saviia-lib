@@ -22,7 +22,7 @@ class DbClient(DbClientContract):
 
     async def connect(self) -> None:
         # TODO: Not implemented yet
-        return 
+        return
 
     async def close(self) -> None:
         # TODO: Not implemented yet
@@ -30,7 +30,7 @@ class DbClient(DbClientContract):
 
     async def execute(self, args: ExecuteArgs) -> None:
         # TODO: Not implemented yet
-        return 
+        return
 
     async def fetch_all(self, args: FetchAllArgs) -> List[Any]:
         # TODO: Not implemented yet
