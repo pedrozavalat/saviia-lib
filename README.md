@@ -1,17 +1,24 @@
-# SAVIIA Library 
-*Sistema de Administración y Visualización de Información para la Investigación y Análisis*
+# ECHO Library 
+> Edge Computing & Hardware Orchestration API library for Home Assistant. 
+
+
 
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/pedrozavalat/saviia-lib?style=for-the-badge)](https://github.com/pedrozavalat/saviia-lib/releases)
 
 
 ## Table of Contents
 - [Installation](#installation)
-- [Saviia API Client Usage](#saviia-api-client-usage)
-     - [Initialize the Saviia API Client](#initialize-the-saviia-api-client)
+- [ECHO API Client Usage](#echo-api-client-usage)
+     - [Initialize the ECHO API Client](#initialize-the-echo-api-client)
         - [Access THIES Data Logger Services](#access-thies-data-logger-services)
             - [THIES files extraction and synchronization](#thies-files-extraction-and-synchronization)
+            - [Get THIES status](#get-thies-status)
+            - [Post THIES precomputed actions](#post-thies-precomputed-actions)
+            - [Detect Failures](#detect-failures)
+        
         - [Access Backup Services](#access-backup-services)
             - [Create Backup](#create-backup)
+            - [Export Files](#export-files)
         - [Access Netcamera Services](#access-netcamera-services)
             - [Get Camera Rates](#get-camera-rates)
         - [Access Task System Services](#access-task-system-services)
@@ -19,7 +26,7 @@
             - [Update Task](#update-task)
             - [Delete Task](#delete-task)
             - [Get Tasks](#get-tasks)
-
+- [Related Projects](#related-projects)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -30,9 +37,9 @@ This library is designed for use with the SAVIIA Home Assistant Integration. It 
 pip install saviialib
 ```
 
-## Saviia API Client Usage
+## ECHO API Client Usage
 
-### Initialize the Saviia API Client
+### Initialize the ECHO API Client
 Import the necessary classes from the library.
 ```python
 from saviialib import SaviiaAPI, SaviiaAPIConfig
@@ -77,6 +84,66 @@ async def main():
 asyncio.run(main())
 ```
 
+##### Get THIES status
+You can check whether THIES data needs syncing or backup by calling `get_thies_data` with FTP credentials and a SharePoint destination path:
+
+```python
+import asyncio
+
+async def main():
+    response = await thies_service.get_thies_data(
+        ftp_port=21,
+        ftp_host="ftp.example.com",
+        ftp_user="anonymous",
+        ftp_password="",
+        sharepoint_destination_path="Shared%20Documents/General/Test_Raspberry/THIES/AVG",
+    )
+    return response
+
+asyncio.run(main())
+```
+
+##### Post THIES precomputed actions
+If you already computed whether to sync or backup externally, call `post_thies_data` to execute the actions:
+
+```python
+import asyncio
+
+async def main():
+    response = await thies_service.post_thies_data(
+        ftp_port=21,
+        ftp_host="ftp.example.com",
+        ftp_user="anonymous",
+        ftp_password="",
+        need_to_sync=True,
+        need_to_backup=False,
+        sharepoint_destination_path="Shared%20Documents/General/Test_Raspberry/THIES/AVG",
+        ftp_server_folders_path=["/ARCH_AV1", "/ARCH_EX1"],
+        local_backup_source_path="saviia-local-backup",
+    )
+    return response
+
+asyncio.run(main())
+```
+
+The `need_to_backup` allows you to trigger a backup of the THIES files in a local folder, while `need_to_sync` will trigger the synchronization of THIES files between the Local Backup and SharePoint. You can set either or both to `True` depending on your needs.
+
+##### Detect Failures
+Use `detect_failures` to scan a local backup folder for missing or corrupt THIES files over the last N days. 
+
+```python
+import asyncio
+
+async def main():
+    response = await thies_service.detect_failures(
+        local_backup_source_path="saviia-local-backup",
+        n_days=7
+    )
+    return response
+
+asyncio.run(main())
+```
+
 ### Access Backup Services
 To interact with the Backup services, you can access the `backup` attribute of the `SaviiaAPI` instance:
 ```python
@@ -101,6 +168,32 @@ asyncio.run(main())
 **Notes:**
 - Ensure that the `local_backup_path` exists and contains the files you want to back up. It is a relative path from the Home Assistant configuration directory.
 - The `sharepoint_folder_path` should be the path to the folder in SharePoint where you want to upload the backup files. For example, if your url is `https://yourtenant.sharepoint.com/sites/yoursite/Shared Documents/Backups`, the folder path would be `sites/yoursite/Shared Documents/Backups`.
+
+#### Export Files
+Use `export_files` to synchronize a local folder (under the configured backup root) with a specific SharePoint destination. This method validates the local folder, compares local files with SharePoint (existence and file size) and uploads only the missing or size-different files.
+
+Example usage:
+```python
+import asyncio
+
+async def main():
+    # backup_service was obtained from SaviiaAPI as shown above
+    # `local_folder_path` is a relative path under your configured local backup root,
+    # for example: "thies/AVG"
+    response = await backup_service.export_files(
+        local_folder_path="thies/AVG",
+        sharepoint_destination_path="Shared%20Documents/General/Test_Raspberry/saviia-local-backup/thies/AVG"
+    )
+    return response
+
+asyncio.run(main())
+```
+
+Notes:
+- `local_folder_path`: relative folder under your configured `local_backup_path` where files are read from.
+- `sharepoint_destination_path`: the exact destination folder in SharePoint where files will be created/uploaded. The controller will add the server-relative prefix (e.g. `/sites/{site_name}`) when required.
+- The controller is responsible for instantiating the external clients (SharePoint, file reader, directory client); the use case only contains orchestration and business logic.
+- If SharePoint reports a file size of zero for a remote item, the code treats that as "unknown" and will not force a resync based solely on a zero-length remote size. Only files that are missing in SharePoint or that have differing non-zero sizes will be uploaded.
 
 ### Access Netcamera Services
 The Netcamera service provides camera capture rate configuration based on meteorological data such as precipitation and precipitation probability.
@@ -264,12 +357,30 @@ asyncio.run(main())
 - `fields`: Specify which fields to include in the response. Must include `title` and `due_date`.
 - `after` and `before`: Filter tasks by timestamp ranges.
 
+#### Get Pending Tasks
+To retrieve pending (uncompleted) tasks and optionally download attachments or trigger notifications, call `get_pending_tasks`:
+
+```python
+import asyncio
+
+async def main():
+    # download: if True, attachments for pending tasks will be downloaded
+    # notify: if True, the configured bot will send notifications for pending tasks
+    response = await tasks_service.get_pending_tasks(download=False, notify=False)
+    return response
+
+asyncio.run(main())
+```
+The notifications are sent as messages in the configured Discord channel, mentioning the assignee of each pending task with its title and due date.
 
 
 
 ## Contributing
 If you're interested in contributing to this project, please follow the contributing guidelines. By contributing to this project, you agree to abide by its terms.
 Contributions are welcome and appreciated!
+
+## Related Projects
+* [ECHO](https://github.com/raxlab/echo): A Home Assistant custom integration for Edge Computing and Hardware Orchestration that uses this library.
 
 ## License
 
