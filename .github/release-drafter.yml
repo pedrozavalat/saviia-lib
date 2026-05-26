@@ -52,21 +52,21 @@ template: |
 autolabeler:
   - label: "feat"
     branch:
-      - "/^feat\/.+/"
+      - '/^feat\/.+/'
     title:
-      - "/^feat(\(.+\))?:/i"
+      - '/^feat(\(.+\))?:/i'
   - label: "fix"
     branch:
-      - "/^fix\/.+/"
+      - '/^fix\/.+/'
     title:
-      - "/^fix(\(.+\))?:/i"
+      - '/^fix(\(.+\))?:/i'
   - label: "chore"
     branch:
-      - "/^chore\/.+/"
+      - '/^chore\/.+/'
     title:
-      - "/^chore(\(.+\))?:/i"
+      - '/^chore(\(.+\))?:/i'
   - label: "build"
     branch:
-      - "/^build\/.+/"
+      - '/^build\/.+/'
     title:
-      - "/^build(\(.+\))?:/i"
+      - '/^build(\(.+\))?:/i'
