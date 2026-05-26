@@ -1,0 +1,27 @@
+name: Release Drafter
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
+      - unlabeled
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  update_release_draft:
+    name: ✏️ Draft release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: 🚀 Run Release Drafter
+        uses: release-drafter/release-drafter@v6.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
