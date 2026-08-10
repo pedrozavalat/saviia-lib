@@ -2,7 +2,7 @@ myst-nb
 sphinx-autoapi
 sphinx-rtd-theme
 asyncio==3.4.3
-pydantic==2.11.3
+pydantic==2.12.5
 aioftp==0.27.2
 aiohttp==3.11.18
 dotenv==0.9.9
