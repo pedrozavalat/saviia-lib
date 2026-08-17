@@ -17,14 +17,11 @@ class SaviiaAPIConfig:
         sharepoint_tenant_id (str): Tenant ID for SharePoint authentication.
         sharepoint_tenant_name (str): Tenant name for SharePoint.
         sharepoint_site_name (str): Site name in SharePoint.
+        databricks_api_key (str): API Key for Databricks.
+        databricks_host_url (str): Host URL for Databricks.
         notification_client_api_key (str): API Key for Notification Client (Discord)
     """
 
-    sharepoint_client_id: str
-    sharepoint_client_secret: str
-    sharepoint_tenant_id: str
-    sharepoint_tenant_name: str
-    sharepoint_site_name: str
     logger: Logger
     local_backup_path: str
     latitude: float = -91
@@ -33,6 +30,16 @@ class SaviiaAPIConfig:
     bot_token: str = ""
     email_address: str = ""
     email_password: str = ""
+    # SharePoint 
+    sharepoint_client_id: str | None = None
+    sharepoint_client_secret: str | None = None
+    sharepoint_tenant_id: str | None = None
+    sharepoint_tenant_name: str | None = None
+    sharepoint_site_name: str | None = None
+
+    # Databricks 
+    databricks_api_key: str = ""
+    databricks_host_url: str = ""
 
 
 @dataclass
@@ -50,3 +57,8 @@ class SharepointConfig:
     sharepoint_tenant_id: str
     sharepoint_tenant_name: str
     sharepoint_site_name: str
+
+@dataclass
+class DatabricksConfig:
+    databricks_api_key: str
+    databricks_host_url: str

@@ -4,15 +4,15 @@ from typing import Any, Dict, List, Set, Tuple
 
 from saviialib.general_types.error_types.api.saviia_api_error_types import (
     BackupSourcePathError,
-    SharePointFetchingError,
-    SharePointUploadError,
+    CloudClientFetchingError,
+    CloudClientUploadError,
     ThiesConnectionError,
     ThiesFetchingError,
 )
 from saviialib.general_types.error_types.common import (
     EmptyDataError,
     FtpClientError,
-    SharepointClientError,
+    CloudClientError,
 )
 from saviialib.libs.files_client import (
     ReadArgs,
@@ -22,10 +22,10 @@ from saviialib.libs.ftp_client import (
     FtpListFilesArgs,
     FtpReadFileArgs,
 )
-from saviialib.libs.sharepoint_client import (
-    SpListFilesArgs,
-    SpCreateFolderArgs,
-    SpUploadFileArgs,
+from saviialib.libs.cloud_client import (
+    CloudClientListFilesArgs,
+    CloudClientCreateFolderArgs,
+    CloudClientUploadFileArgs,
 )
 from saviialib.libs.zero_dependency.utils.datetime_utils import (
     datetime_to_str,
@@ -37,7 +37,7 @@ from saviialib.services.thies.use_cases.components.create_thies_statistics_file 
 from saviialib.services.thies.use_cases.types.post_thies_data_types import (
     PostThiesDataUseCaseInput,
 )
-from saviialib.services.thies.utils.update_thies_data_utils import (
+from saviialib.services.thies.use_cases.utils.post_thies_data_utils import (
     parse_execute_response,
 )
 from saviialib.libs.log_client import (
@@ -56,7 +56,7 @@ class PostThiesDataUseCase:
     def __init__(self, input: PostThiesDataUseCaseInput):
         self.need_to_sync = input.need_to_sync
         self.need_to_backup = input.need_to_backup
-        self.sharepoint_client = input.sharepoint_client
+        self.cloud_client = input.cloud_client
         self.logger = input.logger
         self.log_client = LogClient(
             LogClientArgs(
@@ -67,16 +67,15 @@ class PostThiesDataUseCase:
             )
         )
         self.thies_ftp_client = input.ftp_client
-        self.sharepoint_destination_path = input.sharepoint_destination_path
+        self.cloud_provider_destination_path = input.cloud_provider_destination_path
         self.ftp_server_folders_path = input.ftp_server_folders_path
         self.local_backup_path = input.local_backup_source_path
-        self.sharepoint_base_url = f"/sites/{self.sharepoint_client.site_name}"
         self.uploading = set()
         self.os_client = input.directory_client
         self.files_client = input.files_client
 
     def _sharepoint_thies_base_path(self) -> str:
-        return f"{self.sharepoint_destination_path}/{PostThiesDataUseCase.BASE_FOLDER_NAME}"
+        return f"{self.cloud_provider_destination_path}/{PostThiesDataUseCase.BASE_FOLDER_NAME}"
 
     @staticmethod
     def _extract_local_entry(entry) -> tuple[str, int | None]:
@@ -89,19 +88,19 @@ class PostThiesDataUseCase:
     async def _validate_sharepoint_destination(self):
         self.log_client.method_name = "_validate_sharepoint_destination"
         self.log_client.debug(DebugArgs(status=LogStatus.STARTED))
-        if self.sharepoint_client is None:
-            raise SharepointClientError("SharePoint client was not initialized.")
+        if self.cloud_client is None:
+            raise CloudClientError("Cloud Client was not initialized.")
 
-        async with self.sharepoint_client:
+        async with self.cloud_client:
             sharepoint_thies_path = self._sharepoint_thies_base_path()
-            await self.sharepoint_client.create_folder(
-                SpCreateFolderArgs(
+            await self.cloud_client.create_folder(
+                CloudClientCreateFolderArgs(
                     folder_relative_url=sharepoint_thies_path,
                 )
             )
             for folder_name in {"AVG", "EXT"}:
-                await self.sharepoint_client.create_folder(
-                    SpCreateFolderArgs(
+                await self.cloud_client.create_folder(
+                    CloudClientCreateFolderArgs(
                         folder_relative_url=f"{sharepoint_thies_path}/{folder_name}",
                     )
                 )
@@ -110,21 +109,21 @@ class PostThiesDataUseCase:
     async def fetch_cloud_file_names(self) -> Set[Tuple[str, int]]:
         self.log_client.method_name = "fetch_cloud_file_names"
         self.log_client.debug(DebugArgs(status=LogStatus.STARTED))
-        if self.sharepoint_client is None:
-            raise SharepointClientError("SharePoint client was not initialized.")
+        if self.cloud_client is None:
+            raise CloudClientError("SAVIIA Cloud Client provider was not initialized.")
 
         await self._validate_sharepoint_destination()
         try:
             cloud_files: Set[Tuple[str, int]] = set()
-            async with self.sharepoint_client:
+            async with self.cloud_client:
                 sharepoint_thies_path = self._sharepoint_thies_base_path()
                 for folder_name in {"AVG", "EXT"}:
-                    if sharepoint_thies_path.startswith(self.sharepoint_base_url):
+                    if sharepoint_thies_path.startswith(self.cloud_client.base_url):
                         relative_url = f"{sharepoint_thies_path}/{folder_name}"
                     else:
-                        relative_url = f"{self.sharepoint_base_url}/{sharepoint_thies_path}/{folder_name}"
-                    args = SpListFilesArgs(folder_relative_url=relative_url)
-                    response = await self.sharepoint_client.list_files(args)
+                        relative_url = f"{self.cloud_client.base_url}/{sharepoint_thies_path}/{folder_name}"
+                    args = CloudClientListFilesArgs(folder_relative_url=relative_url)
+                    response = await self.cloud_client.list_files(args)
                     cloud_files.update(
                         {
                             (f"{folder_name}_{item['Name']}", int(item["Length"]))
@@ -142,7 +141,7 @@ class PostThiesDataUseCase:
             self.log_client.error(
                 ErrorArgs(status=LogStatus.ERROR, metadata={"msg": error.__str__()})
             )
-            raise SharePointFetchingError(reason=error)
+            raise CloudClientFetchingError(reason=error)
 
     async def fetch_thies_file_names(self) -> Set[Tuple[str, int]]:
         self.log_client.method_name = "fetch_thies_file_names"
@@ -276,12 +275,12 @@ class PostThiesDataUseCase:
     ) -> Dict[str, List[str]]:
         self.log_client.method_name = "upload_thies_files_to_sharepoint"
         self.log_client.debug(DebugArgs(status=LogStatus.STARTED))
-        if self.sharepoint_client is None:
-            raise SharepointClientError("SharePoint client was not initialized.")
+        if self.cloud_client is None:
+            raise CloudClientError("SAVIIA Cloud client provider was not initialized.")
 
         upload_results = {"failed_files": [], "new_files": []}
 
-        async with self.sharepoint_client:
+        async with self.cloud_client:
             sharepoint_thies_path = self._sharepoint_thies_base_path()
             for file, file_content in files.items():
                 try:
@@ -289,10 +288,10 @@ class PostThiesDataUseCase:
                     folder_path = f"{sharepoint_thies_path}/{origin}"
                     # Avoid duplicating the site prefix: if folder_path already
                     # contains the site base, use it directly; otherwise prefix it.
-                    if folder_path.startswith(self.sharepoint_base_url):
+                    if folder_path.startswith(self.cloud_client.base_url):
                         relative_url = folder_path
                     else:
-                        relative_url = f"{self.sharepoint_base_url}/{folder_path}"
+                        relative_url = f"{self.cloud_client.base_url}/{folder_path}"
                     # Log the resolved SharePoint relative URL for diagnostics
                     self.log_client.debug(
                         DebugArgs(
@@ -302,8 +301,8 @@ class PostThiesDataUseCase:
                             },
                         )
                     )
-                    await self.sharepoint_client.upload_file(
-                        SpUploadFileArgs(
+                    await self.cloud_client.upload_file(
+                        CloudClientUploadFileArgs(
                             folder_relative_url=relative_url,
                             file_content=file_content,
                             file_name=file_name,
@@ -332,7 +331,7 @@ class PostThiesDataUseCase:
                     )
 
         if upload_results["failed_files"]:
-            raise SharePointUploadError(
+            raise CloudClientUploadError(
                 reason="Files failed to upload: "
                 + ", ".join(upload_results["failed_files"])
             )
@@ -564,7 +563,7 @@ class PostThiesDataUseCase:
             try:
                 cloud_files = await self.fetch_cloud_file_names()
             except (RuntimeError, ConnectionError) as error:
-                raise SharepointClientError(error)
+                raise CloudClientError(error)
 
             self.uploading = await self._sync_pending_files(local_files, cloud_files)
             if self.uploading:

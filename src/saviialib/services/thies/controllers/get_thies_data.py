@@ -9,16 +9,16 @@ from saviialib.general_types.error_types.api.saviia_api_error_types import (
 )
 from saviialib.general_types.error_types.common.common_types import (
     FtpClientError,
-    SharepointClientError,
+    CloudClientError,
 )
 from saviialib.services.thies.controllers.types.get_thies_data_types import (
     GetThiesDataControllerInput,
     GetThiesDataControllerOutput,
 )
 from .types.get_thies_data_schema import GET_THIES_DATA_SCHEMA
-from saviialib.libs.sharepoint_client import (
-    SharepointClient,
-    SharepointClientInitArgs,
+from saviialib.libs.cloud_client import (
+    CloudClient,
+    CloudClientInitArgs,
 )
 from saviialib.libs.ftp_client import (
     FTPClient,
@@ -28,9 +28,9 @@ from saviialib.libs.files_client import (
     FilesClient,
     FilesClientInitArgs,
 )
-from saviialib.services.backup.use_cases.types import (
-    SharepointConfig,
+from saviialib.general_types.api.saviia_api_types import (
     FtpClientConfig,
+    DatabricksConfig,
 )
 from saviialib.services.thies.use_cases.get_thies_data import (
     GetThiesDataUseCase,
@@ -45,16 +45,13 @@ from saviialib.libs.schema_validator_client import SchemaValidatorClient
 class GetThiesDataController:
     def __init__(self, input: GetThiesDataControllerInput):
         self.input = input
-        self.sharepoint_client = SharepointClient(
-            SharepointClientInitArgs(
-                SharepointConfig(
-                    sharepoint_client_id=input.config.sharepoint_client_id,
-                    sharepoint_client_secret=input.config.sharepoint_client_secret,
-                    sharepoint_site_name=input.config.sharepoint_site_name,
-                    sharepoint_tenant_name=input.config.sharepoint_tenant_name,
-                    sharepoint_tenant_id=input.config.sharepoint_tenant_id,
+        self.cloud_client = CloudClient(
+            CloudClientInitArgs(
+                DatabricksConfig(
+                    databricks_host_url=input.config.databricks_host_url,
+                    databricks_api_key=input.config.databricks_api_key,
                 ),
-                client_name="sharepoint_rest_api",
+                client_name=input.config.cloud_client_name,
             )
         )
         self.files_client = FilesClient(
@@ -75,9 +72,9 @@ class GetThiesDataController:
         self.use_case = GetThiesDataUseCase(
             GetThiesDataUseCaseInput(
                 ftp_client=self.thies_ftp_client,
-                sharepoint_client=self.sharepoint_client,
+                cloud_client=self.cloud_client,
                 local_backup_path=input.config.local_backup_path,
-                sharepoint_destination_path=input.sharepoint_destination_path,
+                cloud_provider_destination_path=input.cloud_provider_destination_path,
                 files_client=self.files_client,
                 directory_client=self.dir_client,
                 logger=input.config.logger,
@@ -88,13 +85,8 @@ class GetThiesDataController:
         try:
             SchemaValidatorClient(schema=GET_THIES_DATA_SCHEMA).validate(
                 {
-                    "sharepoint_client_id": self.input.config.sharepoint_client_id,
-                    "sharepoint_client_secret": self.input.config.sharepoint_client_secret,
-                    "sharepoint_tenant_id": self.input.config.sharepoint_tenant_id,
-                    "sharepoint_tenant_name": self.input.config.sharepoint_tenant_name,
-                    "sharepoint_site_name": self.input.config.sharepoint_site_name,
+                    "cloud_provider_destination_path": self.input.cloud_provider_destination_path,
                     "local_backup_path": self.input.config.local_backup_path,
-                    "sharepoint_destination_path": self.input.sharepoint_destination_path,
                     "ftp_host": self.input.ftp_host,
                     "ftp_port": self.input.ftp_port,
                     "ftp_user": self.input.ftp_user,
@@ -103,13 +95,13 @@ class GetThiesDataController:
             )
             output = await self.use_case.execute()
             if output.need_to_backup and not output.need_to_sync:
-                msg = "Backup needed but no new data to sync to Microsoft SharePoint."
+                msg = "Backup needed but no new data to sync to cloud provider."
             elif not output.need_to_backup and output.need_to_sync:
-                msg = "New data should be synced to Microsoft SharePoint."
+                msg = "New data should be synced to cloud provider."
             elif output.need_to_sync and output.need_to_backup:
-                msg = "New data synced to SharePoint and backup needed."
+                msg = "New data synced to cloud provider and backup needed."
             else:
-                msg = "No new data to sync to Microsoft SharePoint."
+                msg = "No new data to sync to cloud provider."
             return GetThiesDataControllerOutput(
                 message=msg,
                 status=HTTPStatus.OK.value,
@@ -135,9 +127,9 @@ class GetThiesDataController:
                 status=HTTPStatus.BAD_REQUEST.value,
                 metadata={"error": error.__str__()},
             )
-        except (FtpClientError, SharepointClientError) as error:
+        except (FtpClientError, CloudClientError) as error:
             return GetThiesDataControllerOutput(
-                message="An error occurred while initializing FTP or SharePoint client.",
+                message="An error occurred while initializing FTP or cloud provider client.",
                 status=HTTPStatus.INTERNAL_SERVER_ERROR.value,
                 metadata={"error": error.__str__()},
             )

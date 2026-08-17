@@ -11,7 +11,7 @@ class GetThiesDataControllerInput:
     ftp_port: int
     ftp_user: str
     ftp_password: str
-    sharepoint_destination_path: str = ""
+    cloud_provider_destination_path: str = ""
     logger: Logger | None = None
 
 

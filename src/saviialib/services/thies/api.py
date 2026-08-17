@@ -4,7 +4,6 @@ from saviialib.general_types.api.saviia_thies_api_types import (
 )
 from .controllers import (
     UpdateThiesDataControllerInput,
-    UpdateThiesDataController,
     DetectFailuresController,
     DetectFailuresControllerInput,
     GetThiesDataController,
@@ -18,6 +17,7 @@ from saviialib.libs.log_client import (
     LogStatus,
     DebugArgs,
 )
+
 
 
 class SaviiaThiesAPI:
@@ -38,14 +38,14 @@ class SaviiaThiesAPI:
         ftp_host: str,
         ftp_user: str,
         ftp_password: str,
-        sharepoint_destination_path: str,
+        cloud_provider_destination_path: str,
     ):
         """Get the status of synchronization and backup needs for a THIES Data Logger.
         :param ftp_host: FTP server hostname or IP address where the THIES Data Logger data is stored.
         :param ftp_port: FTP server port number where the THIES Data Logger data is stored.
         :param ftp_user: FTP server username for authentication to access the THIES Data Logger data.
         :param ftp_password: FTP server password for authentication to access the THIES Data Logger data.
-
+        :param cloud_provider_destination_path: Cloud Provider path where the files are located.
         :return: A dictionary representation of the API response, where status indicators included are:
             `need_to_sync`, whether new data needs to be synchronized to SharePoint;
             `need_to_backup`, whether a backup is needed for the local data.
@@ -57,49 +57,12 @@ class SaviiaThiesAPI:
                 ftp_port,
                 ftp_user,
                 ftp_password,
-                sharepoint_destination_path,
+                cloud_provider_destination_path,
             )
         )
         response = await controller.execute()
         return response.__dict__
 
-    async def update_thies_data(
-        self,
-        ftp_port: int,
-        ftp_host: str,
-        ftp_user: str,
-        ftp_password: str,
-        sharepoint_folders_path: List[str],
-        ftp_server_folders_path: List[str],
-        local_backup_source_path: str,
-    ) -> Dict[str, Any]:
-        """Updates data from a THIES Data Logger by connecting to an FTP server
-        and transferring data to specified Sharepoint folders.
-
-        :param list sharepoint_folders_path: List of Sharepoint folder paths for AVG and EXT data.
-            The AVG path must be the first element.
-        :param list ftp_server_folders_path: List of FTP server folder paths for AVG and EXT data.
-            The AVG path must be the first element.
-        :param str local_backup_source_path: Path of the main directory where the files extracted from
-            the Thies FTP Server are going to be stored
-
-        :return: A dictionary representation of the API response.
-        :rtype: dict
-        """
-        controller = UpdateThiesDataController(
-            UpdateThiesDataControllerInput(
-                self.config,
-                ftp_host,
-                ftp_port,
-                ftp_user,
-                ftp_password,
-                sharepoint_folders_path,
-                ftp_server_folders_path,
-                local_backup_source_path,
-            )
-        )
-        response = await controller.execute()
-        return response.__dict__
 
     async def post_thies_data(
         self,
@@ -109,7 +72,7 @@ class SaviiaThiesAPI:
         ftp_password: str,
         need_to_sync: bool,
         need_to_backup: bool,
-        sharepoint_destination_path: str,
+        cloud_provider_destination_path: str,
         ftp_server_folders_path: List[str],
         local_backup_source_path: str,
     ) -> Dict[str, Any]:
@@ -117,7 +80,7 @@ class SaviiaThiesAPI:
 
         :param bool need_to_sync: Whether the local backup must be synchronized to SharePoint.
         :param bool need_to_backup: Whether the THIES FTP server must be backed up locally.
-        :param str sharepoint_destination_path: Shared SharePoint folder path where THIES data will be stored.
+        :param str cloud_provider_destination_path: SAVIIA Cloud provider folder path where THIES data will be stored.
         :param ftp_host: FTP server hostname or IP address where the THIES Data Logger data is stored.
         :param ftp_port: FTP server port number where the THIES Data Logger data is stored.
         :param ftp_user: FTP server username for authentication to access the THIES Data Logger data.
@@ -148,7 +111,7 @@ class SaviiaThiesAPI:
                 ftp_password,
                 need_to_sync,
                 need_to_backup,
-                sharepoint_destination_path,
+                cloud_provider_destination_path,
                 ftp_server_folders_path,
                 local_backup_source_path,
             )

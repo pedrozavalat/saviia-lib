@@ -2,20 +2,20 @@ from dataclasses import dataclass
 from logging import Logger
 from saviialib.libs.directory_client import DirectoryClient
 from saviialib.libs.ftp_client import FTPClient
-from saviialib.libs.sharepoint_client import SharepointClient
+from saviialib.libs.cloud_client import CloudClient
 from saviialib.libs.files_client import FilesClient
 
 
 @dataclass
 class GetThiesDataUseCaseInput:
     ftp_client: FTPClient
-    sharepoint_client: SharepointClient
+    cloud_client: CloudClient
     files_client: FilesClient
     directory_client: DirectoryClient
     local_backup_path: str
     logger: Logger | None = None
 
-    sharepoint_destination_path: str = ""
+    cloud_provider_destination_path: str = ""
 
 
 @dataclass

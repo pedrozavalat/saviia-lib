@@ -10,8 +10,9 @@ from saviialib.general_types.error_types.common import (
 from saviialib.libs.ftp_client import (
     FtpListFilesArgs,
 )
-from saviialib.libs.sharepoint_client import (
-    SpListFilesArgs,
+from saviialib.libs.cloud_client import (
+    CloudClientListFilesArgs,
+    CloudClientResolveUrlArgs,
 )
 
 from saviialib.libs.log_client import (
@@ -34,7 +35,7 @@ from typing import Set, Dict, Mapping, cast
 class GetThiesDataUseCase:
     def __init__(self, input: GetThiesDataUseCaseInput):
         # Clients initialization
-        self.sharepoint_client = input.sharepoint_client
+        self.cloud_client = input.cloud_client
         self.thies_ftp_client = input.ftp_client
         self.files_client = input.files_client
         self.dir_client = input.directory_client
@@ -49,8 +50,10 @@ class GetThiesDataUseCase:
         # Configurations
 
         self.local_backup_path = input.local_backup_path
-        self.sharepoint_destination_path = input.sharepoint_destination_path
-        self.sharepoint_base_url = f"/sites/{self.sharepoint_client.site_name}"
+        self.cloud_provider_destination_path = input.cloud_provider_destination_path
+        self.cloud_client_base_url = self.cloud_client.resolve_url(
+            CloudClientResolveUrlArgs(folder_path=self.cloud_provider_destination_path)
+        )
         self.sync_error = False
         self.uploading = set()
 
@@ -111,21 +114,23 @@ class GetThiesDataUseCase:
     async def _fetch_cloud_total_files(self) -> Set[tuple[str, int]]:
         """Fetch file names from the RCER cloud."""
         cloud_files = set()
-        if not self.sharepoint_destination_path:
+        if not self.cloud_provider_destination_path:
             raise BackupSourcePathError(
-                reason="SharePoint destination path is not configured"
+                reason="Cloud provider destination path is not configured"
             )
-        sharepoint_base_url = self.dir_client.join_paths(
-            self.sharepoint_destination_path, "thies"
+        cloud_base_url = self.dir_client.join_paths(
+            self.cloud_provider_destination_path, "thies"
         )
-        async with self.sharepoint_client:
+        async with self.cloud_client:
             for folder_name in {"AVG", "EXT"}:
-                if sharepoint_base_url.startswith(self.sharepoint_base_url):
-                    relative_url = f"{sharepoint_base_url}/{folder_name}"
+                if cloud_base_url.startswith(self.cloud_client_base_url):
+                    relative_url = f"{cloud_base_url}/{folder_name}"
                 else:
-                    relative_url = f"{self.sharepoint_base_url}/{sharepoint_base_url}/{folder_name}"
-                args = SpListFilesArgs(folder_relative_url=relative_url)
-                response = await self.sharepoint_client.list_files(args)
+                    relative_url = (
+                        f"{self.cloud_client_base_url}/{cloud_base_url}/{folder_name}"
+                    )
+                args = CloudClientListFilesArgs(folder_relative_url=relative_url)
+                response = await self.cloud_client.list_files(args)
                 cloud_files.update(
                     {
                         (f"{folder_name}_{item['Name']}", int(item["Length"]))
@@ -250,8 +255,8 @@ class GetThiesDataUseCase:
         except (RuntimeError, ConnectionError) as error:
             self.sync_error = True
             cloud_files = set()
-            self.logger.warning(
-                WarningArgs(status=LogStatus.FAILED, metadata={"msg": error.__str__()})
+            self.logger.error(
+                ErrorArgs(status=LogStatus.ERROR, metadata={"msg": error.__str__()})
             )
             # raise SharepointClientError(error)
         validation = self._validate_pending_files(

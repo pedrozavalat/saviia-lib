@@ -10,7 +10,7 @@ class UpdateThiesDataControllerInput:
     ftp_port: int
     ftp_user: str
     ftp_password: str
-    sharepoint_folders_path: list
+    cloud_provider_folders_path: list
     ftp_server_folders_path: list
     local_backup_source_path: str
 

@@ -5,25 +5,28 @@ from saviialib.general_types.error_types.api.saviia_api_error_types import (
 )
 from saviialib.general_types.error_types.api.saviia_api_error_types import (
     BackupSourcePathError,
-    SharePointDirectoryError,
-    SharePointFetchingError,
-    SharePointUploadError,
+    CloudClientDirectoryError,
+    CloudClientFetchingError,
+    CloudClientUploadError,
     ThiesConnectionError,
     ThiesFetchingError,
 )
 from saviialib.general_types.error_types.common.common_types import (
     EmptyDataError,
     FtpClientError,
-    SharepointClientError,
+    CloudClientError,
 )
 from saviialib.libs.directory_client import DirectoryClient, DirectoryClientArgs
 from saviialib.libs.files_client import FilesClient, FilesClientInitArgs
 from saviialib.libs.ftp_client import FTPClient, FtpClientInitArgs
-from saviialib.libs.sharepoint_client import (
-    SharepointClient,
-    SharepointClientInitArgs,
+from saviialib.libs.cloud_client import (
+    CloudClient,
+    CloudClientInitArgs,
 )
-from saviialib.services.backup.use_cases.types import FtpClientConfig, SharepointConfig
+from saviialib.general_types.api.saviia_api_types import (
+    FtpClientConfig,
+    DatabricksConfig,
+)
 from saviialib.services.thies.controllers.types.post_thies_data_types import (
     PostThiesDataControllerInput,
     PostThiesDataControllerOutput,
@@ -57,16 +60,13 @@ class PostThiesDataController:
                 logger=input.config.logger,
             )
         )
-        self.sharepoint_client = SharepointClient(
-            SharepointClientInitArgs(
-                SharepointConfig(
-                    sharepoint_client_id=input.config.sharepoint_client_id,
-                    sharepoint_client_secret=input.config.sharepoint_client_secret,
-                    sharepoint_site_name=input.config.sharepoint_site_name,
-                    sharepoint_tenant_name=input.config.sharepoint_tenant_name,
-                    sharepoint_tenant_id=input.config.sharepoint_tenant_id,
+        self.cloud_client = CloudClient(
+            CloudClientInitArgs(
+                DatabricksConfig(
+                    databricks_api_key=self.input.config.databricks_api_key,
+                    databricks_host_url=self.input.config.databricks_host_url,
                 ),
-                client_name="sharepoint_rest_api",
+                client_name=self.input.config.cloud_client_name,
             )
         )
         self.files_client = FilesClient(
@@ -87,10 +87,10 @@ class PostThiesDataController:
         self.use_case = PostThiesDataUseCase(
             PostThiesDataUseCaseInput(
                 ftp_client=self.thies_ftp_client,
-                sharepoint_client=self.sharepoint_client,
+                cloud_client=self.cloud_client,
                 files_client=self.files_client,
                 directory_client=self.dir_client,
-                sharepoint_destination_path=input.sharepoint_destination_path,
+                cloud_provider_destination_path=input.cloud_provider_destination_path,
                 ftp_server_folders_path=input.ftp_server_folders_path,
                 local_backup_source_path=input.local_backup_source_path,
                 need_to_sync=input.need_to_sync,
@@ -105,11 +105,6 @@ class PostThiesDataController:
         try:
             SchemaValidatorClient(schema=POST_THIES_DATA_SCHEMA).validate(
                 {
-                    "sharepoint_client_id": self.input.config.sharepoint_client_id,
-                    "sharepoint_client_secret": self.input.config.sharepoint_client_secret,
-                    "sharepoint_tenant_id": self.input.config.sharepoint_tenant_id,
-                    "sharepoint_tenant_name": self.input.config.sharepoint_tenant_name,
-                    "sharepoint_site_name": self.input.config.sharepoint_site_name,
                     "local_backup_path": self.input.config.local_backup_path,
                     "ftp_host": self.input.ftp_host,
                     "ftp_port": self.input.ftp_port,
@@ -117,7 +112,7 @@ class PostThiesDataController:
                     "ftp_password": self.input.ftp_password,
                     "need_to_sync": self.input.need_to_sync,
                     "need_to_backup": self.input.need_to_backup,
-                    "sharepoint_destination_path": self.input.sharepoint_destination_path,
+                    "cloud_provider_destination_path": self.input.cloud_provider_destination_path,
                     "ftp_server_folders_path": self.input.ftp_server_folders_path,
                     "local_backup_source_path": self.input.local_backup_source_path,
                 }
@@ -179,7 +174,7 @@ class PostThiesDataController:
                 status=HTTPStatus.BAD_REQUEST.value,
                 metadata={"error": error.__str__()},
             )
-        except SharepointClientError as error:
+        except CloudClientError as error:
             self.logger.error(
                 ErrorArgs(status=LogStatus.ERROR, metadata={"msg": error.__str__()})
             )
@@ -188,16 +183,16 @@ class PostThiesDataController:
                 status=HTTPStatus.INTERNAL_SERVER_ERROR.value,
                 metadata={"error": error.__str__()},
             )
-        except SharePointFetchingError as error:
+        except CloudClientFetchingError as error:
             self.logger.error(
                 ErrorArgs(status=LogStatus.ERROR, metadata={"msg": error.__str__()})
             )
             return PostThiesDataControllerOutput(
-                message="An error occurred while retrieving file names from Microsoft SharePoint",
+                message="An error occurred while retrieving file names from SAVIIA Cloud provider",
                 status=HTTPStatus.BAD_REQUEST.value,
                 metadata={"error": error.__str__()},
             )
-        except SharePointUploadError as error:
+        except CloudClientUploadError as error:
             self.logger.error(
                 ErrorArgs(status=LogStatus.ERROR, metadata={"msg": error.__str__()})
             )
@@ -206,12 +201,12 @@ class PostThiesDataController:
                 status=HTTPStatus.BAD_REQUEST.value,
                 metadata={"error": error.__str__()},
             )
-        except SharePointDirectoryError as error:
+        except CloudClientDirectoryError as error:
             self.logger.error(
                 ErrorArgs(status=LogStatus.ERROR, metadata={"msg": error.__str__()})
             )
             return PostThiesDataControllerOutput(
-                message="An error ocurred while extracting folders from Microsoft Sharepoint",
+                message="An error ocurred while extracting folders from SAVIIA Cloud provider",
                 status=HTTPStatus.BAD_REQUEST.value,
                 metadata={"error": error.__str__()},
             )

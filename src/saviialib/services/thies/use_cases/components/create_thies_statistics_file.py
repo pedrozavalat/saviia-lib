@@ -5,7 +5,7 @@ from asyncio import to_thread
 from saviialib.libs.directory_client import DirectoryClient
 from saviialib.libs.zero_dependency.utils.datetime_utils import datetime_to_str, today
 from saviialib.libs.files_client import FilesClient, FilesClientInitArgs, WriteArgs
-import saviialib.services.thies.constants.update_thies_data_constants as c
+import saviialib.services.thies.constants.post_thies_data_constants as c
 
 
 async def create_thies_daily_statistics_file(

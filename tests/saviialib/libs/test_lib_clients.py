@@ -44,7 +44,7 @@ from saviialib.libs.sftp_client import (
     SFTPClient,
     SFTPClientInitArgs,
 )
-from saviialib.libs.sharepoint_client import (
+from saviialib.libs.cloud_client import (
     SharepointClient,
     SharepointClientInitArgs,
     SpCreateFolderArgs,

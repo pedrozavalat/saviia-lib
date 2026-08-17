@@ -2,18 +2,18 @@ from dataclasses import dataclass, field
 from logging import Logger
 
 from saviialib.libs.directory_client import DirectoryClient
+from saviialib.libs.cloud_client import CloudClient
 from saviialib.libs.files_client import FilesClient
-from saviialib.libs.sharepoint_client import SharepointClient
 
 
 @dataclass
 class ExportFilesUseCaseInput:
-    sharepoint_client: SharepointClient
+    cloud_client: CloudClient
     files_client: FilesClient
     directory_client: DirectoryClient
     local_backup_path: str
     local_folder_path: str
-    sharepoint_destination_path: str
+    cloud_provider_destination_path: str
     logger: Logger
 
 

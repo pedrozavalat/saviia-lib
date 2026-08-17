@@ -1,25 +1,31 @@
 from dataclasses import dataclass
 from logging import Logger
+from typing import Literal
 
 
 @dataclass
 class SaviiaBackupConfig:
     """
-    Configuration for backing up files to SharePoint.
+    Configuration for backing up files to a cloud provider.
 
     Attributes:
-        sharepoint_client_id (str): Client ID for SharePoint authentication.
-        sharepoint_client_secret (str): Client secret for SharePoint authentication.
-        sharepoint_tenant_id (str): Tenant ID for SharePoint authentication.
-        sharepoint_tenant_name (str): Tenant name for SharePoint.
-        sharepoint_site_name (str): Site name in SharePoint.
-        local_backup_source_path (str): Local path to backup.
+        client_name (Literal["sharepoint_rest_api", "databricks"]): Target cloud provider.
+        local_backup_path (str): Local path to backup.
+        sharepoint_*: SharePoint credentials (required only for SharePoint client).
+        databricks_*: Databricks credentials (required only for Databricks client).
     """
 
-    sharepoint_client_id: str
-    sharepoint_client_secret: str
-    sharepoint_tenant_id: str
-    sharepoint_tenant_name: str
-    sharepoint_site_name: str
     logger: Logger
     local_backup_path: str
+    client_name: Literal["sharepoint_rest_api", "databricks"] = "databricks"
+
+    # SharePoint (required only when client_name == "sharepoint_rest_api")
+    sharepoint_client_id: str | None = None
+    sharepoint_client_secret: str | None = None
+    sharepoint_tenant_id: str | None = None
+    sharepoint_tenant_name: str | None = None
+    sharepoint_site_name: str | None = None
+
+    # Databricks (required only when client_name == "databricks")
+    databricks_api_key: str | None = None
+    databricks_host_url: str | None = None

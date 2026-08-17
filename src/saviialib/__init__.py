@@ -58,22 +58,17 @@ class SaviiaAPI:
             if name == "thies":
                 service_config = SaviiaThiesConfig(
                     local_backup_path=config.local_backup_path,
-                    sharepoint_client_id=config.sharepoint_client_id,
-                    sharepoint_client_secret=config.sharepoint_client_secret,
-                    sharepoint_tenant_id=config.sharepoint_tenant_id,
-                    sharepoint_tenant_name=config.sharepoint_tenant_name,
-                    sharepoint_site_name=config.sharepoint_site_name,
+                    cloud_client_name="databricks",
+                    databricks_host_url=config.databricks_host_url,
+                    databricks_api_key=config.databricks_api_key,
                     logger=config.logger,
                     latitude=config.latitude,
                     longitude=config.longitude,
                 )
             elif name == "backup":
                 service_config = SaviiaBackupConfig(
-                    sharepoint_client_id=config.sharepoint_client_id,
-                    sharepoint_client_secret=config.sharepoint_client_secret,
-                    sharepoint_tenant_id=config.sharepoint_tenant_id,
-                    sharepoint_tenant_name=config.sharepoint_tenant_name,
-                    sharepoint_site_name=config.sharepoint_site_name,
+                    databricks_api_key=config.databricks_api_key,
+                    databricks_host_url=config.databricks_host_url,
                     logger=config.logger,
                     local_backup_path=config.local_backup_path,
                 )

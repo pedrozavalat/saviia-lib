@@ -7,9 +7,9 @@ class EmptyDataError(Exception):
         return "The data provided is empty. " + self.reason.__str__()
 
 
-class SharepointClientError(Exception):
+class CloudClientError(Exception):
     def __str__(self):
-        return "SharePoint API REST Client initialization fails."
+        return "Cloud Provider Client initialization fails."
 
 
 class FtpClientError(Exception):

@@ -1,6 +1,6 @@
 POST_THIES_DATA_SCHEMA = {
     "title": "Controller input schema for posting THIES data",
-    "description": "Schema for validating input data when creating THIES backups and SharePoint uploads.",
+    "description": "Schema for validating input data when creating THIES backups and SAVIIA Cloud provider uploads.",
     "type": "object",
     "properties": {
         "sharepoint_client_id": {"type": "string"},
@@ -15,7 +15,7 @@ POST_THIES_DATA_SCHEMA = {
         "ftp_password": {"type": "string"},
         "need_to_sync": {"type": "boolean"},
         "need_to_backup": {"type": "boolean"},
-        "sharepoint_destination_path": {"type": "string"},
+        "cloud_provider_destination_path": {"type": "string"},
         "ftp_server_folders_path": {
             "type": "array",
             "items": {"type": "string"},
@@ -26,11 +26,6 @@ POST_THIES_DATA_SCHEMA = {
         "local_backup_source_path": {"type": "string"},
     },
     "required": [
-        "sharepoint_client_id",
-        "sharepoint_client_secret",
-        "sharepoint_tenant_id",
-        "sharepoint_tenant_name",
-        "sharepoint_site_name",
         "local_backup_path",
         "ftp_host",
         "ftp_port",
@@ -38,7 +33,7 @@ POST_THIES_DATA_SCHEMA = {
         "ftp_password",
         "need_to_sync",
         "need_to_backup",
-        "sharepoint_destination_path",
+        "cloud_provider_destination_path",
         "ftp_server_folders_path",
         "local_backup_source_path",
     ],

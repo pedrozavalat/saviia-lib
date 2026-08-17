@@ -13,7 +13,7 @@ class PostThiesDataControllerInput:
     ftp_password: str
     need_to_sync: bool
     need_to_backup: bool
-    sharepoint_destination_path: str
+    cloud_provider_destination_path: str
     ftp_server_folders_path: list
     local_backup_source_path: str
 
