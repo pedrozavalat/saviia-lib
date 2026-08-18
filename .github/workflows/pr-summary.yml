@@ -1,0 +1,54 @@
+name: PR Summary
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  models: read
+
+jobs:
+  summarize:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get PR diff
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr diff ${{ github.event.pull_request.number }} > pr.diff
+
+      - name: Generate summary
+        id: summary
+        uses: actions/ai-inference@v1
+        with:
+          prompt-file: pr.diff
+          system-prompt: |
+            Analyze this pull request diff.
+
+            Return a concise Markdown summary with:
+
+            ## Summary
+            Briefly explain what this PR does.
+
+            ## Main changes
+            - List the important changes.
+
+            ## Technical impact
+            Explain architecture, database, infrastructure
+            or API changes when relevant.
+
+            ## Risks
+            Mention potential risks or breaking changes.
+
+      - name: Comment PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SUMMARY: ${{ steps.summary.outputs.response }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} \
+            --body "$SUMMARY"
