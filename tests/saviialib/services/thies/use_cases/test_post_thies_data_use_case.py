@@ -17,8 +17,8 @@ if "numpy" not in sys.modules:
 
 from saviialib.general_types.error_types.api.saviia_api_error_types import (
     BackupSourcePathError,
-    SharePointFetchingError,
-    SharePointUploadError,
+    CloudClientFetchingError,
+    CloudClientUploadError,
     ThiesConnectionError,
 )
 from saviialib.general_types.error_types.common import EmptyDataError
@@ -48,15 +48,14 @@ class TestPostThiesDataUseCase(unittest.IsolatedAsyncioTestCase):
         self.ftp_client = MagicMock()
         self.ftp_client.list_files = AsyncMock()
         self.ftp_client.read_file = AsyncMock(side_effect=self._fake_ftp_read_file)
-        self.sharepoint_client = MagicMock()
-        self.sharepoint_client.site_name = "site_name_123"
-        self.sharepoint_client.__aenter__ = AsyncMock(
-            return_value=self.sharepoint_client
+        self.cloud_client = MagicMock()
+        self.cloud_client.__aenter__ = AsyncMock(
+            return_value=self.cloud_client
         )
-        self.sharepoint_client.__aexit__ = AsyncMock(return_value=None)
-        self.sharepoint_client.create_folder = AsyncMock(return_value=None)
-        self.sharepoint_client.list_files = AsyncMock()
-        self.sharepoint_client.upload_file = AsyncMock(return_value={})
+        self.cloud_client.__aexit__ = AsyncMock(return_value=None)
+        self.cloud_client.create_folder = AsyncMock(return_value=None)
+        self.cloud_client.list_files = AsyncMock()
+        self.cloud_client.upload_file = AsyncMock(return_value={})
 
     def tearDown(self):
         self.tempdir.cleanup()
@@ -91,10 +90,10 @@ class TestPostThiesDataUseCase(unittest.IsolatedAsyncioTestCase):
         return PostThiesDataUseCase(
             PostThiesDataUseCaseInput(
                 ftp_client=self.ftp_client,
-                sharepoint_client=self.sharepoint_client,
+                cloud_client=self.cloud_client,
                 files_client=self.files_client,
                 directory_client=self.directory_client,
-                sharepoint_destination_path="Shared%20Documents/General/Test_Raspberry",
+                cloud_provider_destination_path="/Volumes/catalog/schema/volume",
                 ftp_server_folders_path=[
                     "ftp://192.168.1.200:21/ARCH_AV1",
                     "ftp://192.168.1.200:21/ARCH_EX1",
@@ -125,28 +124,32 @@ class TestPostThiesDataUseCase(unittest.IsolatedAsyncioTestCase):
             Path(self.local_backup_path, "thies", "EXT", "sensor_b.BIN").exists()
         )
 
-    async def test_should_create_thies_sharepoint_folders(self):
+    async def test_should_create_thies_cloud_folders(self):
         use_case = self._build_use_case(need_to_sync=True, need_to_backup=False)
 
-        await use_case._validate_sharepoint_destination()
+        await use_case._validate_cloud_destination()
 
         folder_urls = [
             call.args[0].folder_relative_url
-            for call in self.sharepoint_client.create_folder.await_args_list
+            for call in self.cloud_client.create_folder.await_args_list
         ]
+        cloud_thies_path = (
+            "/Volumes/catalog/schema/volume/"
+            f"{Path(self.local_backup_path).name}/thies"
+        )
         self.assertCountEqual(
             folder_urls,
             [
-                "Shared%20Documents/General/Test_Raspberry/thies",
-                "Shared%20Documents/General/Test_Raspberry/thies/AVG",
-                "Shared%20Documents/General/Test_Raspberry/thies/EXT",
+                cloud_thies_path,
+                f"{cloud_thies_path}/AVG",
+                f"{cloud_thies_path}/EXT",
             ],
         )
 
-    async def test_should_upload_files_to_sharepoint_inside_thies_destination(self):
+    async def test_should_upload_files_to_cloud_inside_thies_destination(self):
         use_case = self._build_use_case(need_to_sync=True, need_to_backup=False)
 
-        await use_case.upload_thies_files_to_sharepoint(
+        await use_case.upload_thies_files_to_cloud(
             {
                 "AVG_sensor_a.BIN": b"content-a",
                 "EXT_sensor_b.BIN": b"content-b",
@@ -155,13 +158,17 @@ class TestPostThiesDataUseCase(unittest.IsolatedAsyncioTestCase):
 
         upload_urls = [
             call.args[0].folder_relative_url
-            for call in self.sharepoint_client.upload_file.await_args_list
+            for call in self.cloud_client.upload_file.await_args_list
         ]
+        cloud_thies_path = (
+            "/Volumes/catalog/schema/volume/"
+            f"{Path(self.local_backup_path).name}/thies"
+        )
         self.assertEqual(
             upload_urls,
             [
-                "/sites/site_name_123/Shared%20Documents/General/Test_Raspberry/thies/AVG",
-                "/sites/site_name_123/Shared%20Documents/General/Test_Raspberry/thies/EXT",
+                f"{cloud_thies_path}/AVG",
+                f"{cloud_thies_path}/EXT",
             ],
         )
 
@@ -191,21 +198,23 @@ class TestPostThiesDataUseCase(unittest.IsolatedAsyncioTestCase):
     async def test_should_fetch_cloud_files_successfully(self):
         async def list_files(args):
             if args.folder_relative_url.endswith("/AVG"):
-                return {"value": [{"Name": "avg.bin", "Length": "10"}]}
-            return {"value": [{"Name": "ext.bin", "Length": "20"}]}
+                return [
+                    {"name": "avg.bin", "file_size": 10, "is_directory": False}
+                ]
+            return [{"name": "ext.bin", "file_size": 20, "is_directory": False}]
 
-        self.sharepoint_client.list_files = AsyncMock(side_effect=list_files)
+        self.cloud_client.list_files = AsyncMock(side_effect=list_files)
         use_case = self._build_use_case(need_to_sync=True, need_to_backup=False)
 
         cloud_files = await use_case.fetch_cloud_file_names()
 
         self.assertEqual(cloud_files, {("AVG_avg.bin", 10), ("EXT_ext.bin", 20)})
 
-    async def test_should_raise_sharepoint_fetching_error_when_list_fails(self):
-        self.sharepoint_client.list_files = AsyncMock(side_effect=RuntimeError("boom"))
+    async def test_should_raise_cloud_fetching_error_when_list_fails(self):
+        self.cloud_client.list_files = AsyncMock(side_effect=RuntimeError("boom"))
         use_case = self._build_use_case(need_to_sync=True, need_to_backup=False)
 
-        with self.assertRaises(SharePointFetchingError):
+        with self.assertRaises(CloudClientFetchingError):
             await use_case.fetch_cloud_file_names()
 
     async def test_should_fetch_local_backup_file_names(self):
@@ -236,20 +245,18 @@ class TestPostThiesDataUseCase(unittest.IsolatedAsyncioTestCase):
             {"AVG_sensor_a.BIN": b"content-a", "EXT_sensor_b.BIN": b"content-b"},
         )
 
-    async def test_should_raise_sharepoint_upload_error_when_upload_fails(self):
-        self.sharepoint_client.upload_file = AsyncMock(
-            side_effect=ConnectionError("sharepoint upload failed")
+    async def test_should_raise_cloud_upload_error_when_upload_fails(self):
+        self.cloud_client.upload_file = AsyncMock(
+            side_effect=ConnectionError("cloud upload failed")
         )
         use_case = self._build_use_case(need_to_sync=True, need_to_backup=False)
 
-        with self.assertRaises(SharePointUploadError):
-            await use_case.upload_thies_files_to_sharepoint(
+        with self.assertRaises(CloudClientUploadError):
+            await use_case.upload_thies_files_to_cloud(
                 {"AVG_sensor_a.BIN": b"content-a"}
             )
 
-    async def test_should_raise_backup_source_path_error_when_local_backup_validation_fails(
-        self,
-    ):
+    async def test_should_raise_backup_source_path_error_when_validation_fails(self):
         self.directory_client.path_exists = AsyncMock(side_effect=OSError("boom"))
         use_case = self._build_use_case(need_to_sync=False, need_to_backup=True)
 
@@ -297,7 +304,7 @@ class TestPostThiesDataUseCase(unittest.IsolatedAsyncioTestCase):
         use_case.fetch_local_backup_file_content = AsyncMock(
             return_value={"AVG_sensor_a.BIN": b"content-a"}
         )
-        use_case.upload_thies_files_to_sharepoint = AsyncMock(
+        use_case.upload_thies_files_to_cloud = AsyncMock(
             return_value={"failed_files": [], "new_files": ["AVG_sensor_a.BIN"]}
         )
 

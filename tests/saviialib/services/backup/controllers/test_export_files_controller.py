@@ -29,11 +29,9 @@ from saviialib.services.backup.use_cases.types.export_files_types import (
 @pytest.fixture
 def backup_config() -> SaviiaBackupConfig:
     return SaviiaBackupConfig(
-        sharepoint_client_id="client-id",
-        sharepoint_client_secret="client-secret",
-        sharepoint_tenant_id="tenant-id",
-        sharepoint_tenant_name="tenant-name",
-        sharepoint_site_name="site-name",
+        client_name="databricks",
+        databricks_api_key="token",
+        databricks_host_url="https://workspace.azuredatabricks.net",
         logger=MagicMock(),
         local_backup_path="/tmp/backup",
     )
@@ -44,9 +42,9 @@ def backup_config() -> SaviiaBackupConfig:
 @patch("saviialib.services.backup.controllers.export_files.ExportFilesUseCase")
 @patch("saviialib.services.backup.controllers.export_files.DirectoryClient")
 @patch("saviialib.services.backup.controllers.export_files.FilesClient")
-@patch("saviialib.services.backup.controllers.export_files.SharepointClient")
+@patch("saviialib.services.backup.controllers.export_files.CloudClient")
 async def test_export_files_controller_should_return_success(
-    mock_sharepoint_client_class,
+    mock_cloud_client_class,
     mock_files_client_class,
     mock_directory_client_class,
     mock_use_case_class,
@@ -69,7 +67,7 @@ async def test_export_files_controller_should_return_success(
         ExportFilesControllerInput(
             config=backup_config,
             local_folder_path="thies-daily-files",
-            sharepoint_destination_path="Shared%20Documents/General/Test",
+            cloud_provider_destination_path="/Volumes/catalog/schema/volume",
         )
     )
     result = await controller.execute()
@@ -77,7 +75,7 @@ async def test_export_files_controller_should_return_success(
     assert result.status == 200
     assert result.message == "Folder files exported successfully."
     assert result.metadata["data"]["synced_files"] == ["a.txt"]
-    assert mock_sharepoint_client_class.called
+    assert mock_cloud_client_class.called
     assert mock_files_client_class.called
     assert mock_directory_client_class.called
 
@@ -87,9 +85,9 @@ async def test_export_files_controller_should_return_success(
 @patch("saviialib.services.backup.controllers.export_files.ExportFilesUseCase")
 @patch("saviialib.services.backup.controllers.export_files.DirectoryClient")
 @patch("saviialib.services.backup.controllers.export_files.FilesClient")
-@patch("saviialib.services.backup.controllers.export_files.SharepointClient")
+@patch("saviialib.services.backup.controllers.export_files.CloudClient")
 async def test_export_files_controller_should_handle_invalid_path(
-    mock_sharepoint_client_class,
+    mock_cloud_client_class,
     mock_files_client_class,
     mock_directory_client_class,
     mock_use_case_class,
@@ -106,7 +104,7 @@ async def test_export_files_controller_should_handle_invalid_path(
         ExportFilesControllerInput(
             config=backup_config,
             local_folder_path="thies-daily-files",
-            sharepoint_destination_path="Shared%20Documents/General/Test",
+            cloud_provider_destination_path="/Volumes/catalog/schema/volume",
         )
     )
     result = await controller.execute()
@@ -114,6 +112,6 @@ async def test_export_files_controller_should_handle_invalid_path(
     assert result.status == 400
     assert result.message == "Invalid local backup path or folder."
     assert "error" in result.metadata
-    assert mock_sharepoint_client_class.called
+    assert mock_cloud_client_class.called
     assert mock_files_client_class.called
     assert mock_directory_client_class.called

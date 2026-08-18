@@ -17,8 +17,8 @@ from saviialib.general_types.error_types.api.saviia_api_error_types import (
     BackupSourcePathError,
 )
 from saviialib.general_types.error_types.common import (
+    CloudClientError,
     FtpClientError,
-    SharepointClientError,
 )
 from saviialib.services.thies.controllers.get_thies_data import GetThiesDataController
 from saviialib.services.thies.controllers.types.get_thies_data_types import (
@@ -32,11 +32,9 @@ from saviialib.services.thies.use_cases.types.get_thies_data_types import (
 class TestGetThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.config = SaviiaThiesConfig(
-            sharepoint_client_id="valid_client_id",
-            sharepoint_client_secret="valid_client_secret",
-            sharepoint_site_name="valid_site_name",
-            sharepoint_tenant_id="valid_tenant_id",
-            sharepoint_tenant_name="valid_tenant_name",
+            cloud_client_name="databricks",
+            databricks_api_key="token",
+            databricks_host_url="https://workspace.azuredatabricks.net",
             local_backup_path="saviia-local-backup",
             logger=MagicMock(),
         )
@@ -44,6 +42,7 @@ class TestGetThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         self.ftp_port = 21
         self.ftp_user = "john_doe"
         self.ftp_password = "password"
+        self.cloud_provider_destination_path = "/Volumes/catalog/schema/volume"
 
     @patch("saviialib.services.thies.controllers.get_thies_data.GetThiesDataUseCase")
     async def test_should_return_all_success_messages(self, mock_use_case_class):
@@ -51,11 +50,11 @@ class TestGetThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
             (
                 True,
                 False,
-                "Backup needed but no new data to sync to Microsoft SharePoint.",
+                "Backup needed but no new data to sync to cloud provider.",
             ),
-            (False, True, "New data should be synced to Microsoft SharePoint."),
-            (True, True, "New data synced to SharePoint and backup needed."),
-            (False, False, "No new data to sync to Microsoft SharePoint."),
+            (False, True, "New data should be synced to cloud provider."),
+            (True, True, "New data synced to cloud provider and backup needed."),
+            (False, False, "No new data to sync to cloud provider."),
         ]
 
         for need_to_backup, need_to_sync, expected_message in scenarios:
@@ -76,6 +75,7 @@ class TestGetThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
                         self.ftp_port,
                         self.ftp_user,
                         self.ftp_password,
+                        self.cloud_provider_destination_path,
                     )
                 )
                 result = await controller.execute()
@@ -92,12 +92,12 @@ class TestGetThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
             ),
             (
                 FtpClientError("ftp"),
-                "An error occurred while initializing FTP or SharePoint client.",
+                "An error occurred while initializing FTP or cloud provider client.",
                 500,
             ),
             (
-                SharepointClientError("sharepoint"),
-                "An error occurred while initializing FTP or SharePoint client.",
+                CloudClientError("cloud"),
+                "An error occurred while initializing FTP or cloud provider client.",
                 500,
             ),
             (
@@ -118,6 +118,7 @@ class TestGetThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
                         self.ftp_port,
                         self.ftp_user,
                         self.ftp_password,
+                        self.cloud_provider_destination_path,
                     )
                 )
                 result = await controller.execute()
@@ -133,6 +134,7 @@ class TestGetThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
                 "21",
                 self.ftp_user,
                 self.ftp_password,
+                self.cloud_provider_destination_path,
             )
         )
 

@@ -33,13 +33,12 @@ class TestGetThiesDataUseCaseExecute(unittest.IsolatedAsyncioTestCase):
         self._ensure_local_backup_structure()
         self.ftp_client = MagicMock()
         self.ftp_client.list_files = AsyncMock()
-        self.sharepoint_client = MagicMock()
-        self.sharepoint_client.site_name = "site_name_123"
-        self.sharepoint_client.__aenter__ = AsyncMock(
-            return_value=self.sharepoint_client
+        self.cloud_client = MagicMock()
+        self.cloud_client.__aenter__ = AsyncMock(
+            return_value=self.cloud_client
         )
-        self.sharepoint_client.__aexit__ = AsyncMock(return_value=None)
-        self.sharepoint_client.list_files = AsyncMock()
+        self.cloud_client.__aexit__ = AsyncMock(return_value=None)
+        self.cloud_client.list_files = AsyncMock()
         self.files_client = MagicMock()
         self.directory_client = MagicMock()
         self.directory_client.join_paths.side_effect = lambda *paths: os.path.join(
@@ -52,11 +51,12 @@ class TestGetThiesDataUseCaseExecute(unittest.IsolatedAsyncioTestCase):
         self.use_case = GetThiesDataUseCase(
             GetThiesDataUseCaseInput(
                 ftp_client=self.ftp_client,
-                sharepoint_client=self.sharepoint_client,
+                cloud_client=self.cloud_client,
                 files_client=self.files_client,
                 directory_client=self.directory_client,
                 local_backup_path=self.local_backup_path,
-                sharepoint_destination_path="/sites/site_name_123/Shared%20Documents/General/Test_Raspberry/saviia-local-backup",
+                cloud_provider_destination_path="/Volumes/catalog/schema/volume",
+                logger=MagicMock(),
             )
         )
 
@@ -73,11 +73,12 @@ class TestGetThiesDataUseCaseExecute(unittest.IsolatedAsyncioTestCase):
         return GetThiesDataUseCase(
             GetThiesDataUseCaseInput(
                 ftp_client=self.ftp_client,
-                sharepoint_client=self.sharepoint_client,
+                cloud_client=self.cloud_client,
                 files_client=self.files_client,
                 directory_client=self.directory_client,
                 local_backup_path=self.local_backup_path,
-                sharepoint_destination_path="/sites/site_name_123/Shared%20Documents/General/Test_Raspberry/saviia-local-backup",
+                cloud_provider_destination_path="/Volumes/catalog/schema/volume",
+                logger=MagicMock(),
             )
         )
 
@@ -152,10 +153,12 @@ class TestGetThiesDataUseCaseExecute(unittest.IsolatedAsyncioTestCase):
     async def test_should_fetch_cloud_files_successfully(self):
         async def list_files(args):
             if args.folder_relative_url.endswith("/AVG"):
-                return {"value": [{"Name": "avg.bin", "Length": "10"}]}
-            return {"value": [{"Name": "ext.bin", "Length": "20"}]}
+                return [
+                    {"name": "avg.bin", "file_size": 10, "is_directory": False}
+                ]
+            return [{"name": "ext.bin", "file_size": 20, "is_directory": False}]
 
-        self.sharepoint_client.list_files = AsyncMock(side_effect=list_files)
+        self.cloud_client.list_files = AsyncMock(side_effect=list_files)
 
         cloud_files = await self.use_case._fetch_cloud_total_files()
 
@@ -173,7 +176,7 @@ class TestGetThiesDataUseCaseExecute(unittest.IsolatedAsyncioTestCase):
             return_value={("AVG_local.bin", 100), ("EXT_remote.bin", 200)}
         )
         self.use_case._fetch_cloud_total_files = AsyncMock(
-            side_effect=RuntimeError("sharepoint down")
+            side_effect=RuntimeError("cloud provider down")
         )
 
         result = await self.use_case.execute()

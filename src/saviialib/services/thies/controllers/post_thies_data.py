@@ -101,7 +101,20 @@ class PostThiesDataController:
 
     async def execute(self) -> PostThiesDataControllerOutput:
         self.logger.method_name = "execute"
-        self.logger.debug(DebugArgs(status=LogStatus.STARTED))
+        self.logger.debug(
+            DebugArgs(
+                status=LogStatus.STARTED,
+                metadata={
+                    "msg": (
+                        f"backup={self.input.need_to_backup}, "
+                        f"sync={self.input.need_to_sync}, "
+                        f"local='{self.input.local_backup_source_path}', "
+                        f"cloud='{self.input.cloud_provider_destination_path}', "
+                        f"ftp_folders={len(self.input.ftp_server_folders_path)}"
+                    )
+                },
+            )
+        )
         try:
             SchemaValidatorClient(schema=POST_THIES_DATA_SCHEMA).validate(
                 {
@@ -179,7 +192,7 @@ class PostThiesDataController:
                 ErrorArgs(status=LogStatus.ERROR, metadata={"msg": error.__str__()})
             )
             return PostThiesDataControllerOutput(
-                message="Sharepoint Client initialization fails.",
+                message="Cloud provider client initialization fails.",
                 status=HTTPStatus.INTERNAL_SERVER_ERROR.value,
                 metadata={"error": error.__str__()},
             )

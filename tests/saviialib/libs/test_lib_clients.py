@@ -3,8 +3,8 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from saviialib.general_types.api.saviia_api_types import (
+    DatabricksConfig,
     FtpClientConfig,
-    SharepointConfig,
 )
 from saviialib.libs.directory_client import DirectoryClient, DirectoryClientArgs
 from saviialib.libs.email_client import EmailClient, EmailClientInitArgs, SendEmailArgs
@@ -45,12 +45,12 @@ from saviialib.libs.sftp_client import (
     SFTPClientInitArgs,
 )
 from saviialib.libs.cloud_client import (
-    SharepointClient,
-    SharepointClientInitArgs,
-    SpCreateFolderArgs,
-    SpListFilesArgs,
-    SpListFoldersArgs,
-    SpUploadFileArgs,
+    CloudClient,
+    CloudClientCreateFolderArgs,
+    CloudClientInitArgs,
+    CloudClientListFilesArgs,
+    CloudClientListFoldersArgs,
+    CloudClientUploadFileArgs,
 )
 from saviialib.libs.weather_client import (
     ForecastArgs,
@@ -67,13 +67,10 @@ def _ftp_config() -> FtpClientConfig:
     )
 
 
-def _sharepoint_config() -> SharepointConfig:
-    return SharepointConfig(
-        sharepoint_client_id="cid",
-        sharepoint_client_secret="sec",
-        sharepoint_tenant_id="tid",
-        sharepoint_tenant_name="tenant",
-        sharepoint_site_name="site",
+def _databricks_config() -> DatabricksConfig:
+    return DatabricksConfig(
+        databricks_api_key="token",
+        databricks_host_url="https://workspace.azuredatabricks.net",
     )
 
 
@@ -132,13 +129,13 @@ def _sharepoint_config() -> SharepointConfig:
             "discord_client",
         ),
         (
-            "saviialib.libs.sharepoint_client.sharepoint_client",
-            SharepointClient,
-            SharepointClientInitArgs(
-                config=_sharepoint_config(), client_name="sharepoint_rest_api"
+            "saviialib.libs.cloud_client.cloud_client",
+            CloudClient,
+            CloudClientInitArgs(
+                config=_databricks_config(), client_name="databricks"
             ),
-            "SharepointRestAPI",
-            "sharepoint_rest_api",
+            "DatabricksClient",
+            "databricks",
         ),
         (
             "saviialib.libs.weather_client.weather_client",
@@ -190,10 +187,8 @@ def test_should_initialize_supported_clients(
             ),
         ),
         (
-            SharepointClient,
-            SharepointClientInitArgs(
-                config=_sharepoint_config(), client_name="invalid"
-            ),
+            CloudClient,
+            CloudClientInitArgs(config=_databricks_config(), client_name="invalid"),
         ),
         (
             WeatherClient,
@@ -338,50 +333,48 @@ async def test_should_delegate_notification_client_calls(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_should_delegate_sharepoint_client_calls(monkeypatch):
+async def test_should_delegate_cloud_client_calls(monkeypatch):
     module = __import__(
-        "saviialib.libs.sharepoint_client.sharepoint_client",
-        fromlist=["SharepointRestAPI"],
+        "saviialib.libs.cloud_client.cloud_client",
+        fromlist=["DatabricksClient"],
     )
     fake = MagicMock(
         __aenter__=AsyncMock(return_value="ctx"),
         __aexit__=AsyncMock(return_value=None),
-        list_files=AsyncMock(return_value={"value": []}),
-        list_folders=AsyncMock(return_value={"value": []}),
+        list_files=AsyncMock(return_value=[]),
+        list_folders=AsyncMock(return_value=[]),
         upload_file=AsyncMock(return_value={"ok": True}),
         create_folder=AsyncMock(return_value={"ok": True}),
-        tenant_id="tid",
-        tenant_name="tenant",
-        site_name="site",
-        client_id="cid",
-        client_secret="sec",
+        api_key="token",
+        host_url="https://workspace.azuredatabricks.net",
+        base_url="https://workspace.azuredatabricks.net",
     )
-    monkeypatch.setattr(module, "SharepointRestAPI", lambda *_: fake)
-    client = SharepointClient(
-        SharepointClientInitArgs(
-            config=_sharepoint_config(), client_name="sharepoint_rest_api"
-        )
+    monkeypatch.setattr(module, "DatabricksClient", lambda *_: fake)
+    client = CloudClient(
+        CloudClientInitArgs(config=_databricks_config(), client_name="databricks")
     )
 
-    assert client.tenant_id == "tid"
-    assert client.tenant_name == "tenant"
-    assert client.site_name == "site"
-    assert client.client_id == "cid"
-    assert client.client_secret == "sec"
+    assert client.api_key == "token"
+    assert client.host_url == "https://workspace.azuredatabricks.net"
+    assert client.base_url == "https://workspace.azuredatabricks.net"
     assert await client.__aenter__() == "ctx"
     await client.__aexit__(None, None, None)
-    assert await client.list_files(SpListFilesArgs(folder_relative_url="/x")) == {
-        "value": []
-    }
-    assert await client.list_folders(SpListFoldersArgs(folder_relative_url="/x")) == {
-        "value": []
-    }
+    assert await client.list_files(
+        CloudClientListFilesArgs(folder_relative_url="/Volumes/x")
+    ) == []
+    assert await client.list_folders(
+        CloudClientListFoldersArgs(folder_relative_url="/Volumes/x")
+    ) == []
     assert await client.upload_file(
-        SpUploadFileArgs(folder_relative_url="/x", file_name="a", file_content=b"x")
+        CloudClientUploadFileArgs(
+            folder_relative_url="/Volumes/x",
+            file_name="a",
+            file_content=b"x",
+        )
     ) == {"ok": True}
-    assert await client.create_folder(SpCreateFolderArgs(folder_relative_url="/x")) == {
-        "ok": True
-    }
+    assert await client.create_folder(
+        CloudClientCreateFolderArgs(folder_relative_url="/Volumes/x")
+    ) == {"ok": True}
 
 
 @pytest.mark.asyncio

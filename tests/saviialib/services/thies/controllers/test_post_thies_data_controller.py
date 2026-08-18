@@ -15,16 +15,16 @@ if "numpy" not in sys.modules:
 from saviialib.general_types.api.saviia_thies_api_types import SaviiaThiesConfig
 from saviialib.general_types.error_types.api.saviia_api_error_types import (
     BackupSourcePathError,
-    SharePointDirectoryError,
-    SharePointFetchingError,
-    SharePointUploadError,
+    CloudClientDirectoryError,
+    CloudClientFetchingError,
+    CloudClientUploadError,
     ThiesConnectionError,
     ThiesFetchingError,
 )
 from saviialib.general_types.error_types.common import (
+    CloudClientError,
     EmptyDataError,
     FtpClientError,
-    SharepointClientError,
 )
 from saviialib.services.thies.controllers.post_thies_data import PostThiesDataController
 from saviialib.services.thies.controllers.types.post_thies_data_types import (
@@ -35,11 +35,9 @@ from saviialib.services.thies.controllers.types.post_thies_data_types import (
 class TestPostThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.config = SaviiaThiesConfig(
-            sharepoint_client_id="valid_client_id",
-            sharepoint_client_secret="valid_client_secret",
-            sharepoint_site_name="valid_site_name",
-            sharepoint_tenant_id="valid_tenant_id",
-            sharepoint_tenant_name="valid_tenant_name",
+            cloud_client_name="databricks",
+            databricks_api_key="token",
+            databricks_host_url="https://workspace.azuredatabricks.net",
             local_backup_path="saviia-local-backup",
             logger=MagicMock(),
         )
@@ -47,7 +45,7 @@ class TestPostThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
         self.ftp_port = 21
         self.ftp_user = "john_doe"
         self.ftp_password = "password"
-        self.sharepoint_destination_path = "Shared%20Documents/General/Test_Raspberry"
+        self.cloud_provider_destination_path = "/Volumes/catalog/schema/volume"
         self.ftp_server_folders_path = [
             "ftp/thies/BINFILES/ARCH_AV1",
             "ftp/thies/BINFILES/ARCH_EX1",
@@ -78,7 +76,7 @@ class TestPostThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
                         self.ftp_password,
                         need_to_sync,
                         need_to_backup,
-                        self.sharepoint_destination_path,
+                        self.cloud_provider_destination_path,
                         self.ftp_server_folders_path,
                         self.local_backup_source_path,
                     )
@@ -98,25 +96,25 @@ class TestPostThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
             ),
             (FtpClientError("ftp"), "Ftp Client initialization fails.", 400),
             (
-                SharepointClientError("sharepoint"),
-                "Sharepoint Client initialization fails.",
+                CloudClientError("cloud"),
+                "Cloud provider client initialization fails.",
                 500,
             ),
             (
-                SharePointFetchingError(
+                CloudClientFetchingError(
                     reason=Exception('fetch,{"error_description": "fetch"}')
                 ),
-                "An error occurred while retrieving file names from Microsoft SharePoint",
+                "An error occurred while retrieving file names from SAVIIA Cloud provider",
                 400,
             ),
             (
-                SharePointUploadError(reason="upload"),
+                CloudClientUploadError(reason="upload"),
                 "An error ocurred while uploading files to RCER Cloud",
                 400,
             ),
             (
-                SharePointDirectoryError(reason="dir"),
-                "An error ocurred while extracting folders from Microsoft Sharepoint",
+                CloudClientDirectoryError(reason="dir"),
+                "An error ocurred while extracting folders from SAVIIA Cloud provider",
                 400,
             ),
             (
@@ -149,7 +147,7 @@ class TestPostThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
                         self.ftp_password,
                         True,
                         True,
-                        self.sharepoint_destination_path,
+                        self.cloud_provider_destination_path,
                         self.ftp_server_folders_path,
                         self.local_backup_source_path,
                     )
@@ -170,7 +168,7 @@ class TestPostThiesDataControllerExecute(unittest.IsolatedAsyncioTestCase):
                 self.ftp_password,
                 "yes",
                 True,
-                self.sharepoint_destination_path,
+                self.cloud_provider_destination_path,
                 self.ftp_server_folders_path,
                 self.local_backup_source_path,
             )

@@ -1,5 +1,6 @@
 import os
 import sys
 
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-sys.path.insert(0, parent_dir)
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+source_dir = os.path.join(project_root, "src")
+sys.path.insert(0, source_dir)

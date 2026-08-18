@@ -16,8 +16,8 @@ from saviialib.libs.log_client import (
     LogClientArgs,
     LogStatus,
     DebugArgs,
+    ErrorArgs,
 )
-
 
 
 class SaviiaThiesAPI:
@@ -62,7 +62,6 @@ class SaviiaThiesAPI:
         )
         response = await controller.execute()
         return response.__dict__
-
 
     async def post_thies_data(
         self,
@@ -116,12 +115,29 @@ class SaviiaThiesAPI:
             )
         )
         response = await controller.execute()
-        self.logger.debug(
-            DebugArgs(
-                status=LogStatus.SUCCESSFUL,
-                metadata={"msg": f"status={response.status}"},
+        if 200 <= response.status < 300:
+            status = (
+                LogStatus.EARLY_RETURN
+                if response.status == 204
+                else LogStatus.SUCCESSFUL
             )
-        )
+            self.logger.debug(
+                DebugArgs(
+                    status=status,
+                    metadata={
+                        "msg": f"status={response.status}, message='{response.message}'"
+                    },
+                )
+            )
+        else:
+            self.logger.error(
+                ErrorArgs(
+                    status=LogStatus.ERROR,
+                    metadata={
+                        "msg": f"status={response.status}, message='{response.message}'"
+                    },
+                )
+            )
         return response.__dict__
 
     async def detect_failures(
