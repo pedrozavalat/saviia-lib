@@ -74,8 +74,16 @@ class PostThiesDataUseCase:
         self.os_client = input.directory_client
         self.files_client = input.files_client
 
-    def _sharepoint_thies_base_path(self) -> str:
-        return f"{self.cloud_provider_destination_path}/{PostThiesDataUseCase.BASE_FOLDER_NAME}"
+    def _cloud_provider_thies_base_path(self) -> str:
+        backup_root = self.os_client.get_basename(self.local_backup_path.rstrip("/"))
+
+        return "/".join(
+            [
+                self.cloud_provider_destination_path.rstrip("/"),
+                backup_root,
+                PostThiesDataUseCase.BASE_FOLDER_NAME,
+            ]
+        )
 
     @staticmethod
     def _extract_local_entry(entry) -> tuple[str, int | None]:
@@ -92,16 +100,16 @@ class PostThiesDataUseCase:
             raise CloudClientError("Cloud Client was not initialized.")
 
         async with self.cloud_client:
-            sharepoint_thies_path = self._sharepoint_thies_base_path()
+            cloud_provider_thies_path = self._cloud_provider_thies_base_path()
             await self.cloud_client.create_folder(
                 CloudClientCreateFolderArgs(
-                    folder_relative_url=sharepoint_thies_path,
+                    folder_relative_url=cloud_provider_thies_path,
                 )
             )
             for folder_name in {"AVG", "EXT"}:
                 await self.cloud_client.create_folder(
                     CloudClientCreateFolderArgs(
-                        folder_relative_url=f"{sharepoint_thies_path}/{folder_name}",
+                        folder_relative_url=f"{cloud_provider_thies_path}/{folder_name}",
                     )
                 )
         self.log_client.debug(DebugArgs(status=LogStatus.SUCCESSFUL))
@@ -116,19 +124,19 @@ class PostThiesDataUseCase:
         try:
             cloud_files: Set[Tuple[str, int]] = set()
             async with self.cloud_client:
-                sharepoint_thies_path = self._sharepoint_thies_base_path()
+                cloud_provider_thies_path = self._cloud_provider_thies_base_path()
                 for folder_name in {"AVG", "EXT"}:
-                    if sharepoint_thies_path.startswith(self.cloud_client.base_url):
-                        relative_url = f"{sharepoint_thies_path}/{folder_name}"
-                    else:
-                        relative_url = f"{self.cloud_client.base_url}/{sharepoint_thies_path}/{folder_name}"
+                    relative_url = f"{cloud_provider_thies_path}/{folder_name}"
+
                     args = CloudClientListFilesArgs(folder_relative_url=relative_url)
                     response = await self.cloud_client.list_files(args)
+                    entries = [
+                        (item["name"], int(item.get("file_size", 0)))
+                        for item in response
+                        if not item.get("is_directory", False)
+                    ]
                     cloud_files.update(
-                        {
-                            (f"{folder_name}_{item['Name']}", int(item["Length"]))
-                            for item in response["value"]  # type: ignore
-                        }  # type: ignore
+                        (f"{folder_name}_{name}", size) for name, size in entries
                     )
             self.log_client.debug(
                 DebugArgs(
@@ -270,10 +278,10 @@ class PostThiesDataUseCase:
             )
             raise ThiesFetchingError(reason=error)
 
-    async def upload_thies_files_to_sharepoint(
+    async def upload_thies_files_to_cloud(
         self, files: Dict[str, bytes]
     ) -> Dict[str, List[str]]:
-        self.log_client.method_name = "upload_thies_files_to_sharepoint"
+        self.log_client.method_name = "upload_thies_files_to_cloud"
         self.log_client.debug(DebugArgs(status=LogStatus.STARTED))
         if self.cloud_client is None:
             raise CloudClientError("SAVIIA Cloud client provider was not initialized.")
@@ -281,23 +289,20 @@ class PostThiesDataUseCase:
         upload_results = {"failed_files": [], "new_files": []}
 
         async with self.cloud_client:
-            sharepoint_thies_path = self._sharepoint_thies_base_path()
+            sharepoint_thies_path = self._cloud_provider_thies_base_path()
             for file, file_content in files.items():
                 try:
                     origin, file_name = file.split("_", 1)
                     folder_path = f"{sharepoint_thies_path}/{origin}"
                     # Avoid duplicating the site prefix: if folder_path already
                     # contains the site base, use it directly; otherwise prefix it.
-                    if folder_path.startswith(self.cloud_client.base_url):
-                        relative_url = folder_path
-                    else:
-                        relative_url = f"{self.cloud_client.base_url}/{folder_path}"
-                    # Log the resolved SharePoint relative URL for diagnostics
+                    relative_url = folder_path
+                    # Log the resolved SAVIIA Cloud Provider  relative URL for diagnostics
                     self.log_client.debug(
                         DebugArgs(
                             status=LogStatus.STARTED,
                             metadata={
-                                "msg": f"Resolved SharePoint URL: {relative_url}"
+                                "msg": f"Resolved SAVIIA Cloud provider URL: {relative_url}"
                             },
                         )
                     )
@@ -568,7 +573,7 @@ class PostThiesDataUseCase:
             self.uploading = await self._sync_pending_files(local_files, cloud_files)
             if self.uploading:
                 local_backup_files = await self.fetch_local_backup_file_content()
-                upload_statistics = await self.upload_thies_files_to_sharepoint(
+                upload_statistics = await self.upload_thies_files_to_cloud(
                     local_backup_files
                 )
                 result["sync"] = parse_execute_response(

@@ -51,8 +51,12 @@ class GetThiesDataUseCase:
 
         self.local_backup_path = input.local_backup_path
         self.cloud_provider_destination_path = input.cloud_provider_destination_path
-        self.cloud_client_base_url = self.cloud_client.resolve_url(
-            CloudClientResolveUrlArgs(folder_path=self.cloud_provider_destination_path)
+        self.cloud_base_path = "/".join(
+            [
+                self.cloud_provider_destination_path.rstrip("/"),
+                self.local_backup_path,
+                "thies",
+            ]
         )
         self.sync_error = False
         self.uploading = set()
@@ -118,23 +122,26 @@ class GetThiesDataUseCase:
             raise BackupSourcePathError(
                 reason="Cloud provider destination path is not configured"
             )
-        cloud_base_url = self.dir_client.join_paths(
-            self.cloud_provider_destination_path, "thies"
-        )
         async with self.cloud_client:
             for folder_name in {"AVG", "EXT"}:
-                if cloud_base_url.startswith(self.cloud_client_base_url):
-                    relative_url = f"{cloud_base_url}/{folder_name}"
-                else:
-                    relative_url = (
-                        f"{self.cloud_client_base_url}/{cloud_base_url}/{folder_name}"
+                destination_folder_path = f"{self.cloud_base_path}/{folder_name}"
+                relative_url = self.cloud_client.resolve_url(
+                    CloudClientResolveUrlArgs(
+                        folder_path=destination_folder_path
                     )
-                args = CloudClientListFilesArgs(folder_relative_url=relative_url)
-                response = await self.cloud_client.list_files(args)
+                )
+                response = await self.cloud_client.list_files(
+                    CloudClientListFilesArgs(folder_relative_url=relative_url)
+                )
+                entries = [
+                    (item["name"], int(item.get("file_size", 0)))
+                    for item in response
+                    if not item.get("is_directory", False)
+                ]
                 cloud_files.update(
                     {
-                        (f"{folder_name}_{item['Name']}", int(item["Length"]))
-                        for item in response["value"]  # type: ignore
+                        (f"{folder_name}_{item[0]}", item[1])
+                        for item in entries
                     }  # type: ignore
                 )
         return cloud_files

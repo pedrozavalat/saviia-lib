@@ -74,7 +74,6 @@ class SaviiaThiesAPI:
         need_to_backup: bool,
         cloud_provider_destination_path: str,
         ftp_server_folders_path: List[str],
-        local_backup_source_path: str,
     ) -> Dict[str, Any]:
         """Execute THIES backup and/or synchronisation using a precomputed status.
 
@@ -113,7 +112,7 @@ class SaviiaThiesAPI:
                 need_to_backup,
                 cloud_provider_destination_path,
                 ftp_server_folders_path,
-                local_backup_source_path,
+                self.config.local_backup_path,
             )
         )
         response = await controller.execute()
